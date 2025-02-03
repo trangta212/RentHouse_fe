@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button, Form, Input } from 'antd';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { Link } from 'react-router-dom';
 
 function Login() {
     const [form] = Form.useForm();
@@ -65,7 +66,10 @@ function Login() {
                     </Form.Item>
                     {/* Sign up link */}
                     <Form.Item>
-                        Don't have an account? <a href="/signup"  style={{ color: '#3D9C38' }}>Sign up to free!</a>
+                         <p>
+                            Don't have an account? 
+                            <Link to="/sign-up" style={{ color: '#3D9C38' }}>Sign up to free!</Link>
+                        </p>
                     </Form.Item>
                 </Form>
             </div>
