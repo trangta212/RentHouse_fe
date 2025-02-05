@@ -1,0 +1,37 @@
+.header{
+    background-color: #E8F5E9;
+    height: 60px;   
+    display: flex;
+}
+.logo-Header{
+    height:30px;
+    margin-left: 30px;
+    margin-top:15px;
+}
+.BoxHeader{
+    margin-left : 10px;
+    color:black;
+    margin-top:10px;
+}
+.signup-header{
+    width:120px;
+    background-color:#E8F5E9;
+     font-Family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+.login-header{
+    width:120px;
+    color:black;
+}
+.push{
+    width:120px;
+    color:black;
+    margin-right:10px;
+    gap:30px;
+}
+.headerButton {
+    display: flex;
+    position: absolute;
+    margin-top: 15px;
+    right: 0; /* Đẩy các button sang bên phải */
+    gap: 10px; /* Thêm khoảng cách giữa các button */
+  }
