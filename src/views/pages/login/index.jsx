@@ -48,9 +48,7 @@ function Login() {
 
                     {/* Forgot password */}
                     <Form.Item>
-                    <a href="https://example.com" target="_blank" rel="noopener noreferrer" className = "forgot-password">
-                        Forgot the password?
-                    </a>
+                    <Link to="/sign-up" className="forgotpassword" >Forgot the password?</Link>
                     </Form.Item>
                     {/* Submit button */}
                     <Form.Item>
@@ -60,7 +58,7 @@ function Login() {
                     {/* Social sign-in */}
                     <Form.Item>
                         <Button className="social-button" >
-                            <FontAwesomeIcon icon={faGoogle} />
+                            <FontAwesomeIcon icon={faGoogle} className="icongg"/>
                             Sign in with Google
                         </Button>
                     </Form.Item>
