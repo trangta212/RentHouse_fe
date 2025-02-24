@@ -22,7 +22,7 @@ const LandingPage = () => {
     onClick: handleMenuClick,
   };
   return (
-      <div>
+    <div className="landingPage">
       <header>
         <div>
           <img
@@ -50,7 +50,7 @@ const LandingPage = () => {
       </header>
       <main>
         <div className="rightLand">
-          <h1>
+          <h1 className="titleLand">
             Find House With <br />
             <span>Rent Space</span>
           </h1>

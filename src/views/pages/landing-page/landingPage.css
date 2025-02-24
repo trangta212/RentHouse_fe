@@ -80,14 +80,14 @@ main {
   align-items: center;
 }
 
-.rightLand h1 {
+.titleLand {
   font-size: 64px;
   font-weight: bold;
   color: black;
   font-family: "Agbalumo", sans-serif;
 }
 
-.rightLand h1 span {
+.titleLand span {
   color: #16a34a;
   font-family: "Agbalumo", sans-serif;
 }
@@ -134,7 +134,12 @@ main {
 .ant-btn {
   background-color: #4caf4f; /* Màu vàng */
   border: none; /* Không có viền */
-}
+  }
 body{
   height: 100vh;
+}
+
+.landingPage {
+  height: 100vh;
+  overflow: hidden;
 }

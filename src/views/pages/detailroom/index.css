@@ -1,0 +1,72 @@
+.detail-room{
+    display: flex;
+    margin-top:5%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.detail-room-images{
+    width: 50%;
+}
+.detail-room-info{
+    width: 50%;
+    margin-left: 5%;
+}
+.detail-room-title{
+    font-size: 21px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.detail-room-price-per-month{
+    font-size: 18px;
+    font-weight: 600;
+    color:red;
+    margin-top:0.1rem;
+}
+.detail-room-{
+    font-size: 18px;
+    font-weight: 600;
+    margin-top:0.1rem;
+}
+.detail-room-description{
+    margin-top:1%;
+    margin-left: 5%;
+    margin-right: 5%;
+
+}
+.detail-room-description-title{
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    margin-top:2vh;
+}
+
+.detail-room-description-information{
+    font-size: 17px;
+    margin-top:0.1rem;
+    color:black;
+}
+
+.detail-room-interior{
+    margin-top:1%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.detail-room-interior-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .detail-room-interior-list-display-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  .reading-more span{
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+  }
+  .reading-more{
+    padding:20px;
+  }
