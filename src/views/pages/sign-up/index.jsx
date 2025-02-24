@@ -14,96 +14,108 @@ function SignUp() {
     password: "",
     confirmPassword: "",
   });
-  const [mailError, setMailError] = useState('');
   const [pass1Error, setPass1Error] = useState('');
   const [pass2Error, setPass2Error] = useState('');
-
-  const validateEmail = (email) => {
-    // Sử dụng biểu thức chính quy để kiểm tra định dạng email
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
+      
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setValues({ ...values, email });
   };
-  const handleMailChange = (e) => {
-      const email = e.target.value;
-      setValues({...values, email});
-      if (!validateEmail(email)) {
-        setMailError('Invalid email');
-      } else {
-        setMailError('');
-      }
-    };
+
     const handlePassWordChange = (e) => {
       const password = e.target.value;
-      setValues({ ...values,  password }); // Cập nhật trường password1
-  
-      const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,20}$/;
-      if (!passwordRequirements.test(values.password1)) {
-          setPass1Error('The password must contain at least one uppercase letter, one number, and one special character, and be between 6 and 20 characters long!');
-          return;
-      } else {
-        setPass1Error(''); // Xóa thông báo lỗi nếu giống nhau
-      } 
+      setValues({ ...values,  password }); 
     };
+
   const handleConfirmPasswordChange = (e) => {
     const confirmPassword = e.target.value;
-    setValues({ ...values,  confirmPassword }); // Cập nhật trường password2
+    setValues({ ...values,  confirmPassword }); 
     };
+
   const handleNameChange = (e) => {
       const lastname = e.target.value;
-      setValues({ ...values, lastname }); // Cập nhật trường password2
+      setValues({ ...values, lastname });
       };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn chặn hành vi mặc định của form
-    if (values.password.length === 0) {
-      setPass1Error('Please enter your password!'); // Thông báo lỗi nếu không nhập
-      return;
-    }   
-    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,20}$/;
-    if (!passwordRequirements.test(values.password)) {
-        setPass1Error('Passwords must contain at least 1 uppercase letter, 1 number, and 1 special character, and be between 6 and 20 characters!');
-        return;
-    } else {
-      setPass1Error(''); // Xóa thông báo lỗi nếu giống nhau
-    } 
-
-    // Kiểm tra xem password1 và password2 có giống nhau không
-    if (values.confirmPassword !== values.password) {
-      setPass2Error('The password you reentered is incorrect'); // Thiết lập thông báo lỗi
-      return;
-    } else {
-        setPass2Error(''); // Xóa thông báo lỗi nếu giống nhau
-    }
-
-    try {
-      console.log(values.email);
-      const response = await axios.post("http://localhost:8000/api/auth/register", {
-        email: values.email,
-        password: values.password,
-        lastName: values.lastname,
-        role: "user",
-      });
-
-      // Xử lý khi đăng nhập thành công
-    if (response.status === 200) {
-      toast.success(response.data.message);
-      sessionStorage.setItem("authToken", response.data.token);
-      //Xử lý token
-      const parts = response.data.token.split('.'); // Tách token thành 3 phần
-      const payload = parts[1];
-      const decodedPayload = JSON.parse(atob(payload)); // Giải mã Base64
+      const handleSubmit = async (e) => {
+        e.preventDefault(); // Ngăn chặn hành vi mặc định của form
       
-      sessionStorage.setItem("auth", JSON.stringify(decodedPayload));
-      setTimeout(() => {
-        navigate("/home");
-      }, 3000);
-    }
-  } catch (error) {
-    // Xử lý lỗi từ server
-    console.log(error.response.data.error);
-    toast.error(error.response.data.error)
-  }
-  };
+        // Reset lỗi trước khi kiểm tra
+        setPass1Error('');
+        setPass2Error('');
+      
+        // Kiểm tra các điều kiện hợp lệ
+        if (!values.email) {
+          toast.error("Vui lòng nhập email!");
+          return;
+        }
+      
+        if (!values.lastname) {
+          toast.error("Vui lòng nhập họ và tên!");
+          return;
+        }
+      
+        if (!values.password) {
+          setPass1Error("Vui lòng nhập mật khẩu!");
+          toast.error("Vui lòng nhập mật khẩu!");
+          return;
+        }
+      
+        if (values.password.length < 6) {
+          setPass1Error("Mật khẩu phải có ít nhất 6 ký tự!");
+          toast.error("Mật khẩu phải có ít nhất 6 ký tự!");
+          return;
+        }
+      
+        if (!/(?=.*[A-Z])(?=.*[0-9])/.test(values.password)) {
+          setPass1Error("Mật khẩu phải chứa ít nhất một chữ hoa và một số!");
+          toast.error("Mật khẩu phải chứa ít nhất một chữ hoa và một số!");
+          return;
+        }
+      
+        if (!values.confirmPassword) {
+          setPass2Error("Vui lòng xác nhận mật khẩu!");
+          toast.error("Vui lòng xác nhận mật khẩu!");
+          return;
+        }
+      
+        if (values.password !== values.confirmPassword) {
+          setPass2Error("Mật khẩu xác nhận không khớp!");
+          toast.error("Mật khẩu xác nhận không khớp!");
+          return;
+        }
+      
+        try {
+          console.log(values.email);
+          const response = await axios.post("http://localhost:8000/api/auth/register", {
+            email: values.email,
+            password: values.password,
+            lastName: values.lastname,
+            role: "user",
+          });
+      
+          // Xử lý khi đăng ký thành công
+          if (response.status === 200) {
+            toast.success(response.data.message);
+            sessionStorage.setItem("authToken", response.data.token);
+      
+            // Xử lý token
+            const parts = response.data.token.split('.'); // Tách token thành 3 phần
+            const payload = parts[1];
+            const decodedPayload = JSON.parse(atob(payload)); // Giải mã Base64
+            sessionStorage.setItem("auth", JSON.stringify(decodedPayload));
+      
+            setTimeout(() => {
+              navigate("/home");
+            }, 3000);
+          }
+        } catch (error) {
+          // Xử lý lỗi từ server
+          console.log(error.response?.data?.error);
+          toast.error(error.response?.data?.error || "Đã có lỗi xảy ra, vui lòng thử lại!");
+        }
+      };
+      
 
   const [form] = Form.useForm();
   const [formLayout, setFormLayout] = useState("horizontal");
@@ -164,7 +176,13 @@ function SignUp() {
       ]}
       validateTrigger="onBlur" // Kiểm tra khi rời khỏi ô nhập
     >
-      <Input placeholder="Enter your email" />
+      <Input 
+      placeholder="Enter your email"
+      name ="email"
+      value={values.email}
+      onChange={handleEmailChange}
+
+       />
     </Form.Item>
           </div>
 
@@ -184,33 +202,61 @@ function SignUp() {
           {/* Password */}
           <div className="input-group">
             <h4 className="form-input">Password</h4>
-            <Form.Item>
-              <Input
-                placeholder="Create your password"
-                name="password"
-                value={values.password}
-                onChange={handlePassWordChange}
-              />
-            </Form.Item>
+            <Form.Item
+  name="password"
+  rules={[
+    { required: true, message: "Vui lòng nhập mật khẩu!" },
+    { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+    {
+      validator: (_, value) => {
+        if (!value) return Promise.resolve();
+        if (!/(?=.*[A-Z])/.test(value)) {
+          return Promise.reject(new Error("Mật khẩu phải chứa ít nhất một chữ hoa!"));
+        }
+        if (!/(?=.*[0-9])/.test(value)) {
+          return Promise.reject(new Error("Mật khẩu phải chứa ít nhất một số!"));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
+>
+  <Input.Password
+    placeholder="Create your password"
+    value={values.password}
+    onChange={handlePassWordChange}
+  />
+</Form.Item>
+
+
           </div>
-          <div className="explain-error">
-              {pass1Error || <span>&nbsp;</span>} 
-            </div>
+         
           {/* Password */}
           <div className="input-group">
             <h4 className="form-input">Confirm Password</h4>
-            <Form.Item>
-              <Input
-                placeholder="Create your password"
-                name="confirmPassword"
-                value={values.confirmPassword}
-                onChange={handleConfirmPasswordChange}
-              />
-            </Form.Item>
+            <Form.Item
+    name="confirmPassword"
+    dependencies={["password"]}
+    rules={[
+      { required: true, message: "Vui lòng xác nhận mật khẩu!" },
+      ({ getFieldValue }) => ({
+        validator(_, value) {
+          if (!value || getFieldValue("password") === value) {
+            return Promise.resolve();
+          }
+          return Promise.reject(new Error("Mật khẩu xác nhận không khớp!"));
+        },
+      }),
+    ]}
+  >
+    <Input.Password
+      placeholder="Confirm your password"
+      value={values.confirmPassword}
+      onChange={handleConfirmPasswordChange}
+    />
+  </Form.Item>
           </div>
-          <div className="explain-error">
-              {pass2Error || <span>&nbsp;</span>} 
-            </div>
+          
 
           {/* Submit button */}
           <Form.Item>

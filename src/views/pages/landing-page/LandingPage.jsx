@@ -22,7 +22,7 @@ const LandingPage = () => {
     onClick: handleMenuClick,
   };
   return (
-      <div>
+    <div className="landingPage">
       <header>
         <div>
           <img
