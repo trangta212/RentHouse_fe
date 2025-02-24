@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=Agbalumo:wght@400;700&display=swap");
+.search-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: 40%;
+    max-width: 600px;
+    display: flex;
+  }
+  .button-custom {
+    border-radius: 8px 0 0 8px; /* Bo tròn góc trái, giữ vuông các cạnh còn lại */
+    color: rgb(186, 185, 185);
+    background-color: white;
+    font-family: "Roboto", sans-serif;
+  font-size: 14px; /* Chỉnh kích thước chữ */
+  height:60px;
+  
+  }
+  
+  .search-custom .ant-input-affix-wrapper {
+    border-radius: 0px 0 0 0px !important; /* Bo tròn bên trái, giữ vuông bên phải */
+    height:60px;
+    
+  }
+  .search-custom .ant-btn {
+    height:60px;
+    width:50px;
+  }
+  
+  .NavFilterHomePage .ant-btn{
+    border-radius: 50px; /* Bo tròn bên phải, giữ vuông bên trái */
+    height:40px;
+    width:200px;
+    background-color:#E8E8E8;
+    font-size: 14px;
+    font-family: "Roboto";
+    margin-top:60px;
+    margin-bottom:30px;
+    margin-left:30px;
+
+  }
+  .NavFilterHomePage .ant-btn span {
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+  }
+  
+  .titleListHomePage{
+    font-family: "Roboto", sans-serif;
+    font-size: 27px;
+    font-weight: 700;
+    margin-left:30px;
+    margin-top:30px;
+    margin-bottom:20px;
+  }
+  .pagination-container{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom:20px;
+  }
+.paper-homepage-container{
+  display:flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.paper-homepage-container-center{
+  width: 40%;
+  margin-left: 60px;
+  height:400px;}
+.paper-homepage-container-list{
+  width: 50%;
+  display:flex;
+  justify-content: center;
+}

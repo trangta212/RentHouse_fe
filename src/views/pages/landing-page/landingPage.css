@@ -134,7 +134,12 @@ main {
 .ant-btn {
   background-color: #4caf4f; /* Màu vàng */
   border: none; /* Không có viền */
-}
+  }
 body{
   height: 100vh;
+}
+
+.landingPage {
+  height: 100vh;
+  overflow: hidden;
 }
