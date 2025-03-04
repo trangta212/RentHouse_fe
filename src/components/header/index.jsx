@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import { Button, Flex } from 'antd';
+import { Link } from 'react-router-dom';  
 const Header = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
@@ -27,7 +28,9 @@ const Header = () => {
                 </div>
                 <div className="headerText">
              <Box className ="BoxHeader" sx={{ display: 'flex', alignItems: 'center', textAlign: 'center',justifyContent: 'center' }}>
+              <Link to="/user/home" className="link">
              <Typography sx={{ minWidth: 120, color:'black' }}>Trang chủ</Typography>
+              </Link>
              <Tooltip title="Account settings">
              <IconButton
             onClick={handleClick}
