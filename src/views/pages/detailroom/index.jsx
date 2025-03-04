@@ -4,6 +4,7 @@ import "./index.css";
 import { useParams } from "react-router-dom";
 import CarouselComponent from "../../../components/carousel/carousel";
 import { detailRoomInformation } from "../../../api/requestHomeApi";
+import GoogleMapComponent from "../../../components/google-maps/googleMap";
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar } from "swiper/modules";
@@ -15,7 +16,8 @@ import { faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
 import {faMoneyBill} from "@fortawesome/free-solid-svg-icons";
 import { Rate } from 'antd';
 const count = 4;
-const fakeDataUrl = `https://randomuser.me/api/?results=${count}&inc=name,gender,email,nat,picture&noinfo`;
+// const fakeDataUrl = `https://randomuser.me/api/?results=${count}&inc=name,gender,email,nat,picture&noinfo`;
+
 
 
 
@@ -47,15 +49,15 @@ const DetailRoom = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [list, setList] = useState([]);
-  useEffect(() => {
-    fetch(fakeDataUrl)
-      .then((res) => res.json())
-      .then((res) => {
-        setInitLoading(false);
-        setData(res.results);
-        setList(res.results);
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch(fakeDataUrl)
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       setInitLoading(false);
+  //       setData(res.results);
+  //       setList(res.results);
+  //     });
+  // }, []);
   const onLoadMore = () => {
     setLoading(true);
     setList(
@@ -69,18 +71,18 @@ const DetailRoom = () => {
         })),
       ),
     );
-    fetch(fakeDataUrl)
-      .then((res) => res.json())
-      .then((res) => {
-        const newData = data.concat(res.results);
-        setData(newData);
-        setList(newData);
-        setLoading(false);
-        // Resetting window's offsetTop so as to display react-virtualized demo underfloor.
-        // In real scene, you can using public method of react-virtualized:
-        // https://stackoverflow.com/questions/46700726/how-to-use-public-method-updateposition-of-react-virtualized
-        window.dispatchEvent(new Event('resize'));
-      });
+    // fetch(fakeDataUrl)
+    //   .then((res) => res.json())
+    //   .then((res) => {
+    //     const newData = data.concat(res.results);
+    //     setData(newData);
+    //     setList(newData);
+    //     setLoading(false);
+    //     // Resetting window's offsetTop so as to display react-virtualized demo underfloor.
+    //     // In real scene, you can using public method of react-virtualized:
+    //     // https://stackoverflow.com/questions/46700726/how-to-use-public-method-updateposition-of-react-virtualized
+    //     window.dispatchEvent(new Event('resize'));
+    //   });
   };
   const loadMore =
     !initLoading && !loading ? (
@@ -188,39 +190,61 @@ const DetailRoom = () => {
    </div>
       </div>
       <h2 className="detail-room-description-title">Xem trên bản đồ </h2>
+      <div className="detail-room-map">
+        <GoogleMapComponent address= {informationListRoom.address}/>
+      </div>
       <h2 className="detail-room-description-title">Bình luận từ người dùng đã thuê </h2>
     <div className="detail-room-comment-display">
-    <List
-      className="demo-loadmore-list"
-      loading={initLoading}
-      itemLayout="horizontal"
-      loadMore={loadMore}
-      dataSource={list}
-      renderItem={(item) => (
-        <List.Item
-        >
-          <Skeleton avatar title={false} loading={item.loading} active>
-            <List.Item.Meta
-              avatar={<Avatar src={item.picture.large} />}
-              title={<a href="https://ant.design">{item.name?.last}</a>}
-              description={
-                <div style={{ backgroundColor: "#E8F5E9", padding: "12px", borderRadius: "8px" , height: "130px" }}>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Rate disabled defaultValue={item.rating} style={{ fontSize: "16px" }} /> 
-                    <span style={{ marginLeft: "8px"}}>{item.rating}/5</span>
-                  </div>
-                  <p style={{ marginTop: "10px", fontSize: "15px" ,fontFamily: "Roboto", color: "black" , display: "flex", alignItems: "center"}}>
-                    {/* {item.comment} */}
-                    Phòng trọ rất sạch sẽ, thoáng mát, giá cả hợp lý, chủ nhà thân thiện
-
-                  </p>
+    {list.length === 0 ? (
+  <div style={{ textAlign: "center", padding: "20px", fontSize: "16px", color: "gray" }}>
+    Không có bình luận nào
+  </div>
+) : (
+  <List
+    className="demo-loadmore-list"
+    loading={initLoading}
+    itemLayout="horizontal"
+    loadMore={loadMore}
+    dataSource={list}
+    renderItem={(item) => (
+      <List.Item>
+        <Skeleton avatar title={false} loading={item.loading} active>
+          <List.Item.Meta
+            avatar={<Avatar src={item.picture?.large} />}
+            title={<a href="https://ant.design">{item.name?.last}</a>}
+            description={
+              <div
+                style={{
+                  backgroundColor: "#E8F5E9",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  height: "130px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Rate disabled defaultValue={item.rating} style={{ fontSize: "16px" }} />
+                  <span style={{ marginLeft: "8px" }}>{item.rating}/5</span>
                 </div>
-              }
-            />
-          </Skeleton>
-        </List.Item>
-      )}
-    />
+                <p
+                  style={{
+                    marginTop: "10px",
+                    fontSize: "15px",
+                    fontFamily: "Roboto",
+                    color: "black",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {item.comment || "Không có bình luận nào"}
+                </p>
+              </div>
+            }
+          />
+        </Skeleton>
+      </List.Item>
+    )}
+  />    
+   )}
     </div>  
     <h2 className="detail-room-description-title">Các dự án liên quan </h2>
     </div>

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
+import {jwtDecode} from 'jwt-decode';
 
 function Login() {
       const navigate = useNavigate();
@@ -49,15 +50,20 @@ function Login() {
             if (response.status === 200) {
             toast.success(response.data.message);
             sessionStorage.setItem("authToken", response.data.token);
+
+            const user = jwtDecode(response.data.token);
       
             // Xử lý token
-            const parts = response.data.token.split('.'); // Tách token thành 3 phần
-            const payload = parts[1];
-            const decodedPayload = JSON.parse(atob(payload)); // Giải mã Base64
-            sessionStorage.setItem("auth", JSON.stringify(decodedPayload));
-      
+            sessionStorage.setItem("auth", JSON.stringify(user));
+            // const parts = response.data.token.split('.'); // Tách token thành 3 phần
+            // const payload = parts[1];
+            // const decodedPayload = JSON.parse(atob(payload)); // Giải mã Base64
+            // sessionStorage.setItem("auth", JSON.stringify(decodedPayload));
+
+           
+
             setTimeout(() => {
-              navigate("/home");
+              navigate("/home", {state :user} );
             }, 3000);
           }
         } catch (error) {
