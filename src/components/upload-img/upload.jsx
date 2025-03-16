@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
-import { Image, Upload } from 'antd';
+import React, { useState } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import { Image, Upload } from "antd";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -10,10 +10,12 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-const UploadImg = () => {
+const UploadImg = ({ value = [], onChange }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState('');
-  const [fileList, setFileList] = useState([]); // Xóa ảnh mẫu, fileList bắt đầu rỗng
+  const [previewImage, setPreviewImage] = useState("");
+
+  // Khởi tạo danh sách file từ value (dữ liệu của form)
+  const [fileList, setFileList] = useState(value);
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -23,13 +25,16 @@ const UploadImg = () => {
     setPreviewOpen(true);
   };
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList); // Cập nhật state nội bộ
+    onChange?.(newFileList); // Gọi onChange để cập nhật vào useForm
+  };
 
   const uploadButton = (
     <button
       style={{
         border: 0,
-        background: 'none',
+        background: "none",
       }}
       type="button"
     >
@@ -47,23 +52,23 @@ const UploadImg = () => {
   return (
     <>
       <Upload
-        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
         listType="picture-card"
         fileList={fileList}
         onPreview={handlePreview}
         onChange={handleChange}
+        beforeUpload={() => false} // Không tải lên server
       >
         {fileList.length >= 8 ? null : uploadButton}
       </Upload>
       {previewImage && (
         <Image
           wrapperStyle={{
-            display: 'none',
+            display: "none",
           }}
           preview={{
             visible: previewOpen,
             onVisibleChange: (visible) => setPreviewOpen(visible),
-            afterOpenChange: (visible) => !visible && setPreviewImage(''),
+            afterOpenChange: (visible) => !visible && setPreviewImage(""),
           }}
           src={previewImage}
         />
