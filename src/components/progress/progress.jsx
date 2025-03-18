@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import { Button, Flex, Progress, Space } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS của Toast
+import paymentApi from "../../api/paymentApi";
 
 const ProgressComponent = ({
   steps,
   errors,
-  register,
   trigger,
   getValues,
   totalPrice,
 }) => {
   const [step, setStep] = useState(0); // Bắt đầu từ bước 0
-
+  const [payUrl, setPayUrl] = useState("");
 
   const increase = async () => {
     const isValid = await trigger(`step${step}`); // Kiểm tra dữ liệu hợp lệ cho bước hiện tại
@@ -20,21 +20,18 @@ const ProgressComponent = ({
 
     console.log(`Validation Step ${step}:`, isValid, errors, values);
 
-    // Kiểm tra nếu có lỗi hoặc giá trị rỗng thì không cho chuyển tab
-    // if (
-    //   !isValid ||
-    //   Object.values(values).some((value) => value === "" || value === undefined)
-    // ) {
-    //   console.log("Có lỗi hoặc chưa nhập đủ dữ liệu, không chuyển bước!");
-    //   toast.error("Vui lòng nhập đầy đủ thông tin trước khi tiếp tục!", {
-    //     position: "top-right",
-    //     autoClose: 3000, // Ẩn sau 3 giây
-    //   });
-    //   return; // Dừng nếu có lỗi hoặc chưa nhập gì
-    // }
     if (step === 0) {
       // Validation cho bước 1
-      if (!values.dropdown || !values.erea || !values.price || !values.textField || !values.email || !values.phone || !values.textInputTitle || !values.textInputNaiyo) {
+      if (
+        !values.dropdown ||
+        !values.erea ||
+        !values.price ||
+        !values.textField ||
+        !values.email ||
+        !values.phone ||
+        !values.textInputTitle ||
+        !values.textInputNaiyo
+      ) {
         toast.error("Vui lòng điền đầy đủ thông tin bắt buộc!", {
           position: "top-right",
           autoClose: 3000,
@@ -67,8 +64,46 @@ const ProgressComponent = ({
         });
         return;
       }
+    } else if (step === 3) {
+      console.log("🔄 Đang thực hiện thanh toán...");
+      try {
+        const values = getValues();
+        console.log("📋 Form Values:", values); // Log all form values
+        console.log("Total Price:", totalPrice); // Log totalPrice
+
+        const amount = Number(totalPrice.trim());
+        const orderInfo = values.textField !== null ? String(values.textField) : "nội dung";
+
+
+        const response = await paymentApi.paymentVnpay({
+          amount, // Sử dụng totalPrice làm amount
+          orderInfo, // Sử dụng values.textField làm orderInfo
+        });
+
+        console.log("✅ Phản hồi từ API thanh toán:", response);
+
+        if (response.data && response.data.paymentUrl) {
+          console.log("🔗 URL thanh toán nhận được:", response.data.paymentUrl);
+          setPayUrl(response.data.paymentUrl);
+
+          // Chuyển hướng khi nhấn "Thanh toán ngay"
+          window.location.href = response.data.paymentUrl;
+        } else {
+          console.error("❌ Không nhận được URL thanh toán!");
+          toast.error("Không thể tạo URL thanh toán. Vui lòng thử lại!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi tạo URL thanh toán:", error);
+        toast.error("Lỗi khi tạo thanh toán. Vui lòng thử lại!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
     }
-    
+
     if (step < steps.length - 1) {
       console.log(`➡️ Chuyển sang bước ${step + 1}`);
       setStep((prev) => prev + 1);
@@ -79,7 +114,6 @@ const ProgressComponent = ({
     }
   };
 
-  console.log("Total Price:", totalPrice, "Type:", typeof totalPrice);
 
   const decline = () => {
     if (step > 0) setStep((prev) => prev - 1);
@@ -116,7 +150,9 @@ const ProgressComponent = ({
               </h2>
               <div className="border-l-2 border-gray-300 h-6"></div>
               <Button
-                onClick={increase}
+                onClick={() => {
+                  increase();
+                }}
                 type="primary"
                 disabled={Number(totalPrice) === 0}
                 className={`text-lg font-semibold rounded-full
@@ -133,7 +169,14 @@ const ProgressComponent = ({
             </div>
           ) : (
             <Button
-              onClick={increase}
+              onClick={() => {
+                console.log("💰 Amount before click:", Number(totalPrice)); // Log amount before click
+                console.log(
+                  "📝 Order Info before click:",
+                  getValues().textField
+                ); // Log orderInfo before click
+                increase();
+              }}
               type="primary"
               className="text-lg font-semibold rounded-full bg-[#4caf4f] text-white h-12 w-35"
             >

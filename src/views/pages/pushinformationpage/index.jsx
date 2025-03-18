@@ -48,6 +48,7 @@ import {
 } from "../../../api/listCity.jsx";
 import { useEffect } from "react";
 import GoogleMapComponent from "../../../components/google-maps/googleMap";
+import paymentApi from "../../../api/paymentApi";
 
 const { RangePicker } = DatePicker;
 const style = {
@@ -298,6 +299,8 @@ const PushInformationPage = () => {
     }
     updateFullAddress(watch("address")); // Cập nhật địa chỉ đầy đủ
   };
+
+  // Thanh toán
 
   const steps = [
     <div key="step1">
@@ -1471,6 +1474,7 @@ const PushInformationPage = () => {
         errors={errors}
         getValues={getValues}
         totalPrice={totalPrice.toLocaleString()}
+        name={watch("textField")}
       />
       <div>
         <ToastContainer />
