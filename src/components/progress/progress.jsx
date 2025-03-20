@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Flex, Progress, Space } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS của Toast
-import paymentApi from "../../api/paymentApi";
+import paymentApi from "../../api/paymentApi"
 
 const ProgressComponent = ({
   steps,
@@ -71,13 +71,15 @@ const ProgressComponent = ({
         console.log("📋 Form Values:", values); // Log all form values
         console.log("Total Price:", totalPrice); // Log totalPrice
 
-        const amount = Number(totalPrice.trim());
-        const orderInfo = values.textField !== null ? String(values.textField) : "nội dung";
-
+        const amountNumber = typeof totalPrice === "string" 
+        ? Number(totalPrice.replace(/[.,]/g, ""))  // Loại bỏ cả dấu chấm và phẩy
+        : totalPrice;
+        const orderInfo =
+          values.textField !== null ? String(values.textField) : "nội dung";
 
         const response = await paymentApi.paymentVnpay({
-          amount, // Sử dụng totalPrice làm amount
-          orderInfo, // Sử dụng values.textField làm orderInfo
+          amount: amountNumber, // Sử dụng totalPrice làm amount
+          orderInfo: orderInfo, // Sử dụng values.textField làm orderInfo
         });
 
         console.log("✅ Phản hồi từ API thanh toán:", response);
@@ -104,6 +106,17 @@ const ProgressComponent = ({
       }
     }
 
+    const amountNumber = typeof totalPrice === "string" 
+        ? Number(totalPrice.replace(/[.,]/g, ""))  // Loại bỏ cả dấu chấm và phẩy
+        : totalPrice;
+        const orderInfo =
+          values.textField !== null ? String(values.textField) : "nội dung";
+    console.log(amountNumber, orderInfo);
+    
+
+    
+    
+
     if (step < steps.length - 1) {
       console.log(`➡️ Chuyển sang bước ${step + 1}`);
       setStep((prev) => prev + 1);
@@ -113,7 +126,6 @@ const ProgressComponent = ({
       console.log("⚠️ Tổng tiền bằng 0, không thể tiếp tục.");
     }
   };
-
 
   const decline = () => {
     if (step > 0) setStep((prev) => prev - 1);

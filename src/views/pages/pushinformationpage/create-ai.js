@@ -110,7 +110,6 @@ export const validateFormData = (formData) => {
 export const generateContent = async (type, formData) => {
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 1000; // 1 second
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"; // Sử dụng biến môi trường hoặc fallback về localhost:8000
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -135,16 +134,18 @@ export const generateContent = async (type, formData) => {
         },
       };
 
-      console.log("Sending request to:", `${API_URL}/api/ai/generate-content`);
-      console.log("Request data:", requestData);
+      console.log("Sending request:", requestData);
 
-      const response = await fetch(`${API_URL}/api/ai/generate-content`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/ai/generate-content",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
 
       console.log("Response status:", response.status);
 
@@ -187,10 +188,10 @@ export const generateContent = async (type, formData) => {
       ) {
         if (attempt === MAX_RETRIES) {
           throw new Error(`Không thể kết nối đến máy chủ sau ${MAX_RETRIES} lần thử. Vui lòng kiểm tra:
-1. Backend server đã chạy chưa? (${API_URL})
+1. Backend server đã chạy chưa? (http://localhost:8080)
 2. Không có lỗi CORS
 3. Mạng internet đang hoạt động
-4. Cổng đã được cấu hình đúng trong file .env`);
+4. Cổng 8080 không bị chặn bởi tường lửa`);
         }
 
         console.log(`Retrying in ${RETRY_DELAY}ms...`);

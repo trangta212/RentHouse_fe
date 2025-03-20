@@ -1,5 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
-import React from 'react';
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./views/pages/landing-page/LandingPage.jsx";
 import Login from "./views/pages/login/index.jsx";
@@ -8,7 +8,6 @@ import "@fontsource/roboto"; // Import font Roboto
 import { ConfigProvider } from "antd";
 import UserRoute from "./views/routes/userRouter.js";
 
-
 const theme = {
   token: {
     fontFamily: "Poppins, sans-serif",
@@ -16,6 +15,13 @@ const theme = {
 };
 
 function App() {
+  // Giả sử bạn đã có thông tin user từ context hoặc redux store
+  const currentUser = {
+    id: 1,
+    username: "User1",
+    avatar: "path/to/avatar",
+  };
+
   return (
     <ConfigProvider theme={theme}>
       <BrowserRouter>

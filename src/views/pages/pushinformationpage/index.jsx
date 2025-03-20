@@ -437,11 +437,7 @@ const PushInformationPage = () => {
           placeholder="Chọn tỉnh/thành phố..."
           isSearchable
         />
-        {!selectedProvince && (
-          <p className="text-red-500 mt-1 text-sm">
-            Vui lòng chọn tỉnh/thành phố
-          </p>
-        )}
+
 
         <span className="text-gray-600 mt-5 font-semibold block">
           Quận/Huyện
@@ -489,9 +485,6 @@ const PushInformationPage = () => {
           placeholder="Chọn quận/huyện..."
           isSearchable
         />
-        {!selectedDistrict && (
-          <p className="text-red-500 mt-1 text-sm">Vui lòng chọn quận/huyện</p>
-        )}
 
         <span className="text-gray-600 mt-5 font-semibold block">
           Phường/Xã
@@ -542,9 +535,6 @@ const PushInformationPage = () => {
           placeholder="Chọn phường/xã..."
           isSearchable
         />
-        {!selectedTown && (
-          <p className="text-red-500 mt-1 text-sm">Vui lòng chọn phường/xã</p>
-        )}
 
         <span className="text-gray-600 mt-5 font-semibold block">
           Đường
@@ -914,9 +904,6 @@ const PushInformationPage = () => {
               setValue("images", newImages, { shouldValidate: true })
             } // Cập nhật form
           />
-          {errors.images && (
-            <p style={{ color: "red" }}>{errors.images.message}</p>
-          )}
         </div>
         <div
           className="flex items-center  space-x-5 justify-between cursor-pointer mt-8"
@@ -969,73 +956,72 @@ const PushInformationPage = () => {
         {" "}
         Chọn loại tin ưu tiên{" "}
       </h1>
-      <div className="mt-4">
+      <div className="mt-5">
         <Row gutter={16} className="flex justify-center space-x-7">
           <Col className="gutter-row" span={6}>
             <button
               className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
-                selectedPrice === 20000 ? "bg-yellow-50" : "bg-[#D6D6D6]"
+                selectedPrice === 20000 ? "bg-yellow-50" : "bg-[#fbfdeb]"
               }`}
               onClick={() => handleSelect(20000, "Ưu tiên đặc biệt")}
             >
-              <div className="flex flex-col items-center border rounded-[30px] p-4 bg-white">
-                <div className="w-8 bg-red-600 rounded-full text-[35px] h-2"></div>
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px] mt-1"></div>
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px] mt-1 mb-1"></div>
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px]"></div>
+              <div className="ml-5">
+                <div className="w-10 bg-[#4caf4f] rounded-full text-[35px] h-[10px]"></div>
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1"></div>
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1 mb-1"></div>
+                <div className="w-10 bg-[#ff5500]  rounded-full text-[35px] h-[8px]"></div>
               </div>
-              <h1 className="text-lg font-semibold mt-5">Ưu tiên đặc biệt</h1>
-              <p className="font-medium mt-3">
+              <h1 className="text-lg font-semibold mt-4 text-left">Ưu tiên đặc biệt</h1>
+              <p className="font-medium text-slate-500 mt-1">
                 Đăng tin ở vị trí nổi bật trên cùng
               </p>
-              <h1 className="text-red-600 font-bold text-lg mt-5">
-                20000 đồng/ngày
+              <h1 className="text-[#636364] font-semibold text-lg mt-3 text-left">
+                20.000 đồng/ngày
               </h1>
             </button>
           </Col>
           <Col className="gutter-row" span={6}>
             <button
-              className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
-                selectedPrice === 10000 ? "bg-green-300" : "bg-[#D6D6D6]"
+                className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
+                selectedPrice === 10000 ? "bg-green-300" : "bg-[#579c51]"
               }`}
               onClick={() => handleSelect(10000, "Ưu tiên")}
             >
-              <div className="flex flex-col items-center border rounded-[30px] p-4 bg-white">
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px] "></div>
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px] mt-1"></div>
-                <div className="w-8 bg-red-600 rounded-full text-[35px] h-2 mt-1 mb-1"></div>
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px]"></div>
+               <div className="ml-5">
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] "></div>
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1 mb-1"></div>
+                <div className="w-10 bg-[#4caf4f] rounded-full text-[35px] h-[10px] mb-1"></div>
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px]"></div>
               </div>
-              <h1 className="text-lg font-semibold mt-5"> Ưu tiên</h1>
-              <p className="font-medium mt-3">
+              <h1 className="text-lg font-semibold mt-4 text-left text-[#ffffff]"> Ưu tiên</h1>
+              <p className="font-medium text-[#ffffff] text-left mt-1">
                 Tin sẽ được hiển thị ở vị trí sau các tin đặc biệt{" "}
               </p>
-              <h1 className="text-red-600 font-bold text-lg mt-5">
-                {" "}
-                10000 đồng/ngày
+              <h1 className="text-[#ffffff] font-semibold text-lg mt-3 text-left">
+                10.000 đồng/ngày
               </h1>
             </button>
           </Col>
           <Col className="gutter-row" span={6}>
             <button
-              className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
-                selectedPrice === 3000 ? "bg-green-300" : "bg-[#D6D6D6]"
+              className={`h-full p-7 border rounded-[20px] cursor-pointer transition ${
+                selectedPrice === 3000 ? "bg-green-300" : "bg-[#3a3838]"
               }`}
               onClick={() => handleSelect(3000, "Tin thường")}
             >
-              <div className="flex flex-col items-center border rounded-[30px] p-4 bg-white">
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px] "></div>
-                <div className="w-8 bg-black rounded-full text-[35px] h-[6px] mt-1"></div>
-                <div className="w-8  bg-black rounded-full text-[35px] h-[6px] mt-1 mb-1"></div>
-                <div className="w-8 bg-red-600 rounded-full text-[35px] h-2"></div>
+               <div className="ml-5">
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] "></div>
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1 mb-1"></div>
+                <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px]"></div>
+                <div className="w-10 bg-[#4caf4f] rounded-full text-[35px] h-[10px] mt-1"></div>
+
               </div>
-              <h1 className="text-lg font-semibold mt-5"> Bình thường</h1>
-              <p className="font-medium mt-3">
+              <h1 className="text-lg font-semibold mt-4 text-left text-[#ffffff]"> Bình thường</h1>
+              <p className="font-medium text-[#ffffff] text-left mt-1">
                 Bản tin sẽ được hiển thị dưới cùng của danh sách{" "}
               </p>
-              <h1 className="text-red-600 font-bold text-lg mt-5">
-                {" "}
-                3000 đồng/ngày
+              <h1 className="text-[#ffffff] font-semibold text-lg mt-3 text-left">
+                3.000 đồng/ngày
               </h1>
             </button>
           </Col>
@@ -1066,7 +1052,7 @@ const PushInformationPage = () => {
               borderRadius: "10px",
               borderColor: "#ccc",
               backgroundColor:
-                totalPriceWithExtra === 6000 ? "#D6D6D6" : "#FFFFFF", // bg-black hoặc bg-[#D6D6D6]
+                totalPriceWithExtra === 6000 ? "#a7dca5" : "#FFFFFF", // bg-black hoặc bg-[#D6D6D6]
             }}
             onClick={() => handleSelectExtra(6000)}
           >
@@ -1074,7 +1060,7 @@ const PushInformationPage = () => {
             <span className="text-black font-semibold text-lg p-2">
               1 lần đẩy
             </span>
-            <span className="text-red-500 ml-auto text-lg ">10000 đồng</span>
+            <span className="text-black ml-auto text-lg ">6.000 đồng</span>
           </Button>
         </div>
         <div className="w-1/2 flex justify-center h-16">
@@ -1088,15 +1074,15 @@ const PushInformationPage = () => {
               borderRadius: "10px",
               borderColor: "#ccc",
               backgroundColor:
-                totalPriceWithExtra === 3000 ? "#D6D6D6" : "#FFFFFF", // bg-black hoặc bg-[#D6D6D6]
+                totalPriceWithExtra === 20000 ? "#a7dca5" : "#FFFFFF", // bg-black hoặc bg-[#D6D6D6]
             }}
-            onClick={() => handleSelectExtra(3000)}
+            onClick={() => handleSelectExtra(20000)}
           >
             <FaArrowUp className="text-black text-lg" />
             <span className="text-black font-semibold text-lg p-2">
               3 lần đẩy
             </span>
-            <span className="text-red-500 ml-auto text-lg ">40000 đồng</span>
+            <span className="text-black ml-auto text-lg ">20.000 đồng</span>
           </Button>
         </div>
       </div>
