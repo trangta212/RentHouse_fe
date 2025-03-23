@@ -97,8 +97,39 @@ const PushInformationPage = () => {
     mode: "onChange",
     defaultValues: {
       images: [],
+      dropdown: "",
+      erea: "",
+      price: "",
+      fullAddress: "",
+      email: "",
+      phone: "",
+      textInputTitle: "",
+      textInputNaiyo: "",
+      textField: "",
+      address: "",
+      dropdownProvince: "",
+      dropdownInterior: "",
     },
   });
+
+  // Xử lý khi ảnh thay đổi
+  const handleImageChange = (imageNames) => {
+    try {
+      if (Array.isArray(imageNames)) {
+        console.log("Setting images:", imageNames);
+        setValue("images", imageNames, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      } else {
+        console.warn("Invalid imageNames:", imageNames);
+      }
+    } catch (error) {
+      console.error("Error in handleImageChange:", error);
+    }
+  };
+
   console.log("Giá trị hiện tại của erea:", watch("erea")); // Kiểm tra giá trị khi nhập
 
   const [isOpen, setIsOpen] = useState(false);
@@ -219,47 +250,44 @@ const PushInformationPage = () => {
     }
   };
 
-  // Hàm cập nhật địa chỉ đầy đủ
-  const updateFullAddress = (newAddress = "") => {
-    const addressParts = [];
+  // Cập nhật địa chỉ đầy đủ
+  const updateFullAddress = () => {
+    try {
+      const street = watch("textField") || "";
+      const town = watch("dropdownTown")?.name || "";
+      const district = watch("dropdownWard")?.name || "";
+      const province = watch("dropdownProvince")?.label || "";
 
-    // Thêm địa chỉ đường nếu có
-    if (newAddress) {
-      addressParts.push(newAddress);
+      const fullAddr = [street, town, district, province]
+        .filter(Boolean)
+        .join(", ");
+
+      console.log("Updating fullAddress:", fullAddr);
+      setValue("fullAddress", fullAddr, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    } catch (error) {
+      console.error("Error in updateFullAddress:", error);
     }
-
-    // Thêm phường/xã nếu có
-    if (selectedTown?.label) {
-      addressParts.push(selectedTown.label);
-    }
-
-    // Thêm quận/huyện nếu có
-    if (selectedDistrict?.label) {
-      addressParts.push(selectedDistrict.label);
-    }
-
-    // Thêm tỉnh/thành phố nếu có
-    if (selectedProvince?.label) {
-      addressParts.push(selectedProvince.label);
-    }
-
-    // Ghép các phần thành chuỗi, cách nhau bởi dấu phẩy
-    const fullAddr = addressParts.join(", ");
-    setFullAddress(fullAddr);
   };
 
   // Cập nhật các hàm xử lý thay đổi
-  const handleProvinceChange = async (selected) => {
-    setSelectedProvince(selected);
-    setSelectedDistrict(null);
-    setSelectedWard(null);
-    setSelectedTown(null);
-    setTownList([]);
-
-    if (selected?.value) {
-      await handleFetchWards(selected.value);
+  const handleProvinceChange = async (value) => {
+    try {
+      console.log("Province changed:", value);
+      setValue("dropdownProvince", value, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("dropdownWard", null);
+      setValue("dropdownTown", null);
+      updateFullAddress();
+    } catch (error) {
+      console.error("Error in handleProvinceChange:", error);
     }
-    updateFullAddress(watch("address")); // Cập nhật địa chỉ đầy đủ
   };
 
   const handleFetchTown = async (wardId) => {
@@ -286,18 +314,19 @@ const PushInformationPage = () => {
     }
   };
 
-  const handleWardChange = async (selected) => {
-    console.log("Ward selected:", selected);
-    setSelectedDistrict(selected);
-    setSelectedTown(null);
-
-    if (selected?.value) {
-      console.log("Fetching towns for ward ID:", selected.value);
-      await handleFetchTown(selected.value);
-    } else {
-      setTownList([]);
+  const handleWardChange = async (value) => {
+    try {
+      console.log("Ward changed:", value);
+      setValue("dropdownWard", value, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("dropdownTown", null);
+      updateFullAddress();
+    } catch (error) {
+      console.error("Error in handleWardChange:", error);
     }
-    updateFullAddress(watch("address")); // Cập nhật địa chỉ đầy đủ
   };
 
   // Thanh toán
@@ -438,7 +467,6 @@ const PushInformationPage = () => {
           isSearchable
         />
 
-
         <span className="text-gray-600 mt-5 font-semibold block">
           Quận/Huyện
           <span className="text-red-500 ml-1">*</span>
@@ -530,7 +558,7 @@ const PushInformationPage = () => {
           value={selectedTown}
           onChange={(selected) => {
             setSelectedTown(selected);
-            updateFullAddress(watch("address"));
+            updateFullAddress();
           }}
           placeholder="Chọn phường/xã..."
           isSearchable
@@ -548,7 +576,7 @@ const PushInformationPage = () => {
           className="mt-1 rounded-3xl p-[10px] text-[16px]"
           onChange={(e) => {
             setValue("address", e.target.value);
-            updateFullAddress(e.target.value);
+            updateFullAddress();
           }}
           placeholder="Nhập tên đường, số nhà..."
         />
@@ -898,12 +926,7 @@ const PushInformationPage = () => {
               },
             })}
           />
-          <UploadImg
-            value={watch("images")} // Lấy giá trị từ form
-            onChange={(newImages) =>
-              setValue("images", newImages, { shouldValidate: true })
-            } // Cập nhật form
-          />
+          <UploadImg value={watch("images")} onChange={handleImageChange} />
         </div>
         <div
           className="flex items-center  space-x-5 justify-between cursor-pointer mt-8"
@@ -971,7 +994,9 @@ const PushInformationPage = () => {
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1 mb-1"></div>
                 <div className="w-10 bg-[#ff5500]  rounded-full text-[35px] h-[8px]"></div>
               </div>
-              <h1 className="text-lg font-semibold mt-4 text-left">Ưu tiên đặc biệt</h1>
+              <h1 className="text-lg font-semibold mt-4 text-left">
+                Ưu tiên đặc biệt
+              </h1>
               <p className="font-medium text-slate-500 mt-1">
                 Đăng tin ở vị trí nổi bật trên cùng
               </p>
@@ -982,18 +1007,21 @@ const PushInformationPage = () => {
           </Col>
           <Col className="gutter-row" span={6}>
             <button
-                className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
+              className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
                 selectedPrice === 10000 ? "bg-green-300" : "bg-[#579c51]"
               }`}
               onClick={() => handleSelect(10000, "Ưu tiên")}
             >
-               <div className="ml-5">
+              <div className="ml-5">
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] "></div>
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1 mb-1"></div>
                 <div className="w-10 bg-[#4caf4f] rounded-full text-[35px] h-[10px] mb-1"></div>
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px]"></div>
               </div>
-              <h1 className="text-lg font-semibold mt-4 text-left text-[#ffffff]"> Ưu tiên</h1>
+              <h1 className="text-lg font-semibold mt-4 text-left text-[#ffffff]">
+                {" "}
+                Ưu tiên
+              </h1>
               <p className="font-medium text-[#ffffff] text-left mt-1">
                 Tin sẽ được hiển thị ở vị trí sau các tin đặc biệt{" "}
               </p>
@@ -1009,14 +1037,16 @@ const PushInformationPage = () => {
               }`}
               onClick={() => handleSelect(3000, "Tin thường")}
             >
-               <div className="ml-5">
+              <div className="ml-5">
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] "></div>
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] mt-1 mb-1"></div>
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px]"></div>
                 <div className="w-10 bg-[#4caf4f] rounded-full text-[35px] h-[10px] mt-1"></div>
-
               </div>
-              <h1 className="text-lg font-semibold mt-4 text-left text-[#ffffff]"> Bình thường</h1>
+              <h1 className="text-lg font-semibold mt-4 text-left text-[#ffffff]">
+                {" "}
+                Bình thường
+              </h1>
               <p className="font-medium text-[#ffffff] text-left mt-1">
                 Bản tin sẽ được hiển thị dưới cùng của danh sách{" "}
               </p>
@@ -1195,7 +1225,7 @@ const PushInformationPage = () => {
                     alt="User Image"
                     src={
                       watch("images")?.[0]
-                        ? URL.createObjectURL(watch("images")[0].originFileObj) // Lấy ảnh đầu tiên
+                        ? watch("images")[0] // Sử dụng trực tiếp URL hoặc tên file
                         : "/static/images/avatar/default.jpg" // Ảnh mặc định nếu không có ảnh
                     }
                     variant="square"
