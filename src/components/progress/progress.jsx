@@ -10,9 +10,9 @@ const ProgressComponent = ({
   errors = {},
   trigger,
   getValues,
-  totalPrice = 0,
-  startDate = null,
-  endDate = null,
+  totalPrice,
+  startDate,
+  endDate,
 }) => {
   const [step, setStep] = useState(0);
   const [payUrl, setPayUrl] = useState("");
@@ -46,37 +46,6 @@ const ProgressComponent = ({
         throw new Error("Dữ liệu không hợp lệ");
       }
 
-      // let room_images = [];
-
-      // Xử lý ảnh ở bước 1 trở đi
-      // if (step > 0) {
-      //   const images = values?.images || [];
-      //   console.log("📸 Raw images from form:", images);
-
-      //   if (Array.isArray(images)) {
-      //     room_images = images
-      //       .map((img) => {
-      //         console.log("🖼️ Processing image:", img);
-      //         if (img instanceof File) {
-      //           console.log("📄 File object:", img.name);
-      //           return img.name;
-      //         }
-      //         if (typeof img === "string") {
-      //           console.log("📝 String image:", img);
-      //           return img;
-      //         }
-      //         if (img && img.name) {
-      //           console.log("📋 Object with name:", img.name);
-      //           return img.name;
-      //         }
-      //         return "";
-      //       })
-      //       .filter((name) => name);
-
-      //     console.log("🎯 Final room_images array:", room_images);
-      //   }
-      // }
-
       // Tạo postData với các trường tương ứng với từng bước
       const postData = {
         email: values?.email || "",
@@ -88,9 +57,10 @@ const ProgressComponent = ({
         type: values?.dropdown || "",
         area: Number(values?.erea) || 0,
         room_images: values?.images || [],
-        start_date: startDate?.format("YYYY-MM-DD") || null,
-        expire: endDate?.format("YYYY-MM-DD") || null,
+        start_date: startDate || null,
+        expire: endDate || null,
         total_price: totalPrice,
+        address: values?.address || "",
       };
 
       console.log("📦 Final postData:", postData);
@@ -108,49 +78,49 @@ const ProgressComponent = ({
             price_per_month: Number(values?.price) || 0,
             type: values?.dropdown || "",
             area: Number(values?.erea) || 0,
+            address: values?.address || "",
           };
           console.log("📝 Updating basic info:", basicInfo);
           response = await PostRentUpdate(postId, basicInfo);
         }
         // Nếu đang ở bước 2, cập nhật thông tin ảnh
-        else if  (step === 1) { 
+        else if (step === 1) {
           const images = values?.images || [];
           console.log("📸 Raw images from form:", images);
-      
+
           let room_images = [];
-      
+
           if (Array.isArray(images)) {
-              room_images = images
-                  .map((img) => {
-                      console.log("🖼️ Processing image:", img);
-                      if (img instanceof File) {
-                          console.log("📄 File object:", img.name);
-                          return img.name;
-                      }
-                      if (typeof img === "string") {
-                          console.log("📝 String image:", img);
-                          return img;
-                      }
-                      if (img && img.name) {
-                          console.log("📋 Object with name:", img.name);
-                          return img.name;
-                      }
-                      return "";
-                  })
-                  .filter((name) => name);
-              
+            room_images = images
+              .map((img) => {
+                console.log("🖼️ Processing image:", img);
+                if (img instanceof File) {
+                  console.log("📄 File object:", img.name);
+                  return img.name;
+                }
+                if (typeof img === "string") {
+                  console.log("📝 String image:", img);
+                  return img;
+                }
+                if (img && img.name) {
+                  console.log("📋 Object with name:", img.name);
+                  return img.name;
+                }
+                return "";
+              })
+              .filter((name) => name);
           }
-      
+
           const imageInfo = { room_images };
           console.log("🖼️ Updating image info:", imageInfo);
           response = await PostRentUpdate(postId, imageInfo);
-      }      
+        }
         // Nếu đang ở bước 3, cập nhật thông tin thanh toán
         else if (step === 2) {
           const paymentInfo = {
             total_price: totalPrice || 0,
-            start_date: startDate?.format("YYYY-MM-DD") || null,
-            expire: endDate?.format("YYYY-MM-DD") || null,
+            start_date: startDate || null,
+            expire: endDate || null,
           };
           console.log("💰 Updating payment info:", paymentInfo);
           response = await PostRentUpdate(postId, paymentInfo);
@@ -201,6 +171,7 @@ const ProgressComponent = ({
           phone: values?.phone,
           textInputTitle: values?.textInputTitle,
           textInputNaiyo: values?.textInputNaiyo,
+          address: values?.address,
         };
 
         const missingFields = Object.entries(requiredFields)
@@ -214,30 +185,8 @@ const ProgressComponent = ({
 
         await handlePostData(values, !!postId);
       } else if (step === 1) {
-        // const images = values?.images || [];
-        // if (!images || images.length < 3) {
-        //   // // toast.error("Vui lòng tải lên ít nhất 3 ảnh!", {
-        //   // //   position: "top-right",
-        //   // //   autoClose: 3000,
-        //   // });
-        //   return;
-        // // }
-        // if (images.length > 15) {
-        //   toast.error("Chỉ được tải lên tối đa 15 ảnh!", {
-        //     position: "top-right",
-        //     autoClose: 3000,
-        //   });
-        //   return;
-        // }
         await handlePostData(values, true);
       } else if (step === 2) {
-        // if (Number(totalPrice) === 0) {
-        //   toast.error("Vui lòng chọn loại tin và thời gian đăng tin!", {
-        //     position: "top-right",
-        //     autoClose: 3000,
-        //   });
-        //   return;
-        // }
         await handlePostData(values, true);
       } else if (step === 3) {
         try {
@@ -332,7 +281,7 @@ const ProgressComponent = ({
                   }
                 `}
               >
-                Thanh toán
+                Tiếp tục 
               </Button>
             </div>
           ) : (

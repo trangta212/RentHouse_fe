@@ -19,6 +19,7 @@ const ReceiptPage = () => {
         const vnp_Amount = searchParams.get("vnp_Amount");
         const vnp_OrderInfo = searchParams.get("vnp_OrderInfo");
         const vnp_PayDate = searchParams.get("vnp_PayDate");
+        const paymentMethod = searchParams.get("vnp_BankCode");
 
         // Kiểm tra kết quả thanh toán
         if (vnp_ResponseCode === "00") {
@@ -29,6 +30,7 @@ const ReceiptPage = () => {
             amount: Number(vnp_Amount) / 100, // Chuyển đổi từ VND sang đơn vị
             orderInfo: vnp_OrderInfo,
             payDate: vnp_PayDate,
+            menthod: paymentMethod,
           });
         } else {
           // Thanh toán thất bại
@@ -46,6 +48,7 @@ const ReceiptPage = () => {
     handlePaymentResponse();
   }, [location]);
 
+
   const handleHomeClick = () => {
     navigate("/user/home");
   };
@@ -54,32 +57,48 @@ const ReceiptPage = () => {
     navigate("/manage-posts");
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    return `${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}`;
+  };
+
   if (paymentStatus === "error") {
     return (
-      <div className="bg-[#D2DDBF] p-4 flex flex-col items-center justify-center min-h-screen">
+      <div className="bg-[#D2DDBF] p-4 flex flex-col items-center">
       <div className="h-screen w-[60%] mt-7 mb-8 bg-white border rounded-[20px] p-6">
-        <Result
-          status="error"
-          title="Thanh toán thất bại"
-          subTitle="Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại."
-          extra={[
+        <div className="flex flex-col items-center mt-5">
+        <div className="h-[13%] w-[10%] mt-12">
+              <img
+                src={require("../../../assets/images/error-icon.png")}
+                alt="images"
+                className="imagesland"
+                style={{ width: "100%", height: "auto" }}
+              />
+            </div>
+           <h1 className="text-[#3C5E39] font-bold text-2xl mt-7">
+              Thanh toán không thành công 
+            </h1>
+            <h2 className="text-slate-600 font-semibold mt-6 text-xl">
+              Đã có lỗi xảy ra trong quá trình thanh toán
+            </h2>
+            <h2 className="text-slate-600 font-semibold mt-3 text-xl">
+              Vui lòng thử lại sau
+            </h2>
+          </div>
+          <div className="flex justify-between ml-[5%] mr-[5%] mb-12 mt-20">
             <Button
-              key="home"
-              type="primary"
               onClick={handleHomeClick}
-              className="bg-[#4caf4f] text-white px-6 py-2 rounded-lg hover:bg-[#45a049]"
+              className="bg-[#4caf4f] text-white p-5 text-base border rounded-[20px] hover:bg-[#45a049]"
             >
               Quay về trang chủ
-            </Button>,
+            </Button>
             <Button
-              key="retry"
-              onClick={() => window.location.reload()}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+              onClick={handleManagePosts}
+              className="bg-[#4caf4f] text-white p-5 text-base border rounded-[20px] hover:bg-[#45a049]"
             >
-              Thử lại
-            </Button>,
-          ]}
-          />
+              Quản lý tin đăng
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -116,15 +135,13 @@ const ReceiptPage = () => {
             <div className="flex justify-between text-base mt-2 text-[17px]">
               <span>Thời gian thanh toán</span>
               <span className="font-semibold text-gray-800 text-[17px]">
-                {paymentData?.payDate
-                  ? new Date(paymentData.payDate).toLocaleString()
-                  : "2024-09-12 12:30:00"}
+                {formatDate(paymentData?.payDate)}
               </span>
             </div>
             <div className="flex justify-between text-base mt-2 text-[17px]">
               <span>Phương thức thanh toán</span>
               <span className="font-semibold text-gray-800 text-[17px]">
-                Vnpay
+                {paymentData?.menthod || "VNPAY"}
               </span>
             </div>
             <div className="flex justify-between text-base mt-2 text-[17px]">

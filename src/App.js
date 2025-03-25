@@ -7,6 +7,7 @@ import SignUp from "./views/pages/sign-up/index.jsx";
 import "@fontsource/roboto"; // Import font Roboto
 import { ConfigProvider } from "antd";
 import UserRoute from "./views/routes/userRouter.js";
+import ReceiptPage from "./views/pages/receipt/index.jsx";
 
 const theme = {
   token: {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/user/*" element={<UserRoute />} />
+          <Route path ="/api/v1/payment/vnpay-return" element ={<ReceiptPage/>}/>
         </Routes>
       </BrowserRouter>
     </ConfigProvider>

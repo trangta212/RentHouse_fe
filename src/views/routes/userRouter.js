@@ -6,7 +6,7 @@ import Header from '../../components/header/index.jsx';
 import Footer from '../../components/footer/index.jsx';
 import Chat from '../../chat/index.js';
 import PushInformationPage from '../pages/pushinformationpage/index.jsx';
-import ReceiptPage from "../pages/receipt/index.jsx";
+
 
 function UserRoute() {
   return (
@@ -21,7 +21,6 @@ function UserRoute() {
           <Route path="/room-details/:id" element={<DetailRoom />} />
           <Route path="/chat" element={<Chat/>} />
           <Route path ="/push-information-page" element ={<PushInformationPage/>}/>
-          <Route path ="/receipt" element ={<ReceiptPage/>}/>
         </Routes>
       </div>
       <div>

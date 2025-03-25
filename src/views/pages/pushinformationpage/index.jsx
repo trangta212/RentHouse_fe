@@ -172,6 +172,10 @@ const PushInformationPage = () => {
       setTotalDays(0);
     }
   };
+  const formatStartDate= dayjs(startDate).format('YYYY-MM-DD');
+  const formatEndDate= dayjs(endDate).format('YYYY-MM-DD');
+  console.log(formatStartDate)
+  console.log(formatEndDate)
 
   // Áp dụng thêm gói tin đi kèm
   const [totalPriceWithExtra, setTotalPriceWithExtra] = useState(null);
@@ -250,44 +254,48 @@ const PushInformationPage = () => {
     }
   };
 
-  // Cập nhật địa chỉ đầy đủ
-  const updateFullAddress = () => {
-    try {
-      const street = watch("textField") || "";
-      const town = watch("dropdownTown")?.name || "";
-      const district = watch("dropdownWard")?.name || "";
-      const province = watch("dropdownProvince")?.label || "";
+  // Hàm cập nhật địa chỉ đầy đủ
+  const updateFullAddress = (newAddress = "") => {
+    const addressParts = [];
 
-      const fullAddr = [street, town, district, province]
-        .filter(Boolean)
-        .join(", ");
-
-      console.log("Updating fullAddress:", fullAddr);
-      setValue("fullAddress", fullAddr, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-    } catch (error) {
-      console.error("Error in updateFullAddress:", error);
+    // Thêm địa chỉ đường nếu có
+    if (newAddress) {
+      addressParts.push(newAddress);
     }
+
+    // Thêm phường/xã nếu có
+    if (selectedTown?.label) {
+      addressParts.push(selectedTown.label);
+    }
+
+    // Thêm quận/huyện nếu có
+    if (selectedDistrict?.label) {
+      addressParts.push(selectedDistrict.label);
+    }
+
+    // Thêm tỉnh/thành phố nếu có
+    if (selectedProvince?.label) {
+      addressParts.push(selectedProvince.label);
+    }
+
+    // Ghép các phần thành chuỗi, cách nhau bởi dấu phẩy
+    const fullAddr = addressParts.join(", ");
+    setFullAddress(fullAddr);
   };
+  console.log("Full Address:", fullAddress);
 
   // Cập nhật các hàm xử lý thay đổi
-  const handleProvinceChange = async (value) => {
-    try {
-      console.log("Province changed:", value);
-      setValue("dropdownProvince", value, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setValue("dropdownWard", null);
-      setValue("dropdownTown", null);
-      updateFullAddress();
-    } catch (error) {
-      console.error("Error in handleProvinceChange:", error);
+  const handleProvinceChange = async (selected) => {
+    setSelectedProvince(selected);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
+    setSelectedTown(null);
+    setTownList([]);
+
+    if (selected?.value) {
+      await handleFetchWards(selected.value);
     }
+    updateFullAddress(watch("address")); // Cập nhật địa chỉ đầy đủ
   };
 
   const handleFetchTown = async (wardId) => {
@@ -314,19 +322,18 @@ const PushInformationPage = () => {
     }
   };
 
-  const handleWardChange = async (value) => {
-    try {
-      console.log("Ward changed:", value);
-      setValue("dropdownWard", value, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setValue("dropdownTown", null);
-      updateFullAddress();
-    } catch (error) {
-      console.error("Error in handleWardChange:", error);
+  const handleWardChange = async (selected) => {
+    console.log("Ward selected:", selected);
+    setSelectedDistrict(selected);
+    setSelectedTown(null);
+
+    if (selected?.value) {
+      console.log("Fetching towns for ward ID:", selected.value);
+      await handleFetchTown(selected.value);
+    } else {
+      setTownList([]);
     }
+    updateFullAddress(watch("address")); // Cập nhật địa chỉ đầy đủ
   };
 
   // Thanh toán
@@ -558,7 +565,7 @@ const PushInformationPage = () => {
           value={selectedTown}
           onChange={(selected) => {
             setSelectedTown(selected);
-            updateFullAddress();
+            updateFullAddress(watch("address"));
           }}
           placeholder="Chọn phường/xã..."
           isSearchable
@@ -576,7 +583,7 @@ const PushInformationPage = () => {
           className="mt-1 rounded-3xl p-[10px] text-[16px]"
           onChange={(e) => {
             setValue("address", e.target.value);
-            updateFullAddress();
+            updateFullAddress(e.target.value);
           }}
           placeholder="Nhập tên đường, số nhà..."
         />
@@ -1374,13 +1381,13 @@ const PushInformationPage = () => {
             <div className="flex justify-between text-base mt-1 text-[15px]">
               <span>Thời gian bắt đầu</span>
               <span className="font-semibold text-gray-800 text-[15px]">
-                {startDate ? startDate.format("YYYY/MM/DD") : "Chưa chọn"}
+                {startDate ? startDate.format("YYYY-MM-DD") : "Chưa chọn"}
               </span>
             </div>
             <div className="flex justify-between text-base mt-1 text-[15px]">
               <span>Thời gian kết thúc</span>
               <span className="font-semibold text-gray-800 text-[15px]">
-                {endDate ? endDate.format("YYYY/MM/DD") : "Chưa chọn"}
+                {endDate ? endDate.format("YYYY-MM-DD") : "Chưa chọn"}
               </span>
             </div>
           </div>
@@ -1490,6 +1497,8 @@ const PushInformationPage = () => {
         errors={errors}
         getValues={getValues}
         totalPrice={totalPrice.toLocaleString()}
+        startDate={formatStartDate}
+        endDate={formatEndDate}
         name={watch("textField")}
       />
       <div>
