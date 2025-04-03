@@ -15,8 +15,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
 import {faMoneyBill} from "@fortawesome/free-solid-svg-icons";
 import { Rate } from 'antd';
+import { FaHome } from "react-icons/fa";
+import { FaPhone } from "react-icons/fa6";
+import { SiGmail } from "react-icons/si";
+
+
 const count = 4;
-// const fakeDataUrl = `https://randomuser.me/api/?results=${count}&inc=name,gender,email,nat,picture&noinfo`;
 
 
 
@@ -151,6 +155,28 @@ const DetailRoom = () => {
            precision={0.5} 
            readOnly 
            />
+           <div className="mt-5">
+           <div className="flex justify-start text-base mt-1 text-[17px] space-x-10">
+            <span className ="text-2xl text-[#588157]"><FaHome /></span>
+            <span className="text-lg font-semibold">Nguyễn Văn A</span>
+          </div>
+          <div className="flex justify-start text-base mt-3 text-[17px] space-x-10">
+            <span className ="text-2xl text-[#588157]"><FaPhone /></span>
+            <span className="text-lg font-semibold">0981234567</span>
+          </div>
+          <div className="flex justify-start text-base mt-3 text-[17px] space-x-10">
+            <span className ="text-2xl text-[#588157]"><SiGmail /></span>
+            <span className="text-lg font-semibold">abc@gmail.com</span>
+          </div>
+         <div className="flex justify-center mt-16 space-x-8">
+          <Button className="border rounded-[20px] p-6 font-semibold text-base">
+            Liên hệ tư vấn
+          </Button>
+          <Button className="border rounded-[20px] p-6 font-semibold text-base">
+            Thuê
+          </Button>
+         </div>
+           </div>
           <div className ="detail-information-list-room">
           </div>
         </div>
@@ -193,6 +219,26 @@ const DetailRoom = () => {
       <div className="detail-room-map">
         <GoogleMapComponent address= {informationListRoom.address}/>
       </div>
+      <hr className="border-t border-gray-100 mb-10 mt-16" />
+      <div className="flex justify-start space-x-32">
+        <div className="flex flex-col">
+          <span className="text-[#999999]">Ngày đăng</span>
+          <span>21/02/2003</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[#999999]" >Ngày kết thúc</span>
+          <span>21/03/2003</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[#999999]">Loại tin</span>
+          <span >Tin thường </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[#999999]">Mã tin</span>
+          <span>1245</span>
+        </div>
+      </div>
+      <hr className="border-t border-gray-100 my-4 mb-10 mt-10" />
       <h2 className="detail-room-description-title">Bình luận từ người dùng đã thuê </h2>
     <div className="detail-room-comment-display">
     {list.length === 0 ? (

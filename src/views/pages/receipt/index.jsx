@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { Divider, Button, Result } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import paymentApi from "../../../api/paymentApi";
+import { PostRentUpdate } from "../../../api/postRent";
 
 const ReceiptPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const ReceiptPage = () => {
         const vnp_OrderInfo = searchParams.get("vnp_OrderInfo");
         const vnp_PayDate = searchParams.get("vnp_PayDate");
         const paymentMethod = searchParams.get("vnp_BankCode");
+        const postId = searchParams.get("postId"); // Lấy postId từ URL
 
         // Kiểm tra kết quả thanh toán
         if (vnp_ResponseCode === "00") {
@@ -32,9 +34,33 @@ const ReceiptPage = () => {
             payDate: vnp_PayDate,
             menthod: paymentMethod,
           });
+
+          // Cập nhật trạng thái post thành active
+          if (postId) {
+            try {
+              await PostRentUpdate(postId, {
+                status: "active",
+              });
+              console.log("Post status updated successfully");
+            } catch (updateError) {
+              console.error("Error updating post status:", updateError);
+              // Không throw error ở đây để không ảnh hưởng đến trải nghiệm người dùng
+            }
+          }
         } else {
           // Thanh toán thất bại
           setPaymentStatus("error");
+
+          // Cập nhật trạng thái post thành failed nếu có postId
+          if (postId) {
+            try {
+              await PostRentUpdate(postId, {
+                status: "pending",
+              });
+            } catch (updateError) {
+              console.error("Error updating post status:", updateError);
+            }
+          }
         }
 
         // Gọi API để cập nhật trạng thái thanh toán
@@ -48,7 +74,6 @@ const ReceiptPage = () => {
     handlePaymentResponse();
   }, [location]);
 
-
   const handleHomeClick = () => {
     navigate("/user/home");
   };
@@ -59,15 +84,18 @@ const ReceiptPage = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    return `${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}`;
+    return `${dateString.slice(0, 4)}-${dateString.slice(
+      4,
+      6
+    )}-${dateString.slice(6, 8)}`;
   };
 
   if (paymentStatus === "error") {
     return (
       <div className="bg-[#D2DDBF] p-4 flex flex-col items-center">
-      <div className="h-screen w-[60%] mt-7 mb-8 bg-white border rounded-[20px] p-6">
-        <div className="flex flex-col items-center mt-5">
-        <div className="h-[13%] w-[10%] mt-12">
+        <div className="h-screen w-[60%] mt-7 mb-8 bg-white border rounded-[20px] p-6">
+          <div className="flex flex-col items-center mt-5">
+            <div className="h-[13%] w-[10%] mt-12">
               <img
                 src={require("../../../assets/images/error-icon.png")}
                 alt="images"
@@ -75,8 +103,8 @@ const ReceiptPage = () => {
                 style={{ width: "100%", height: "auto" }}
               />
             </div>
-           <h1 className="text-[#3C5E39] font-bold text-2xl mt-7">
-              Thanh toán không thành công 
+            <h1 className="text-[#3C5E39] font-bold text-2xl mt-7">
+              Thanh toán không thành công
             </h1>
             <h2 className="text-slate-600 font-semibold mt-6 text-xl">
               Đã có lỗi xảy ra trong quá trình thanh toán

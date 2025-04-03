@@ -274,14 +274,14 @@ const ProgressComponent = ({
                 type="primary"
                 disabled={Number(totalPrice) === 0 || isLoading}
                 className={`text-lg font-semibold rounded-full h-12 w-35
-                  ${
-                    Number(totalPrice) === 0
-                      ? "bg-gray-200 text-gray-700 cursor-not-allowed"
-                      : "bg-[#4caf4f] text-white"
-                  }
-                `}
+          ${
+            Number(totalPrice) === 0
+              ? "bg-gray-200 text-gray-700 cursor-not-allowed"
+              : "bg-[#4caf4f] text-white"
+          }
+        `}
               >
-                Tiếp tục 
+                Tiếp tục
               </Button>
             </div>
           ) : (

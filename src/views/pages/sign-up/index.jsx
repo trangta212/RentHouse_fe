@@ -6,6 +6,8 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../../untils/axiosInstance";
+
 function SignUp() {
   const navigate = useNavigate();
   const [values, setValues] = useState({
@@ -87,7 +89,7 @@ function SignUp() {
       
         try {
           console.log(values.email);
-          const response = await axios.post("http://localhost:8000/api/auth/register", {
+          const response = await axiosInstance.post("/auth/register", {
             email: values.email,
             password: values.password,
             lastName: values.lastname,
@@ -106,7 +108,7 @@ function SignUp() {
             sessionStorage.setItem("auth", JSON.stringify(decodedPayload));
       
             setTimeout(() => {
-              navigate("/home");
+              navigate("/user/home");
             }, 3000);
           }
         } catch (error) {

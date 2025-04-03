@@ -32,7 +32,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/user/*" element={<UserRoute />} />
-          <Route path ="/api/v1/payment/vnpay-return" element ={<ReceiptPage/>}/>
+          <Route
+            path="/api/v1/payment/vnpay-return"
+            element={<ReceiptPage />}
+          />
         </Routes>
       </BrowserRouter>
     </ConfigProvider>

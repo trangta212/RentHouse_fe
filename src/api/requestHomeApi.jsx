@@ -1,8 +1,9 @@
-import axios from "axios";
+import axiosInstance from "../untils/axiosInstance.js";
+
 
 export const listHomeInformation = async () => {
     try {
-        const response = await axios.get(`http://localhost:8000/api/room`);
+        const response = await axiosInstance.get(`/room`);
         if (response.status === 200) {
             return response.data;
           } else {
@@ -17,7 +18,7 @@ export const listHomeInformation = async () => {
 
 export const detailRoomInformation = async (id) => {
     try {
-        const response = await axios.get(`http://localhost:8000/api/room/${id}`);
+        const response = await axiosInstance.get(`/room/${id}`);
         if (response.status === 200) {
             return response.data;
           } else {

@@ -172,10 +172,10 @@ const PushInformationPage = () => {
       setTotalDays(0);
     }
   };
-  const formatStartDate= dayjs(startDate).format('YYYY-MM-DD');
-  const formatEndDate= dayjs(endDate).format('YYYY-MM-DD');
-  console.log(formatStartDate)
-  console.log(formatEndDate)
+  const formatStartDate = dayjs(startDate).format("YYYY-MM-DD");
+  const formatEndDate = dayjs(endDate).format("YYYY-MM-DD");
+  console.log(formatStartDate);
+  console.log(formatEndDate);
 
   // Áp dụng thêm gói tin đi kèm
   const [totalPriceWithExtra, setTotalPriceWithExtra] = useState(null);
