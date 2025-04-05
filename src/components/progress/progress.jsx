@@ -48,6 +48,7 @@ const ProgressComponent = ({
 
       // Tạo postData với các trường tương ứng với từng bước
       const postData = {
+        user_id: localStorage.getItem('user_id'), // Add user_id from localStorage
         email: values?.email || "",
         lastName: values?.textField || "",
         phone_number: values?.phone || "",
