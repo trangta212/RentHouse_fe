@@ -95,7 +95,7 @@ const DetailRoom = () => {
       navigate("/login", { state: { from: location.pathname } });
       return;
     }
-    const receiver = {
+    const sender = {
       email: informationListRoom.RentPost?.User?.email,
       userName: informationListRoom.RentPost?.User?.lastName || "Chủ nhà",
       avatar: null, // Cần cập nhật nếu API có trả về avatar
@@ -106,7 +106,7 @@ const DetailRoom = () => {
       },
     };
 
-    navigate("/user/chat", { state: { receiver } });
+    navigate("/user/chat", { state: { sender } });
   };
 
   return (

@@ -20,6 +20,8 @@ import FavoriteList from "../favorite-list";
 import { message } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { TiMessages } from "react-icons/ti";
+
 
 
 const Header = () => {
@@ -48,6 +50,9 @@ const Header = () => {
       return;
     }
     setShowFavorites(true);
+  };
+  const handleMessagesClick = () => {
+    navigate('/user/chat'); // điều hướng đến trang tin nhắn
   };
 
   return (
@@ -195,10 +200,17 @@ const Header = () => {
           className="mt-[20px] ml-5 text-xl text-red-500"
           onClick={handleFavoriteClick}
           style={{ fontSize: "20px", cursor: "pointer" }}
-          />
+          />  
           )}
-         
+
         </div>
+        {token && (
+        <TiMessages 
+          className="mt-[20px] ml-5 text-xl text-[#4caf4f]"
+          style={{ fontSize: "20px", cursor: "pointer" }}
+          onClick={handleMessagesClick}
+        />
+        )}
       </div>
       <FavoriteList
         visible={showFavorites}

@@ -11,11 +11,14 @@ const Chat = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedChat, setSelectedChat] = useState(null);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
+  const [changebutton, setChangeButton] = useState(false);
 
-  // Nhận thông tin receiver từ location state (khi chuyển từ trang chi tiết phòng)
+
+  // Nhận thông tin sender từ location state (khi chuyển từ trang chi tiết phòng)
   useEffect(() => {
-    if (location.state?.receiver) {
-      setSelectedChat(location.state.receiver);
+    if (location.state?.sender) {
+      setSelectedChat(location.state.sender);
     }
   }, [location]);
 
@@ -23,7 +26,12 @@ const Chat = () => {
   useEffect(() => {
     const initializeSocket = async () => {
       try {
-        const socket = await initSocket();
+        const userInfo = await getUserInfo();
+        if (userInfo && userInfo.email) {
+          setCurrentUserEmail(userInfo.email);
+          setCurrentUser(userInfo.email);
+        }
+        const socket = await initSocket(userInfo.email);
         if (socket) {
           setIsSocketConnected(true);
           socket.on("connect", () => {
@@ -47,8 +55,8 @@ const Chat = () => {
   }, []);
 
   // Handler khi chọn một cuộc trò chuyện từ sidebar
-  const handleSelectChat = (chat) => {
-    setSelectedChat(chat);
+  const handleSelectChat = (email) => {
+    setChangeButton(email);
   };
 
   return (
@@ -58,12 +66,11 @@ const Chat = () => {
       sx={{ height: "100vh", display: "flex", overflow: "hidden" }}
     >
       <SideBar
-        currentUser={currentUser}
-        selectedChat={selectedChat}
+        // selectedChat={selectedChat}
         onSelectChat={handleSelectChat}
         isSocketConnected={isSocketConnected}
       />
-      <ChatBox currentUser={currentUser} selectedChat={selectedChat} />
+      <ChatBox currentUser={currentUser} selectedChat={selectedChat} changebutton={changebutton}/>
     </Paper>
   );
 };

@@ -12,12 +12,15 @@ import { Send as SendIcon } from "@mui/icons-material";
 import moment from "moment";
 import "moment/locale/vi";
 import socket, { initSocket } from "./socket";
+import { getMessages } from "../api/message"; // Giả định bạn có API lấy tin nhắn
+import { getUserInfo } from "../api/userApi"; // Giả định bạn có API lấy thông tin user
 
-const ChatBox = ({ currentUser, selectedChat }) => {
+const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const messagesEndRef = useRef(null);
+  const [mail, setMail] = useState("");
 
   // Kiểm tra kết nối socket
   useEffect(() => {
@@ -31,7 +34,7 @@ const ChatBox = ({ currentUser, selectedChat }) => {
           const newSocket = initSocket(currentUser.email);
           setTimeout(() => {
             if (newSocket?.connected) {
-              console.log("Socket reconnected successfully");
+            console.log("Socket reconnected successfully");
               setIsSocketConnected(true);
             } else {
               console.error("Failed to reconnect socket");
@@ -112,9 +115,53 @@ const ChatBox = ({ currentUser, selectedChat }) => {
     }
   };
 
+  // Fetch messages when selectedChat changes
+
+  useEffect(() => {
+    if (!selectedChat) {
+      console.log("No chat selected!");
+      return; // Nếu không có chat được chọn, không làm gì cả
+    }
+    console.log("Dung testtest:", selectedChat);
+    const fetchMessages = async () => {
+      try {
+        const response = await getMessages(selectedChat?.email); // Gọi API để lấy tin nhắn
+        console.log("Fetched messages:", response);
+        if (response.success) {
+          setMessages(response.messages); // Cập nhật state với tin nhắn mới
+        } else {  
+          console.error("Failed to fetch messages:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchMessages();
+  }, [ selectedChat]); // Gọi lại khi selectedChat thay đổi
+
+  useEffect (() => {
+    const fetchChangeButton = async () => {
+      try {
+        const response = await getMessages(changebutton); 
+        console.log("Fetched messages:", response);
+        if (response.success) {
+          setMessages(response.messages); // Cập nhật state với tin nhắn mới
+        } else {  
+          console.error("Failed to fetch messages:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+    fetchChangeButton();
+  }, [ changebutton]); 
+        
+
+
   return (
     <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      {selectedChat ? (
+      {(selectedChat || changebutton) ? (
         <>
           {/* Chat header */}
           <Box
@@ -125,14 +172,14 @@ const ChatBox = ({ currentUser, selectedChat }) => {
               alignItems: "center",
             }}
           >
-            <Avatar
+            {/* <Avatar
               src={selectedChat.avatar}
               sx={{ width: 40, height: 40, mr: 2 }}
-            />
+            /> */}
             <Box>
-              <Typography variant="h6">{selectedChat.userName}</Typography>
+              {/* <Typography variant="h6">{selectedChat.userName || changebutton}</Typography> */}
               <Typography variant="body2" color="text.secondary">
-                {isSocketConnected ? "Đang kết nối" : "Đang kết nối lại..."}
+                {isSocketConnected ? "Đã kết nối" : "Đang kết nối lại..."}
               </Typography>
             </Box>
           </Box>
@@ -164,10 +211,10 @@ const ChatBox = ({ currentUser, selectedChat }) => {
                     backgroundColor:
                       message.senderEmail === currentUser?.email
                         ? "#588157"
-                        : "white",
+                        : "#e8f5e9",
                     color:
                       message.senderEmail === currentUser?.email
-                        ? "white"
+                        ? "red"
                         : "inherit",
                   }}
                 >
