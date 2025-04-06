@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
@@ -16,7 +15,7 @@ import socket, { initSocket } from "./socket";
 import { getMessages } from "../api/message"; // Giả định bạn có API lấy tin nhắn
 import { getUserInfo } from "../api/userApi"; // Giả định bạn có API lấy thông tin user
 
-const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
+const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSocketConnected, setIsSocketConnected] = useState(false);
@@ -35,7 +34,7 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
           const newSocket = initSocket(currentUser.email);
           setTimeout(() => {
             if (newSocket?.connected) {
-            console.log("Socket reconnected successfully");
+              console.log("Socket reconnected successfully");
               setIsSocketConnected(true);
             } else {
               console.error("Failed to reconnect socket");
@@ -60,12 +59,27 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
       setIsSocketConnected(false);
     });
 
+    // Lắng nghe sự kiện nhận tin nhắn mới
+    socket.on("receive_message", (newMessage) => {
+      console.log("Received new message:", newMessage);
+      // Kiểm tra xem tin nhắn có phải cho cuộc trò chuyện hiện tại không
+      if (
+        newMessage.senderEmail === selectedChat?.email ||
+        newMessage.senderEmail === changebutton ||
+        newMessage.receiverEmail === currentUser?.email
+      ) {
+        console.log("Adding message to current chat:", newMessage);
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      }
+    });
+
     // Cleanup
     return () => {
       socket.off("connect");
       socket.off("disconnect");
+      socket.off("receive_message");
     };
-  }, [currentUser]);
+  }, [currentUser, selectedChat, changebutton]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -83,7 +97,6 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
     const messageData = {
       receiverEmail: selectedChat?.email || changebutton,
       content: newMessage.trim(),
-      timestamp: new Date().toISOString(),
     };
 
     console.log("Sending message with data:", messageData);
@@ -92,6 +105,17 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
       if (isSocketConnected) {
         console.log("Socket is connected, emitting message");
         socket.emit("send_message", messageData);
+
+        // Thêm tin nhắn vào local state ngay lập tức
+        const newMessageObj = {
+          senderEmail: currentUser.email,
+          receiverEmail: messageData.receiverEmail,
+          content: messageData.content,
+          timestamp: new Date().toISOString(),
+        };
+        console.log("Adding sent message to local state:", newMessageObj);
+        setMessages((prev) => [...prev, newMessageObj]);
+        setNewMessage("");
       } else {
         console.log("Socket is not connected, attempting to reconnect...");
         if (currentUser?.email) {
@@ -100,17 +124,23 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
             if (newSocket?.connected) {
               console.log("Socket reconnected, sending message");
               newSocket.emit("send_message", messageData);
+
+              // Thêm tin nhắn vào local state ngay lập tức
+              const newMessageObj = {
+                senderEmail: currentUser.email,
+                receiverEmail: messageData.receiverEmail,
+                content: messageData.content,
+                timestamp: new Date().toISOString(),
+              };
+              console.log("Adding sent message to local state:", newMessageObj);
+              setMessages((prev) => [...prev, newMessageObj]);
+              setNewMessage("");
             } else {
               console.error("Failed to reconnect socket");
-              // TODO: Implement fallback to HTTP API if socket fails
             }
           }, 1000);
         }
       }
-
-      // Add message to local state
-      setMessages((prev) => [...prev, messageData]);
-      setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -123,14 +153,13 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
       console.log("No chat selected!");
       return; // Nếu không có chat được chọn, không làm gì cả
     }
-    console.log("Dung testtest:", selectedChat);
     const fetchMessages = async () => {
       try {
         const response = await getMessages(selectedChat?.email); // Gọi API để lấy tin nhắn
         console.log("Fetched messages:", response);
         if (response.success) {
           setMessages(response.messages); // Cập nhật state với tin nhắn mới
-        } else {  
+        } else {
           console.error("Failed to fetch messages:", response.message);
         }
       } catch (error) {
@@ -139,16 +168,16 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
     };
 
     fetchMessages();
-  }, [ selectedChat]); // Gọi lại khi selectedChat thay đổi
+  }, [selectedChat]); // Gọi lại khi selectedChat thay đổi
 
-  useEffect (() => {
+  useEffect(() => {
     const fetchChangeButton = async () => {
       try {
-        const response = await getMessages(changebutton); 
+        const response = await getMessages(changebutton);
         console.log("Fetched messages:", response);
         if (response.success) {
           setMessages(response.messages); // Cập nhật state với tin nhắn mới
-        } else {  
+        } else {
           console.error("Failed to fetch messages:", response.message);
         }
       } catch (error) {
@@ -156,13 +185,11 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
       }
     };
     fetchChangeButton();
-  }, [ changebutton]); 
-        
-
+  }, [changebutton]);
 
   return (
     <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      {(selectedChat || changebutton) ? (
+      {selectedChat || changebutton ? (
         <>
           {/* Chat header */}
           <Box
@@ -256,6 +283,7 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage();
+                  setNewMessage("");
                 }
               }}
               sx={{ mr: 1 }}
@@ -280,7 +308,7 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
           }}
         >
           <Typography variant="h6" color="textSecondary">
-            Select a chat to start messaging
+            Hãy lựa chọn cuộc trò chuyện
           </Typography>
         </Box>
       )}

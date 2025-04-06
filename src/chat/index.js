@@ -14,7 +14,6 @@ const Chat = () => {
   const [currentUserEmail, setCurrentUserEmail] = useState("");
   const [changebutton, setChangeButton] = useState(false);
 
-
   // Nhận thông tin sender từ location state (khi chuyển từ trang chi tiết phòng)
   useEffect(() => {
     if (location.state?.sender) {
@@ -70,7 +69,11 @@ const Chat = () => {
         onSelectChat={handleSelectChat}
         isSocketConnected={isSocketConnected}
       />
-      <ChatBox currentUser={currentUser} selectedChat={selectedChat} changebutton={changebutton}/>
+      <ChatBox
+        currentUser={currentUser}
+        selectedChat={selectedChat}
+        changebutton={changebutton}
+      />
     </Paper>
   );
 };
