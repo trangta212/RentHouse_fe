@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
@@ -80,7 +81,7 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
     console.log("Socket Connection Status:", isSocketConnected);
 
     const messageData = {
-      receiverEmail: selectedChat?.email,
+      receiverEmail: selectedChat?.email || changebutton,
       content: newMessage.trim(),
       timestamp: new Date().toISOString(),
     };
@@ -90,7 +91,7 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
     try {
       if (isSocketConnected) {
         console.log("Socket is connected, emitting message");
-        socket.emit("sendMessage", messageData);
+        socket.emit("send_message", messageData);
       } else {
         console.log("Socket is not connected, attempting to reconnect...");
         if (currentUser?.email) {
@@ -98,7 +99,7 @@ const ChatBox = ({ currentUser, selectedChat,changebutton }) => {
           setTimeout(() => {
             if (newSocket?.connected) {
               console.log("Socket reconnected, sending message");
-              newSocket.emit("sendMessage", messageData);
+              newSocket.emit("send_message", messageData);
             } else {
               console.error("Failed to reconnect socket");
               // TODO: Implement fallback to HTTP API if socket fails

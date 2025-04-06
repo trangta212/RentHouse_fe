@@ -3,20 +3,21 @@ import { getUserInfo } from "../api/userApi";
 
 const SOCKET_URL = "http://localhost:8000";
 
-// Tạo một instance của Socket.IO client
 const socket = io(SOCKET_URL, {
   autoConnect: false,
   withCredentials: true,
   transports: ["websocket", "polling"],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
 });
 
-// Callback function để xử lý tin nhắn mới
 let onNewMessageCallback = null;
+let userEmail = null;
+let userToken = null;
 
-// Khởi tạo kết nối với email
 export const initSocket = async () => {
   try {
-    // Lấy thông tin user từ API
     const userData = await getUserInfo();
     console.log("Raw user data from API:", userData);
 
@@ -25,12 +26,10 @@ export const initSocket = async () => {
       return null;
     }
 
-    // Kiểm tra các trường có thể chứa email
-    const email =
-      userData.email || userData.user?.email || userData.data?.email;
-    console.log("Extracted email:", email);
+    userEmail = userData.email || userData.user?.email || userData.data?.email;
+    console.log("Extracted email:", userEmail);
 
-    if (!email) {
+    if (!userEmail) {
       console.error(
         "No email found in user data. Available fields:",
         Object.keys(userData)
@@ -38,40 +37,43 @@ export const initSocket = async () => {
       return null;
     }
 
-    // Thêm token vào socket auth
-    const token = sessionStorage.getItem("authToken");
-    if (!token) {
+    userToken = sessionStorage.getItem("authToken");
+    if (!userToken) {
       console.error("No token found in sessionStorage");
       return null;
     }
 
-    console.log("Initializing socket with email:", email);
-    socket.auth = { email, token };
-
-    // Kết nối socket
+    socket.auth = { email: userEmail, token: userToken };
     socket.connect();
 
-    // Authenticate với server
-    socket.emit("authenticate", { email, token });
+    // 🔁 Gửi authenticate khi kết nối lần đầu hoặc reconnect
+    const sendAuth = () => {
+      if (userEmail && userToken) {
+        console.log("🔐 Sending authenticate after connect/reconnect");
+        socket.emit("authenticate", { email: userEmail, token: userToken });
+      }
+    };
 
-    // Log kết nối thành công
     socket.on("connect", () => {
-      console.log("Socket connected successfully with ID:", socket.id);
+      console.log("✅ Socket connected with ID:", socket.id);
+      sendAuth();
     });
 
-    // Log lỗi kết nối
+    socket.on("reconnect", (attemptNumber) => {
+      console.log(`🔁 Reconnected to server (attempt ${attemptNumber})`);
+      sendAuth();
+    });
+
     socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
+      console.error("❌ Socket connection error:", error);
     });
 
-    // Log khi ngắt kết nối
     socket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason);
+      console.log("⚠️ Socket disconnected:", reason);
     });
 
-    // Lắng nghe tin nhắn mới
     socket.on("receive_message", (message) => {
-      console.log("New message received from server:", message);
+      console.log("📨 New message received:", message);
       if (onNewMessageCallback) {
         onNewMessageCallback(message);
       }
@@ -79,43 +81,48 @@ export const initSocket = async () => {
 
     return socket;
   } catch (error) {
-    console.error("Error initializing socket:", error);
+    console.error("❌ Error initializing socket:", error);
     return null;
   }
 };
 
-// Ngắt kết nối socket
 export const disconnectSocket = () => {
   if (socket.connected) {
-    console.log("Disconnecting socket");
+    console.log("⛔ Disconnecting socket");
     socket.disconnect();
   }
 };
 
-// Lắng nghe tin nhắn mới
 export const onNewMessage = (callback) => {
   onNewMessageCallback = callback;
 };
 
-// Gửi tin nhắn
 export const sendMessage = async (receiverEmail, content) => {
+  console.log("📩 Attempting to send message...");
+  console.log("Receiver email:", receiverEmail);
+  console.log("Message content:", content);
+  
   if (socket.connected) {
-    console.log("Sending message to:", receiverEmail);
-    console.log("Message content:", content);
+    if (!socket.auth || !socket.auth.email || !socket.auth.token) {
+      console.warn("Socket is not authenticated yet, retrying...");
+      setTimeout(() => sendMessage(receiverEmail, content), 1000); // Retry after 1 second
+      return;
+    }
+    console.log("✉️ Sending message to:", receiverEmail);
     socket.emit("send_message", { receiverEmail, content });
   } else {
-    console.error("Socket not connected");
-    // Thử kết nối lại nếu chưa kết nối
+    console.warn("🔌 Socket not connected, retrying...");
     try {
       const newSocket = await initSocket();
-      if (newSocket && newSocket.connected) {
-        console.log("Socket reconnected, sending message...");
+      if (newSocket?.connected) {
+        console.log("✅ Reconnected, sending message...");
         socket.emit("send_message", { receiverEmail, content });
       }
     } catch (error) {
-      console.error("Failed to reconnect socket:", error);
+      console.error("❌ Failed to reconnect socket:", error);
     }
   }
 };
+
 
 export default socket;
