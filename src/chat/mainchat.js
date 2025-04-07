@@ -30,8 +30,8 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
         setIsSocketConnected(true);
       } else {
         console.log("Socket is not connected, attempting to connect...");
-        if (currentUser?.email) {
-          const newSocket = initSocket(currentUser.email);
+        if (currentUser) {
+          const newSocket = initSocket(currentUser);
           setTimeout(() => {
             if (newSocket?.connected) {
               console.log("Socket reconnected successfully");
@@ -45,10 +45,8 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
       }
     };
 
-    // Kiểm tra kết nối khi component mount
     checkSocketConnection();
 
-    // Lắng nghe sự kiện kết nối/ngắt kết nối
     socket.on("connect", () => {
       console.log("Socket connected");
       setIsSocketConnected(true);
@@ -60,26 +58,38 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
     });
 
     // Lắng nghe sự kiện nhận tin nhắn mới
+    //
     socket.on("receive_message", (newMessage) => {
       console.log("Received new message:", newMessage);
-      // Kiểm tra xem tin nhắn có phải cho cuộc trò chuyện hiện tại không
+      console.log("Current User:", currentUser); // In ra giá trị currentUser
+      console.log("Sender Email:", newMessage.senderEmail); // In ra giá trị senderEmail của tin nhắn
+      console.log("Received new message:", newMessage);
+      // Kiểm tra điều kiện đúng để thêm tin nhắn vào chat hiện tại
       if (
         newMessage.senderEmail === selectedChat?.email ||
         newMessage.senderEmail === changebutton ||
-        newMessage.receiverEmail === currentUser?.email
+        newMessage.receiverEmail === currentUser
       ) {
         console.log("Adding message to current chat:", newMessage);
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
     });
 
-    // Cleanup
+    // Lắng nghe sự kiện tin nhắn đã gửi thành công
+    socket.on("message_sent", (sentMessage) => {
+      console.log("Message sent successfully:", sentMessage);
+      // Chỉ thêm tin nhắn vào khi tin nhắn đã được gửi thành công
+      if (sentMessage.receiverEmail === currentUser) {
+        console.log("Adding sent message to local state:", sentMessage);
+        setMessages((prevMessages) => [...prevMessages, sentMessage]);
+      }
+    });
+
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
       socket.off("receive_message");
+      socket.off("message_sent");
     };
-  }, [currentUser, selectedChat, changebutton]);
+  }, [selectedChat, changebutton, currentUser]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -89,7 +99,6 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
-
     console.log("Current User:", currentUser);
     console.log("Selected Chat:", selectedChat);
     console.log("Socket Connection Status:", isSocketConnected);
@@ -108,7 +117,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
 
         // Thêm tin nhắn vào local state ngay lập tức
         const newMessageObj = {
-          senderEmail: currentUser.email,
+          senderEmail: currentUser,
           receiverEmail: messageData.receiverEmail,
           content: messageData.content,
           timestamp: new Date().toISOString(),
@@ -118,8 +127,8 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
         setNewMessage("");
       } else {
         console.log("Socket is not connected, attempting to reconnect...");
-        if (currentUser?.email) {
-          const newSocket = initSocket(currentUser.email);
+        if (currentUser) {
+          const newSocket = initSocket(currentUser);
           setTimeout(() => {
             if (newSocket?.connected) {
               console.log("Socket reconnected, sending message");
@@ -127,7 +136,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
 
               // Thêm tin nhắn vào local state ngay lập tức
               const newMessageObj = {
-                senderEmail: currentUser.email,
+                senderEmail: currentUser,
                 receiverEmail: messageData.receiverEmail,
                 content: messageData.content,
                 timestamp: new Date().toISOString(),
@@ -146,19 +155,15 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
     }
   };
 
-  // Fetch messages when selectedChat changes
-
   useEffect(() => {
-    if (!selectedChat) {
-      console.log("No chat selected!");
-      return; // Nếu không có chat được chọn, không làm gì cả
-    }
+    const targetEmail = selectedChat?.email || changebutton;
+    if (!targetEmail) return;
+
     const fetchMessages = async () => {
       try {
-        const response = await getMessages(selectedChat?.email); // Gọi API để lấy tin nhắn
-        console.log("Fetched messages:", response);
+        const response = await getMessages(targetEmail);
         if (response.success) {
-          setMessages(response.messages); // Cập nhật state với tin nhắn mới
+          setMessages(response.messages);
         } else {
           console.error("Failed to fetch messages:", response.message);
         }
@@ -168,24 +173,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
     };
 
     fetchMessages();
-  }, [selectedChat]); // Gọi lại khi selectedChat thay đổi
-
-  useEffect(() => {
-    const fetchChangeButton = async () => {
-      try {
-        const response = await getMessages(changebutton);
-        console.log("Fetched messages:", response);
-        if (response.success) {
-          setMessages(response.messages); // Cập nhật state với tin nhắn mới
-        } else {
-          console.error("Failed to fetch messages:", response.message);
-        }
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
-    fetchChangeButton();
-  }, [changebutton]);
+  }, [selectedChat, changebutton]);
 
   return (
     <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
@@ -205,7 +193,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
               sx={{ width: 40, height: 40, mr: 2 }}
             /> */}
             <Box>
-              {/* <Typography variant="h6">{selectedChat.userName || changebutton}</Typography> */}
+              <Typography variant="h6">{selectedChat?.email || changebutton}</Typography>
               <Typography variant="body2" color="text.secondary">
                 {isSocketConnected ? "Đã kết nối" : "Đang kết nối lại..."}
               </Typography>
@@ -222,45 +210,53 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
               flexDirection: "column",
             }}
           >
-            {messages.map((message, index) => (
-              <Box
-                key={index}
-                sx={{
-                  alignSelf:
-                    message.senderEmail === currentUser?.email
-                      ? "flex-end"
-                      : "flex-start",
-                  mb: 2,
-                }}
-              >
-                <Paper
+            {messages.map((message, index) => {
+              // const isCurrentUser = message.senderEmail === currentUser;
+              const isCurrentUser =
+                message.senderEmail &&
+                currentUser &&
+                String(message.senderEmail).toLowerCase() ===
+                  String(currentUser).toLowerCase();
+              return (
+                <Box
+                  key={index}
                   sx={{
-                    p: 1.5,
-                    backgroundColor:
-                      message.senderEmail === currentUser?.email
-                        ? "#588157"
-                        : "#e8f5e9",
-                    color:
-                      message.senderEmail === currentUser?.email
-                        ? "red"
-                        : "inherit",
+                    alignSelf: isCurrentUser ? "flex-end" : "flex-start",
+                    mb: 2,
                   }}
                 >
-                  <Typography>{message.content}</Typography>
-                  <Typography
-                    variant="caption"
+                  <Paper
                     sx={{
-                      display: "block",
-                      textAlign: "right",
-                      mt: 0.5,
-                      opacity: 0.7,
+                      p: 1.5,
+                      backgroundColor: isCurrentUser ? "#e8f5e9" : "#dcdcdc",
+                      color: isCurrentUser ? "inherit" : "inherit",
                     }}
                   >
-                    {moment(message.timestamp).fromNow()}
-                  </Typography>
-                </Paper>
-              </Box>
-            ))}
+                   <Typography
+                   sx={{
+                   color: isCurrentUser ? "black" : "black", // Đổi màu rõ ràng hơn
+                   wordBreak: "break-word", // Đảm bảo văn bản dài được hiển thị đúng
+                   fontWeight: "normal", // Đảm bảo font weight bình thường
+                   fontSize: "14px", // Đặt kích thước font cụ thể
+                    }}
+                   >
+                   {message.content || "(Nội dung trống)"}
+                 </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textAlign: "right",
+                        mt: 0.5,
+                        opacity: 0.7,
+                      }}
+                    >
+                      {moment(message.timestamp).fromNow()}
+                    </Typography>
+                  </Paper>
+                </Box>
+              );
+            })}
             <div ref={messagesEndRef} />
           </Box>
 

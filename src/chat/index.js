@@ -26,11 +26,11 @@ const Chat = () => {
     const initializeSocket = async () => {
       try {
         const userInfo = await getUserInfo();
-        if (userInfo && userInfo.email) {
-          setCurrentUserEmail(userInfo.email);
-          setCurrentUser(userInfo.email);
-        }
-        const socket = await initSocket(userInfo.email);
+        console.log("User info fetched:", userInfo); 
+          setCurrentUserEmail(userInfo.data.email);
+          setCurrentUser(userInfo.data.email);
+          console.log("Index.js - currentUser set to:", userInfo.data.email);
+        const socket = await initSocket(userInfo.data.email);
         if (socket) {
           setIsSocketConnected(true);
           socket.on("connect", () => {
