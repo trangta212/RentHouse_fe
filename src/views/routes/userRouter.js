@@ -6,6 +6,7 @@ import Header from '../../components/header/index.jsx';
 import Footer from '../../components/footer/index.jsx';
 import Chat from '../../chat/index.js';
 import PushInformationPage from '../pages/pushinformationpage/index.jsx';
+import SearchResultPage from "../pages/resultsearch/SearchResultPage.jsx";
 
 
 function UserRoute() {
@@ -21,6 +22,7 @@ function UserRoute() {
           <Route path="/room-details/:id" element={<DetailRoom />} />
           <Route path="/chat" element={<Chat/>} />
           <Route path ="/push-information-page" element ={<PushInformationPage/>}/>
+          <Route path="/home/:location/:propertyType/:priceRange/:area" element={<SearchResultPage />} />
         </Routes>
       </div>
       <div>
