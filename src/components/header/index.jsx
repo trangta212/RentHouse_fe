@@ -21,6 +21,7 @@ import { message } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { TiMessages } from "react-icons/ti";
+import { disconnectSocket } from "../../chat/socket"; 
 
 
 
@@ -42,6 +43,7 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+    disconnectSocket();     
   };
 
   const handleFavoriteClick = () => {

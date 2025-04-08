@@ -13,7 +13,7 @@ import moment from "moment";
 import "moment/locale/vi";
 import socket, { initSocket } from "./socket";
 import { getMessages } from "../api/message"; // Giả định bạn có API lấy tin nhắn
-import { getUserInfo } from "../api/userApi"; // Giả định bạn có API lấy thông tin user
+
 
 const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
   const [messages, setMessages] = useState([]);

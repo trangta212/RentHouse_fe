@@ -22,6 +22,7 @@ import { SiGmail } from "react-icons/si";
 import { isAuthenticated } from "../../../untils/auth"; // Giả định bạn có file này
 import { message } from "antd";
 import { useLocation } from "react-router-dom";
+import { sendMessage } from '../../../api/message'; // Giả định bạn có API gửi tin nhắn
 
 const count = 4;
 
@@ -86,9 +87,8 @@ const DetailRoom = () => {
         </Button>
       </div>
     ) : null;
-
   // message
-  const handleOpenChat = () => {
+  const handleOpenChat = async() => {
     if (!isAuthenticated()) {
       // Nếu chưa đăng nhập, chuyển đến trang đăng nhập
       message.info("Vui lòng đăng nhập để sử dụng tính năng chat");
@@ -98,14 +98,37 @@ const DetailRoom = () => {
     const sender = {
       email: informationListRoom.RentPost?.User?.email,
       userName: informationListRoom.RentPost?.User?.lastName || "Chủ nhà",
-      avatar: null, // Cần cập nhật nếu API có trả về avatar
+      avatar: null, 
       roomInfo: {
         id: informationListRoom.id,
         name: informationListRoom.room_name,
         image: informationListRoom.room_images?.[0] || null,
       },
     };
-
+    const roomName = informationListRoom.room_name || "phòng này";
+    const roomAddress = informationListRoom.address?.district 
+      ? `ở ${informationListRoom.address.district}` 
+      : "";
+    
+      const initialMessage = `Chào bạn, mình có thấy phòng ${roomName} ở ${roomAddress} và rất có hứng thú.` +
+      `Bạn có thể cung cấp thêm thông tin chi tiết giúp mình được không?` +
+      `Mong sớm nhận được phản hồi từ bạn!`
+    try {
+      const response = await sendMessage({
+        receiverEmail: sender.email,
+        content: initialMessage
+      });
+      
+      if (response.success) {
+        console.log("Tin nhắn tự động đã được gửi");
+      } else {
+        console.warn("Không thể gửi tin nhắn tự động:", response.message);
+        // Vẫn tiếp tục mở chat ngay cả khi gửi tin nhắn thất bại
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi tin nhắn tự động:", error);
+      // Vẫn tiếp tục mở chat ngay cả khi có lỗi
+    }
     navigate("/user/chat", { state: { sender } });
   };
 

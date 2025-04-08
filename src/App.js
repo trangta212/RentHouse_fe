@@ -8,6 +8,8 @@ import "@fontsource/roboto"; // Import font Roboto
 import { ConfigProvider } from "antd";
 import UserRoute from "./views/routes/userRouter.js";
 import ReceiptPage from "./views/pages/receipt/index.jsx";
+import { AuthProvider } from "./context/authContext.js";
+
 
 const theme = {
   token: {
@@ -24,7 +26,9 @@ function App() {
   };
 
   return (
+   
     <ConfigProvider theme={theme}>
+      <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/landing" />} />
@@ -38,7 +42,9 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
+    </AuthProvider>
     </ConfigProvider>
+
   );
 }
 
