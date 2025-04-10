@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import MediaCard from "../../../components/card/card.jsx";
 import CarouselComponent from "../../../components/carousel/carousel.jsx";
 import CardPaper from "../../../components/card_peper/cardpeper.jsx";
-import img1 from "../../../assets/images/cours.jpg";
-import img2 from "../../../assets/images/cours2.jpg";
+import img1 from "../../../assets/images/cours-up-2.jpg";
+import img2 from "../../../assets/images/cours-up-1.jpg";
 import img3 from "../../../assets/images/cours3.jpg";
 import img4 from "../../../assets/images/cours4.jpg";
 import { AudioOutlined, SearchOutlined } from "@ant-design/icons";
@@ -122,7 +122,7 @@ const HomePage = () => {
     <div>
       <div className="home">
         <div className="carousel-container">
-          <CarouselComponent images={images} width="100%" height="100vh" />
+          <CarouselComponent images={images} width="100%" height="95vh" />
           <div className="search-container">
             <Dropdown menu={locationMenuProps} className="dropdown-custom">
               <Button size="large" className="button-custom">
@@ -222,7 +222,7 @@ const HomePage = () => {
             </Flex>
           </div>
           <h1 className="titleListHomePage">Các phòng trọ phổ biến</h1>
-          <div className="card-list-home-container-Homepage">
+          <div className="flex items-center justify-center">
             <MediaCard />
           </div>
           <h1 className="titleListHomePage">Các tin tức liên quan</h1>
