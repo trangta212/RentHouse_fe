@@ -132,6 +132,31 @@ const DetailRoom = () => {
     navigate("/user/chat", { state: { sender } });
   };
 
+  const handleOpenRent = () => {
+    if (!isAuthenticated()) {
+      message.info("Vui lòng đăng nhập để sử dụng tính năng chat");
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+  
+    const sender = {
+      email: informationListRoom.RentPost?.User?.email,
+      userName: informationListRoom.RentPost?.User?.lastName || "Chủ nhà",
+      avatar: null,
+      roomInfo: {
+        id: informationListRoom.id,
+        name: informationListRoom.room_name,
+        image: informationListRoom.room_images?.[0] || null,
+      },
+    };
+  
+  
+    // Chuyển sang trang deposit và truyền dữ liệu qua state
+    navigate("/user/deposit", {
+      state: { sender }
+    });    
+  };
+  
   return (
     <div>
       <div className="detail-room">
@@ -223,7 +248,9 @@ const DetailRoom = () => {
               >
                 Liên hệ tư vấn
               </Button>
-              <Button className="border rounded-[20px] p-6 font-semibold text-base">
+              <Button className="border rounded-[20px] p-6 font-semibold text-base"
+              onClick={handleOpenRent}
+              >
                 Thuê
               </Button>
             </div>
