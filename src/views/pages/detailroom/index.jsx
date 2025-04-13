@@ -146,7 +146,11 @@ const DetailRoom = () => {
       roomInfo: {
         id: informationListRoom.id,
         name: informationListRoom.room_name,
-        image: informationListRoom.room_images?.[0] || null,
+        image: informationListRoom.room_images|| null,
+        price: informationListRoom.price_per_month,
+        area: informationListRoom.area,
+        address: informationListRoom.address,
+        description: informationListRoom.description
       },
     };
   

@@ -3,15 +3,14 @@ import { useForm, Controller } from "react-hook-form";
 import { Input, InputNumber, Button, Upload, Image, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import CarouselComponent from "../../../components/carousel/carousel.jsx";
-import img1 from "../../../assets/images/cours-up-2.jpg";
-import img2 from "../../../assets/images/cours-up-1.jpg";
-import img3 from "../../../assets/images/cours3.jpg";
-import img4 from "../../../assets/images/cours4.jpg";
 import { Radio } from "antd";
 import vnpayLogo from "../../../assets/images/vn-pay.png";
 import momo from "../../../assets/images/momo.png";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import {getUserInfo} from "../../../api/userApi.js";
+import paymentApi from "../../../api/paymentApi";
+
 
 
 
@@ -40,12 +39,18 @@ const getBase64 = (file) =>
     gap: 8,
   };
 const Deposit = () => {
-  const images = [img1, img2, img3, img4];
+  const location = useLocation();
   const { control, handleSubmit, watch, setValue, clearErrors, formState: { errors } } = useForm();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState([]);
   const [selectedDetail, setSelectedDetail] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [isAgreed, setIsAgreed] = useState(false); // State để quản lý checkbox
+  const [payUrl, setPayUrl] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState(null);
+// Xử lý trạng thái thanh toán
+ 
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -62,25 +67,97 @@ const Deposit = () => {
     </div>
   );
 
-  const onSubmit = (data) => {
-    const fullData = {
-      ...data,
-      cccd_images: fileList.map(file => file.originFileObj),
-    };
-    console.log("Thông tin người dùng:", fullData);
-    message.success("Gửi thông tin thành công!");
+  // const onSubmit = async (data) => {
+  //   try {
+  
+  //     const amount = data["deposit-amount"]; // <-- lấy trực tiếp từ `data`
+  //     const amountNumber = parseInt(amount, 10);
+  
+  //     const orderInfo = `Đặt cọc phòng ${selectedDetail?.roomInfo?.name} - ${selectedDetail?.roomInfo?.address}`;
+  //     // 💾 Lưu dữ liệu vào localStorage trước khi redirect
+  //     localStorage.setItem("depositData", JSON.stringify({
+  //       ...data
+  //       }));
+  //     localStorage.setItem("fileList", JSON.stringify(fileList));
+
+  //     const response = await paymentApi.paymentVnpay({
+  //       amount: amountNumber,
+  //       orderInfo: orderInfo,
+  //     });
+  
+  //     if (response.data && response.data.paymentUrl) {
+  //       setPayUrl(response.data.paymentUrl);
+  //       window.location.href = response.data.paymentUrl;
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ Lỗi khi tạo URL thanh toán:", error);
+  //   }
+  // };
+  const onSubmit = async (data) => {
+    try {
+      const amount = data["deposit-amount"]; // Lấy trực tiếp từ `data`
+      const amountNumber = parseInt(amount, 10);
+  
+      const orderInfo = `Đặt cọc phòng ${selectedDetail?.roomInfo?.name} - ${selectedDetail?.roomInfo?.address}`;
+  
+      // 💾 Lưu dữ liệu vào localStorage trước khi gọi API
+      localStorage.setItem(
+        "depositData",
+        JSON.stringify({
+          ...data,
+        })
+      );
+      localStorage.setItem("fileList", JSON.stringify(fileList));
+  
+      // Gọi API để tạo URL thanh toán
+      const response = await paymentApi.paymentVnpay({
+        amount: amountNumber,
+        orderInfo: orderInfo,
+      });
+  
+      if (response.data && response.data.paymentUrl) {
+        setPayUrl(response.data.paymentUrl);
+  
+        // Chuyển hướng đến URL thanh toán
+        window.location.href = response.data.paymentUrl;
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi tạo URL thanh toán:", error);
+    }
   };
+  
   const [valuepayment, setValuePayment] = useState(1);
   const onChange = (e) => {
     setValuePayment(e.target.value);
   };
+  const handleCheckboxChange = (e) => {
+    setIsAgreed(e.target.checked); // Cập nhật trạng thái khi checkbox thay đổi
+  };
 // Lấy thông tin 
-const location = useLocation();
   useEffect(() => {
     if (location.state?.sender) {
         setSelectedDetail(location.state.sender);
     }
   }, [location]);
+// Lấy api
+useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await getUserInfo();
+        setUserInfo(userInfo.data);
+        console.log("Thông tin người dùng:", userInfo.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin người dùng:", error);
+      }
+    };
+    fetchUserInfo();
+  }, []);
+  useEffect(() => {
+    if (selectedDetail?.roomInfo?.price > 0) {
+      const deposit = selectedDetail.roomInfo.price * 1000000 * 0.1;
+      setValue("deposit-amount", deposit);
+    }
+  }, [selectedDetail, setValue]);
 
   return (
     <div className="p-10 w-full">
@@ -203,7 +280,7 @@ const location = useLocation();
             />
             {errors.phone_number && <p className="text-red-500">{errors.phone_number.message}</p>}
             <label className="font-semibold text-sm block mt-4 mb-1">Email<span className="text-red-500">*</span></label>
-            <Input value="selectedDetail" readOnly placeholder="Họ và tên"
+            <Input value={userInfo?.email || ""} readOnly placeholder="Họ và tên" 
             className="rounded-3xl p-[10px] mb-2"
              />
 
@@ -234,7 +311,7 @@ const location = useLocation();
   </p>
 
   <div className="mt-5 flex items-start gap-2">
-    <input type="checkbox" id="policy-agree" className="mt-1" />
+    <input type="checkbox" id="policy-agree" className="mt-1"  onChange={handleCheckboxChange} />
     <label htmlFor="policy-agree" className="text-gray-700">
       Tôi đã đọc và đồng ý với các <span className="underline font-medium">điều khoản & chính sách đặt cọc</span>.
     </label>
@@ -242,36 +319,75 @@ const location = useLocation();
  
 </div>
 <div className="mt-5 flex justify-end">
-    <Button htmlType="submit" className="bg-[#4caf4f] text-white rounded-3xl px-7 py-5 font-semibold">
-      Thanh toán 
-    </Button>
+             <Button
+                htmlType="submit"
+                className={`rounded-3xl px-7 py-5 font-semibold ${
+                  isAgreed
+                    ? "bg-[#4caf4f] text-white"
+                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
+                disabled={!isAgreed} // Vô hiệu hóa nút nếu chưa tích checkbox
+                onclick={onSubmit}
+              >
+                Thanh toán
+              </Button>
    </div> 
         </div>
         <div className="w-1/3">
         <div className="bg-[#fffced] rounded-[20px] p-4">
        <h2 className="text-lg font-medium">Thông tin phòng</h2>
-        <CarouselComponent images={images} width="100%" height="25vh" className="rounded-[20px] mt-4" />
+        <CarouselComponent images={selectedDetail?.roomInfo?.image} width="100%" height="25vh" className="rounded-[20px] mt-4" />
         <div className="mt-4">
           <h3 className="text-base font-medium">
-  {selectedDetail?.roomInfo?.name || "Không có thông tin phòng"}
-</h3>
-
-          <p className="text-sm text-gray-500">Phòng ngủ riêng</p>
-          <h3 className="text-base font-medium mt-2">Địa chỉ</h3>
-            <p className="text-sm text-gray-500">123 Đường ABC, Quận 1, TP.HCM</p>
-            <h3 className="text-base font-medium mt-2">Giá phòng</h3>
+         {selectedDetail?.roomInfo?.name || "Không có thông tin phòng"}
+          </h3>
+            <h3 className="text-[15px] mt-2">Địa chỉ:</h3>
+            <p className="text-sm text-gray-500">
+            {selectedDetail?.roomInfo?.address || "Không có thông tin phòng"}
+            </p>
+            <h3 className="text-[15px] mt-2">Giá phòng:</h3>
+            <p className="text-sm text-gray-500">
+            {selectedDetail?.roomInfo?.price || "Không có thông tin phòng"} triệu đồng/tháng
+            </p>
+            <h3 className="text-[15px] mt-2">Diện tích:</h3>
+            <p className="text-sm text-gray-500">
+            {selectedDetail?.roomInfo?.area || "Không có thông tin phòng"} m²
+            </p>
+            <h3 className="text-[15px] mt-2">Tiện ích:</h3>
+            <p className="text-sm text-gray-500">
+            {selectedDetail?.roomInfo?.utilities || "Không có thông tin phòng"}
+            </p>
         </div>  
        </div>
        <div className="bg-[#e8f5e9] rounded-[20px] p-4 mt-5">
        <h2 className="text-lg font-medium">Thông tin cọc</h2>
        <p className="text-sm text-gray-500">Số tiền cần đặt cọc (10% của tháng thuê đầu tiên)</p>
-       <Input value="300.000 đ" readOnly placeholder="Họ và tên"
-            className="rounded-3xl p-[10px] mb-2"
-             />
+       <Controller
+  name="deposit-amount"
+  control={control}
+  render={({ field }) => (
+    <Input
+      {...field}
+      readOnly
+      className="rounded-3xl p-[10px] mb-2"
+      placeholder="Số tiền đặt cọc"
+    />
+  )}
+/>
        <p className="text-sm text-gray-500"> Ngày đặt cọc</p>
-         <Input value="21/02/2003" readOnly placeholder="Họ và tên"
-                className="rounded-3xl p-[10px] mb-2"
-        />
+       <Controller
+  name="depositDate"
+  control={control}
+  defaultValue={new Date().toLocaleDateString("vi-VN")} // Đặt giá trị mặc định là ngày hiện tại
+  render={({ field }) => (
+    <Input
+      {...field}
+      readOnly // Chỉ cho phép xem
+      placeholder="Ngày đặt cọc"
+      className="rounded-3xl p-[10px] mb-2"
+    />
+  )}
+/>
         <p className="text-sm text-gray-500"> Phương thức thanh toán</p>
         <div className="p-3 text-slate-400">
               <Radio.Group

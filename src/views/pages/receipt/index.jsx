@@ -24,7 +24,7 @@ const ReceiptPage = () => {
         const postId = searchParams.get("postId"); // Lấy postId từ URL
 
         // Kiểm tra kết quả thanh toán
-        if (vnp_ResponseCode === "00") {
+        if (vnp_ResponseCode === "00") { 
           // Thanh toán thành công
           setPaymentStatus("success");
           setPaymentData({
@@ -46,6 +46,30 @@ const ReceiptPage = () => {
               console.error("Error updating post status:", updateError);
               // Không throw error ở đây để không ảnh hưởng đến trải nghiệm người dùng
             }
+          }
+          const depositDataStr = localStorage.getItem("depositData");
+          const storedFileListStr = localStorage.getItem("fileList");
+          
+          if (depositDataStr && storedFileListStr) {
+            try {
+              const depositData = JSON.parse(depositDataStr);
+              const storedFileList = JSON.parse(storedFileListStr);
+          
+              const fullData = {
+                ...depositData,
+                cccd_images: storedFileList.map(file => file.originFileObj),
+              };
+          
+              console.log("🔁 Thông tin gửi đi sau thanh toán:", fullData);
+          
+              // ✅ Xóa sau khi xử lý thành công
+              // localStorage.removeItem("depositData");
+              // localStorage.removeItem("fileList");
+            } catch (parseError) {
+              console.error("❌ Lỗi khi parse dữ liệu localStorage:", parseError);
+            }
+          } else {
+            console.warn("⚠️ Không tìm thấy dữ liệu trong localStorage!");
           }
         } else {
           // Thanh toán thất bại
@@ -172,12 +196,21 @@ const ReceiptPage = () => {
                 {paymentData?.menthod || "VNPAY"}
               </span>
             </div>
-            <div className="flex justify-between text-base mt-2 text-[17px]">
-              <span>Nội dung thanh toán</span>
-              <span className="font-semibold text-gray-800 text-[17px]">
-                {paymentData?.orderInfo || "Thanh toán tiền đăng tin"}
-              </span>
-            </div>
+            <div className="flex items-center text-base mt-2 text-[17px]">
+  <span style={{ flexBasis: "40%" }}>Nội dung thanh toán</span>
+  <span
+    className="font-semibold text-gray-800 text-[17px] truncate"
+    style={{
+      flexBasis: "60%", 
+      display: "inline-block",
+      whiteSpace: "nowrap", 
+      overflow: "hidden", 
+      textOverflow: "ellipsis", 
+    }}
+  >
+    {paymentData?.orderInfo || "Thanh toán tiền đăng tin"}
+  </span>
+</div>
           </div>
           <div className="flex justify-between ml-[5%] mr-[5%] mb-12 mt-10">
             <Button
