@@ -5,9 +5,11 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 10;
-    width: 40%;
+    width: 60%;
+    height: 150px;
     max-width: 600px;
     display: flex;
+    padding-top:40px;
   }
   .button-custom {
     border-radius: 8px 0 0 8px; /* Bo tròn góc trái, giữ vuông các cạnh còn lại */
@@ -18,17 +20,23 @@
   height:60px;
   
   }
-  
+  .search-customer{
+    width: 100% !important;
+  }
+
   .search-custom .ant-input-affix-wrapper {
     border-radius: 0px 0 0 0px !important; /* Bo tròn bên trái, giữ vuông bên phải */
-    height:60px;
+    height:62px;
+    width: 100% !important;
     
   }
   .search-custom .ant-btn {
     height:60px;
     width:50px;
   }
-  
+  .NavFilterHomePage{
+    margin-left:20px;
+  }
   .NavFilterHomePage .ant-btn{
     border-radius: 50px; /* Bo tròn bên phải, giữ vuông bên trái */
     height:40px;
@@ -37,7 +45,7 @@
     font-size: 14px;
     font-family: "Roboto";
     margin-top:60px;
-    margin-bottom:30px;
+    margin-bottom:5px;
     margin-left:30px;
 
   }
@@ -50,9 +58,9 @@
     font-family: "Roboto", sans-serif;
     font-size: 27px;
     font-weight: 700;
-    margin-left:30px;
-    margin-top:30px;
-    margin-bottom:20px;
+    margin-left:70px;
+    margin-top:40px;
+    margin-bottom:10px;
   }
   .pagination-container{
     display: flex;
@@ -62,8 +70,10 @@
   }
 .paper-homepage-container{
   display:flex;
-  justify-content: center;
+  /* justify-content: center; */
   margin-bottom: 30px;
+  align-items: center;
+  padding:0 83px;
 }
 .paper-homepage-container-center{
   width: 40%;
@@ -74,3 +84,7 @@
   display:flex;
   justify-content: center;
 }
+/* .ant-list.ant-list-split.ant-list-grid.ant-list-something-after-last-item{
+  padding: 0px !important;
+  margin-top:20px;
+} */

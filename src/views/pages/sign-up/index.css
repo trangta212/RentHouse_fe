@@ -7,12 +7,9 @@
 .left-element {
   width: 50%;
   flex-direction: column; /* Nếu nội dung có nhiều dòng */
-  align-items: center; /* Căn giữa theo chiều ngang */
-  justify-content: center; /* Căn giữa theo chiều dọc */
   text-align: center;
-  margin-top: 40px;
-  position: relative;
-  margin-left:50px;
+  margin-top: 8%;
+  margin-left:30px;
   border-top-left-radius: 10px; /* Bo góc trên trái */
   border-bottom-left-radius: 10px; /* Bo góc dưới trái */
 }

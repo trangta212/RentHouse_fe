@@ -6,9 +6,9 @@ import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
-import {jwtDecode} from 'jwt-decode';
+import useAuthStore from "../../../store/authStore"; // Import Zustand store
+import axiosInstance from "../../../untils/axiosInstance";
 
 function Login() {
       const navigate = useNavigate();
@@ -16,6 +16,7 @@ function Login() {
         email: "",
         password: "",
       });
+      const { login } = useAuthStore();
       const [pass1Error, setPass1Error] = useState('');
           
       const handleMailChange = (e) => {
@@ -42,29 +43,15 @@ function Login() {
             }
         // Gửi dữ liệu lên server
         try {
-            const response = await axios.post("http://localhost:8000/api/auth/login",{
+            const response = await axiosInstance.post("/auth/login",{
                 email: values.email,
                 password: values.password,
                 role: "user",
             });
             if (response.status === 200) {
             toast.success(response.data.message);
-            sessionStorage.setItem("authToken", response.data.token);
-
-            const user = jwtDecode(response.data.token);
-      
-            // Xử lý token
-            sessionStorage.setItem("auth", JSON.stringify(user));
-            // const parts = response.data.token.split('.'); // Tách token thành 3 phần
-            // const payload = parts[1];
-            // const decodedPayload = JSON.parse(atob(payload)); // Giải mã Base64
-            // sessionStorage.setItem("auth", JSON.stringify(decodedPayload));
-
-           
-
-            setTimeout(() => {
-              navigate("/home", {state :user} );
-            }, 3000);
+            login(response.data.token);
+            setTimeout(() => navigate("/user/home"), 2000);
           }
         } catch (error) {
           // Xử lý lỗi từ server
@@ -87,7 +74,7 @@ function Login() {
             <div className="left-element">
                 <h1 className="title">WELCOME BACK</h1>
                 <p className="sub-title">Welcome back! Please enter your details.</p>
-                
+                <div className="flex items-center justify-center">
                 <Form
                     layout={formLayout}
                     form={form}
@@ -192,6 +179,7 @@ function Login() {
                         </p>
                     </Form.Item>
                 </Form>
+                </div>
                       <ToastContainer />
             </div>
 
@@ -200,7 +188,7 @@ function Login() {
                 <img
                     src={require("../../../assets/images/login.png")}
                     alt="images"
-                    className="imagesland"
+                    className="imageslandlogin"
                 />
             </div>
         </div>

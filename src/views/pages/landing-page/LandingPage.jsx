@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "../landing-page/landingPage.css";
 import { DownOutlined } from "@ant-design/icons";
 import { Button, Dropdown, message, Space } from "antd";
+import { useNavigate } from "react-router-dom";
+
 const LandingPage = () => {
   const handleMenuClick = (e) => {
     message.info("Click on menu item.");
@@ -20,6 +22,11 @@ const LandingPage = () => {
   const menuProps = {
     items,
     onClick: handleMenuClick,
+  };
+  const navigate = useNavigate();
+
+  const handleStartNow = () => {
+    navigate("/user/home"); // ví dụ: "/dashboard"
   };
   return (
     <div className="landingPage">
@@ -48,7 +55,7 @@ const LandingPage = () => {
           </div>
         </nav>
       </header>
-      <main>
+      <main style={{height:"100%"}}>
         <div className="rightLand">
           <h1 className="titleLand">
             Find House With <br />
@@ -61,7 +68,7 @@ const LandingPage = () => {
             transparent information and a simple process. Start your journey to
             find your new home today!
           </p>
-          <button>Start Now</button>
+            <button onClick={handleStartNow}>Start Now</button>
         </div>
         <div className="leftLand">
           <img

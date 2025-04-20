@@ -16,14 +16,10 @@ import { listHomeInformation } from "../../api/requestHomeApi";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMoneyCheckDollar } from "@fortawesome/free-solid-svg-icons";
+import { faMoneyCheckDollar, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { addFavoriteRooms } from "../../api/favoriteApi";
 
-import { Row, Col } from "antd";
 import { List } from "antd";
-//collectionData (array): mảng chứa dữ liệu của 1 item cần có 3 trường id, name, place
-//itemsNumber (int): số item tối đa hiển thị trong 1 hàng
-//rowNumber (int): số hàng
-//showIndicator (boolean): hiển thị đánh số trang
 
 function MediaCard() {
   const [liked, setLiked] = useState(false); // State để lưu trạng thái yêu thích
@@ -45,16 +41,53 @@ function MediaCard() {
   useEffect(() => {
     fetchListHome();
   }, []);
+  // Xử lý đoạn yêu thích
+  const [favoriteRooms, setFavoriteRooms] = useState([]); // Danh sách roomIds
+  const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
 
-  const datasource = listHome.map((room, index) => (
-    <Card key={index} sx={{ width: "80%", height: "120vh" }}>
-      <Link to={`/user/room-details/${room.id}`}>
+  const datasource = listHome.map((room, index) => {
+    const isFavorite = favoriteRooms.includes(room.id); // Kiểm tra trạng thái yêu thích
+
+    const handleFavoriteClick = async () => {
+      try {
+        // Cập nhật danh sách roomIds
+        const updatedFavorites = isFavorite
+          ? favoriteRooms.filter((id) => id !== room.id) // Xóa roomId nếu đã yêu thích
+          : [...favoriteRooms, room.id]; // Thêm roomId nếu chưa yêu thích
+
+        setFavoriteRooms(updatedFavorites); // Cập nhật danh sách yêu thích
+        setIsFavorite(!isFavorite);
+        // Gửi API để lưu danh sách yêu thích
+        const response = await addFavoriteRooms(updatedFavorites);
+        console.log("API Response:", response);
+      } catch (error) {
+        console.error("Error adding favorite room:", error);
+      }
+    };
+
+    return (
+      <Card key={index} sx={{ width: "100%", height: "65vh" }}>
+        {/* <Link to={`/user/room-details/${room.id}`}> */}
         <Box sx={{ position: "relative" }}>
           <CardMedia
             component="img"
             sx={{ height: 200 }}
-            image={coursImage}
+            image={room.room_images[0] || coursImage} // Sử dụng ảnh mặc định nếu không có ảnh
             alt={room.room_name}
+          />
+
+          <FontAwesomeIcon
+            icon={faHeart}
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 20,
+              fontSize: "30px",
+              cursor: "pointer",
+              color: isFavorite ? "red" : "gray", // Đổi màu dựa trên trạng thái yêu thích
+            }}
+            className={`heart-icon ${isFavorite ? "favorite" : ""}`}
+            onClick={handleFavoriteClick}
           />
           <Button
             variant="contained"
@@ -74,42 +107,95 @@ function MediaCard() {
 
         <CardContent
           sx={{
-            height: "60%",
+            height: "25%",
           }}
         >
           <Typography
             gutterBottom
-            variant="h5"
-            component="div"
-            sx={{ marginBottom: "15px" }}
+            variant="h6"
+            // component="div"
+            // sx={{ marginBottom: "15px" }}
+            component={Link} // Sử dụng Link để chuyển trang
+            to={`/user/room-details/${room.id}`} // Đường dẫn đến trang chi tiết
+            sx={{
+              marginTop: "5px",
+              marginBottom: "10px",
+              textDecoration: "none",
+              color: "inherit",
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              "&:hover": {
+                textDecoration: "none",
+              },
+            }}
           >
             {room.room_name}
           </Typography>
           <Stack
             direction="row"
-            spacing={2}
-            sx={{ width: "100%", justifyContent: "center " }}
+            spacing={1}
+            sx={{
+              width: "100%",
+              alignItems: "center ",
+              justifyContent: "space-between",
+            }}
           >
-            <FontAwesomeIcon
-              icon={faMoneyCheckDollar}
-              style={{ fontSize: "20px" }}
-            />
-            <Typography
-              variant="h6"
-              sx={{ flex: 1, color: "#636364", fontWeight: "400" }}
+            <Box
+              display="flex"
+              alignItems="center"
+              sx={{
+                gap: "8px",
+                marginBottom: "8px",
+                width: "40%",
+              }} // khoảng cách giữa icon và chữ
             >
-              {room.price_per_month
-                ? `${room.price_per_month} triệu đồng/tháng`
-                : "Chưa có giá"}
-            </Typography>
+              <FontAwesomeIcon
+                icon={faMoneyCheckDollar}
+                style={{ fontSize: "15px" }}
+              />
+              <Typography
+                sx={{
+                  color: "#636364",
+                  fontWeight: 400,
+                  fontSize: "1.05rem",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
+              >
+                {room.price_per_month
+                  ? `${room.price_per_month} triệu đồng / tháng`
+                  : "Chưa có giá"}
+              </Typography>
+            </Box>
             <Stack
               direction="row"
               alignItems="center"
               spacing={0.5}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, width: "40%" }}
             >
               <LocationOn color="error" />
-              <Typography variant="body1">
+              <Typography
+                variant="body1"
+                sx={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
+              >
                 {room.address || "Không có địa chỉ"}
               </Typography>
             </Stack>
@@ -121,7 +207,7 @@ function MediaCard() {
               marginTop: "20px",
               marginBottom: "10px",
               display: "-webkit-box",
-              WebkitLineClamp: 4, // Giới hạn 3 dòng
+              WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
             }}
@@ -129,39 +215,61 @@ function MediaCard() {
             {room.description || "Không có mô tả"}
           </Typography>
         </CardContent>
-        <Divider />
-        <CardHeader
-          avatar={<Avatar sx={{ bgcolor: "red" }}>A</Avatar>}
-          title="Anne Liza"
-          subheader="Property Seller"
+        <Divider
+          sx={{
+            marginTop: "60px",
+            marginBottom: "30px",
+          }}
         />
-      </Link>
-    </Card>
-  ));
+        <CardHeader
+          sx={{
+            height: "10%",
+            marginTop: "10px",
+          }}
+          avatar={<Avatar sx={{ bgcolor: "red" }}>A</Avatar>}
+          title={room?.RentPost?.User?.lastName || "Không rõ người đăng"}
+          subheader={room?.RentPost?.User?.email || "Không rõ người đăng"}
+        />
+        {/* </Link> */}
+      </Card>
+    );
+  });
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={3}>
       <List
-        grid={{ gutter: 10, column: 2 }}
+        grid={{
+          gutter: 27,
+          column: 3,
+        }}
         pagination={{
           onChange: (page) => {
             console.log(page);
           },
-          pageSize: 8,
+          pageSize: 6,
           style: { textAlign: "center" },
+          align: 'center', 
         }}
         dataSource={datasource}
         renderItem={(item) => (
-          // <Col xs={24} sm={12} md={12} lg={12} >
-          <List.Item style={{ marginBottom: "40px" }}>
-            <List.Item.Meta />
+          <List.Item
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "stretch", // đảm bảo các card có chiều cao đều
+            }}
+          >
             {item}
           </List.Item>
-          // </Col>
         )}
-        style={{ margin: "50px" }} // Căn giữa List
+        style={{
+          margin: "0 auto",
+          // padding: "20px",
+          padding: "20px 0", // Thêm padding theo trục Y (trên và dưới)
+          width: "95%",
+          maxWidth: "1300px", // căn giữa theo chiều ngang tổng thể
+        }}
       />
-      {/* </Row> */}
     </Stack>
   );
 }
