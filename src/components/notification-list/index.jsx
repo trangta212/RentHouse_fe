@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Popover, List, Card, message, Spin, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getListNotification } from "../../api/notificationApi";
+import { getListNotification,getConfirmNotificationById} from "../../api/notificationApi";
 import { FaTimes } from "react-icons/fa";
 import { Modal } from "antd"; // thêm import
+import {detailRoomInformation} from "../../api/requestHomeApi";
 
 // Component FavoriteList không chứa icon HeartFilled
 const NotificationList = ({ visible, onClose, triggerElement }) => {
@@ -11,7 +12,11 @@ const NotificationList = ({ visible, onClose, triggerElement }) => {
   const [loading, setLoading] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null); // lưu phòng được chọn
 const [isModalOpen, setIsModalOpen] = useState(false); // trạng thái hiển thị modal
+const [roomDetails, setRoomDetails] = useState(null); // lưu thông tin phòng
   const navigate = useNavigate();
+  const [notificationResponseId, setNotificationResponseId] = useState(null);
+  const [notificationStatus, setNotificationStatus] = useState({}); // State lưu trạng thái thông báo
+
 
   useEffect(() => {
     if (visible) {
@@ -32,10 +37,51 @@ const [isModalOpen, setIsModalOpen] = useState(false); // trạng thái hiển t
       setLoading(false);
     }
   };
+// Call lay thong in cua phong
+useEffect(() => {
+    const fetchRoomDetails = async () => {
+        if (notification) {
+            try {
+                const response = await detailRoomInformation(selectedRoom.room_id);
+                console.log("Room details response:", response);
+                setRoomDetails(response.dataRoom|| null);
+            } catch (error) {
+                console.error("Error fetching room details:", error);
+            }
+        }
+    };
+    fetchRoomDetails();
+}, [selectedRoom]);
+
+const handleConfirm = async () => {
+  if (notificationResponseId) {
+    try {
+      const response = await getConfirmNotificationById(notificationResponseId); // Backend xác nhận
+      message.success("Xác nhận thành công!");
+      setIsModalOpen(false);
+
+      // Loại bỏ thông báo khỏi danh sách notification sau khi xác nhận
+      setNotificationStatus(prevStatus => ({
+        ...prevStatus,
+        [notificationResponseId]: 'confirmed', // Lưu trạng thái đã đồng ý
+      }));
+
+      // Đảm bảo khi xác nhận, thông báo không còn hiển thị trong popover
+      onClose();  // Đóng popover khi xác nhận thành công
+
+    } catch (error) {
+      console.error("Error confirming notification:", error);
+      message.error("Không thể xác nhận thông báo!");
+    }
+  } else {
+    message.error("Không tìm thấy thông báo để xác nhận!");
+  }
+};
 
   const handleRoomClick = (roomId) => {
     const room = notification.find(n => n.room_id === roomId);
     setSelectedRoom(room);
+    setNotificationResponseId(room.id)
     setIsModalOpen(true);  // mở modal
     onClose();
   };
@@ -57,9 +103,9 @@ const [isModalOpen, setIsModalOpen] = useState(false); // trạng thái hiển t
           </div>
         ) : (
           <List
-            dataSource={notification}
+            dataSource={notification.filter(item => notificationStatus[item.id] !== 'confirmed')} // Ẩn thông báo đã được xác nhận
             renderItem={(item) => (
-              <List.Item>
+              <List.Item key={item.id}>
                 <Card
                   hoverable
                   style={{ width: "100%" }}
@@ -156,7 +202,7 @@ const [isModalOpen, setIsModalOpen] = useState(false); // trạng thái hiển t
       >
         Từ chối
       </Button>,
-      <Button key="close" onClick={handleModalClose}
+      <Button key="close" onClick={handleConfirm}
       className="text-white"
       >
        Đồng ý
@@ -172,9 +218,9 @@ const [isModalOpen, setIsModalOpen] = useState(false); // trạng thái hiển t
 </div>
     {selectedRoom ? (
       <div>
-        <p><strong>Phòng:</strong> {selectedRoom.room?.room_name || "Không rõ"}</p>
-        <p><strong>Địa chỉ:</strong> {selectedRoom.message}</p>
-        <p><strong>Giá:</strong> {selectedRoom.message}</p>
+        <p><strong>Phòng:</strong> {roomDetails?.room_name || "Không rõ"}</p>
+        <p><strong>Địa chỉ:</strong> {roomDetails?.address || "Không rõ"}</p>
+        <p><strong>Giá:</strong> {roomDetails?.price_per_month || "Không rõ"} triệu đồng</p>
         <p><strong>Thông báo:</strong> {selectedRoom.message}</p>
         <p class="mb-2">
        📌 Lưu ý quan trọng: Bạn có 3 ngày kể từ thời điểm nhận thông báo này để xác nhận yêu cầu đặt cọc.

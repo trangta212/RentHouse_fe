@@ -72,12 +72,14 @@ const Deposit = () => {
       // Gộp ngày, tháng, năm thành `date_of_birth`
       const { birthDay, birthMonth, birthYear } = data;
       const date_of_birth = `${birthDay}/${birthMonth}/${birthYear}`;
+      const status = "pending";
       
       // Thêm `date_of_birth` vào `data` trước khi gửi
       const updatedData = {
         ...data,
         room_id: selectedDetail.roomInfo.id, // Thêm key `roomId` cho giá trị `selectedDetail.roomInfo.id`
         date_of_birth, // Thêm trường `date_of_birth` vào data
+        status,
       };
   
       const amount = data["deposit_amount"]; // Lấy trực tiếp từ `data`

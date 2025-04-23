@@ -10,9 +10,13 @@ const ReceiptPage = () => {
   const location = useLocation();
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [paymentData, setPaymentData] = useState(null);
+  const isProcessedRef = useRef(false); // Giữ trạng thái đã xử lý
+
 
   useEffect(() => {
     const handlePaymentResponse = async () => {
+      if (isProcessedRef.current) return;
+      isProcessedRef.current = true;
       try {
         // Lấy thông tin từ URL
         const searchParams = new URLSearchParams(location.search);
@@ -58,14 +62,14 @@ const ReceiptPage = () => {
           
               const fullData = {
                 ...depositData,
-                cccd_images: storedFileList.map(file => file.originFileObj),
+                // cccd_images: storedFileList.map(file => file.originFileObj),
               };
           
               console.log("🔁 Thông tin gửi đi sau thanh toán:", fullData);
         
               try {
                 const deposit = await createDeposit(fullData);
-                console.log("Deposit created successfully:", deposit);
+                console.log("Deposit created successfully:", deposit.success);
               } catch (error) {
                 console.error("Lỗi khi tạo deposit:", error);
               }
