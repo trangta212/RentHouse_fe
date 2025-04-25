@@ -40,6 +40,7 @@ function App() {
             path="/api/v1/payment/vnpay-return"
             element={<ReceiptPage />}
           />
+          <Route path="/api/v1/payment/momo-return" element={<ReceiptPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

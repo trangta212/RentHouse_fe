@@ -95,17 +95,40 @@ const Deposit = () => {
       localStorage.setItem("fileList", JSON.stringify(fileList));
   
       // Gọi API để tạo URL thanh toán
-      const response = await paymentApi.paymentVnpay({
-        amount: amountNumber,
-        orderInfo: orderInfo,
-      });
+      // const response = await paymentApi.paymentVnpay({
+      //   amount: amountNumber,
+      //   orderInfo: orderInfo,
+      // });
   
-      if (response.data && response.data.paymentUrl) {
-        setPayUrl(response.data.paymentUrl);
+      // if (response.data && response.data.paymentUrl) {
+      //   setPayUrl(response.data.paymentUrl);
   
-        // Chuyển hướng đến URL thanh toán
-        window.location.href = response.data.paymentUrl;
-      }
+      //   // Chuyển hướng đến URL thanh toán
+      //   window.location.href = response.data.paymentUrl;
+      // }
+      if (valuepayment === 1) {
+        //   // VNPay payment (unchanged)
+          const response = await paymentApi.paymentVnpay({
+            amount: amountNumber,
+            orderInfo: orderInfo,
+          });
+  
+          if (response.data && response.data.paymentUrl) {
+            setPayUrl(response.data.paymentUrl);
+            window.location.href = response.data.paymentUrl;
+          }
+        } else if (valuepayment === 2) {
+          // Momo payment
+          const response = await paymentApi.createMomoPayment({
+            amount: amountNumber,
+            orderInfo: orderInfo,
+          });
+  
+          if (response.data && response.data.payUrl) {
+            setPayUrl(response.data.payUrl);
+            window.location.href = response.data.payUrl;
+          }
+        }
     } catch (error) {
       console.error("❌ Lỗi khi tạo URL thanh toán:", error);
     }
@@ -417,7 +440,7 @@ useEffect(() => {
                     value: 1,
                     label: (
                       <div
-                        style={{
+                        style={{ 
                           display: "flex",
                           alignItems: "center",
                           color: "#59595A",

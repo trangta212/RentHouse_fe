@@ -53,28 +53,28 @@ useEffect(() => {
     fetchRoomDetails();
 }, [selectedRoom]);
 
-const handleConfirm = async () => {
+const handleConfirm = async (action) => {
   if (notificationResponseId) {
     try {
-      const response = await getConfirmNotificationById(notificationResponseId); // Backend xác nhận
-      message.success("Xác nhận thành công!");
+      const response = await getConfirmNotificationById(notificationResponseId, action);
+      message.success(action === 'accept' ? "Xác nhận thành công!" : "Đã từ chối và hoàn tiền thành công!");
       setIsModalOpen(false);
 
       // Loại bỏ thông báo khỏi danh sách notification sau khi xác nhận
       setNotificationStatus(prevStatus => ({
         ...prevStatus,
-        [notificationResponseId]: 'confirmed', // Lưu trạng thái đã đồng ý
+        [notificationResponseId]: 'confirmed', // Lưu trạng thái đã xử lý
       }));
 
       // Đảm bảo khi xác nhận, thông báo không còn hiển thị trong popover
       onClose();  // Đóng popover khi xác nhận thành công
 
     } catch (error) {
-      console.error("Error confirming notification:", error);
-      message.error("Không thể xác nhận thông báo!");
+      console.error("Error processing notification:", error);
+      message.error("Không thể xử lý thông báo!");
     }
   } else {
-    message.error("Không tìm thấy thông báo để xác nhận!");
+    message.error("Không tìm thấy thông báo để xử lý!");
   }
 };
 
@@ -197,13 +197,17 @@ const handleConfirm = async () => {
     open={isModalOpen}
     onCancel={handleModalClose}
     footer={[
-      <Button key="close" onClick={handleModalClose}
-      className="bg-slate-100 text-black"
+      <Button 
+        key="refund" 
+        onClick={() => handleConfirm('refund')}
+        className="bg-slate-100 text-black"
       >
-        Từ chối
+        Từ chối và hoàn tiền
       </Button>,
-      <Button key="close" onClick={handleConfirm}
-      className="text-white"
+      <Button 
+        key="accept" 
+        onClick={() => handleConfirm('accept')}
+        className="text-white"
       >
        Đồng ý
      </Button>

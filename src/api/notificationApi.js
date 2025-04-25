@@ -21,11 +21,11 @@ export const getListNotification = async () => {
     }
     }
 
-export const getConfirmNotificationById = async (id) => {
+export const getConfirmNotificationById = async (id, action) => {
     try {
-      const response = await axiosInstance.put(`notification/confirm-rental/${id}`);
+      const response = await axiosInstance.post(`notification/confirm-rental/${id}`, { action });
       return response.data; // Trả về dữ liệu từ server nếu thành công
-    }catch (error) {
+    } catch (error) {
       // Kiểm tra nếu server trả về lỗi với thông báo cụ thể
       if (error.response) {
         const { status, data } = error.response;
