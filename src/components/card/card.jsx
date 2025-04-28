@@ -66,7 +66,7 @@ function MediaCard() {
     };
 
     return (
-      <Card key={index} sx={{ width: "100%", height: "65vh" }}>
+      <Card key={index} sx={{ width: "100%", height: "60vh" }}>
         {/* <Link to={`/user/room-details/${room.id}`}> */}
         <Box sx={{ position: "relative" }}>
           <CardMedia
@@ -217,14 +217,14 @@ function MediaCard() {
         </CardContent>
         <Divider
           sx={{
-            marginTop: "60px",
+            marginTop: "70px",
             marginBottom: "30px",
           }}
         />
         <CardHeader
           sx={{
             height: "10%",
-            marginTop: "10px",
+            marginTop: "5px",
           }}
           avatar={<Avatar sx={{ bgcolor: "red" }}>A</Avatar>}
           title={room?.RentPost?.User?.lastName || "Không rõ người đăng"}

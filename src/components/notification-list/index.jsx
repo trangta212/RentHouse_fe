@@ -5,6 +5,7 @@ import { getListNotification,getConfirmNotificationById} from "../../api/notific
 import { FaTimes } from "react-icons/fa";
 import { Modal } from "antd"; // thêm import
 import {detailRoomInformation} from "../../api/requestHomeApi";
+import { createContract } from "../../api/contractApi";
 
 // Component FavoriteList không chứa icon HeartFilled
 const NotificationList = ({ visible, onClose, triggerElement }) => {
@@ -53,38 +54,104 @@ useEffect(() => {
     fetchRoomDetails();
 }, [selectedRoom]);
 
+// const handleConfirm = async (action) => {
+//   if (notificationResponseId) {
+//     try {
+//       const response = await getConfirmNotificationById(notificationResponseId, action);
+//       message.success(
+//         action === 'accept' 
+//           ? "Xác nhận thành công!" 
+//           : "Đã từ chối và hoàn tiền thành công!"
+//       );
+      
+//       setIsModalOpen(false);
+
+//       // Lưu trạng thái xử lý tương ứng
+//       setNotificationStatus(prevStatus => ({
+//         ...prevStatus,
+//         [notificationResponseId]: action === 'accept' ? 'confirmed' : 'refunded',
+//       }));
+
+//       // Đóng popover và loại bỏ thông báo khỏi giao diện
+//       onClose(); 
+
+//     } catch (error) {
+//       console.error("Error processing notification:", error);
+//       message.error("Không thể xử lý thông báo!");
+//     }
+//   } else {
+//     message.error("Không tìm thấy thông báo để xử lý!");
+//   }
+// };
 const handleConfirm = async (action) => {
-  if (notificationResponseId) {
-    try {
-      const response = await getConfirmNotificationById(notificationResponseId, action);
-      message.success(action === 'accept' ? "Xác nhận thành công!" : "Đã từ chối và hoàn tiền thành công!");
-      setIsModalOpen(false);
-
-      // Loại bỏ thông báo khỏi danh sách notification sau khi xác nhận
-      setNotificationStatus(prevStatus => ({
-        ...prevStatus,
-        [notificationResponseId]: 'confirmed', // Lưu trạng thái đã xử lý
-      }));
-
-      // Đảm bảo khi xác nhận, thông báo không còn hiển thị trong popover
-      onClose();  // Đóng popover khi xác nhận thành công
-
-    } catch (error) {
-      console.error("Error processing notification:", error);
-      message.error("Không thể xử lý thông báo!");
-    }
-  } else {
+  if (!selectedRoom || !selectedRoom.id) {
     message.error("Không tìm thấy thông báo để xử lý!");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    let response;
+    let successMessage;
+
+    if (selectedRoom.type === "deposit") {
+      if (action !== "accept" && action !== "refund") {
+        throw new Error("Hành động không hợp lệ cho đặt cọc!");
+      }
+      response = await getConfirmNotificationById(selectedRoom.id, action);
+      successMessage =
+        action === "accept"
+          ? "Xác nhận thành công!"
+          : "Đã từ chối và hoàn tiền thành công!";
+    } else if (selectedRoom.type === "contract") {
+      if (action !== "confirm" && action !== "cancel") {
+        throw new Error("Hành động không hợp lệ cho hợp đồng!");
+      }
+      response = await createContract(selectedRoom.id, action);
+      successMessage =
+        action === "confirm" ? "Tạo hợp đồng thành công!" : "Đã hủy hợp đồng!";
+    } else {
+      throw new Error("Loại thông báo không hợp lệ!");
+    }
+
+    message.success(successMessage);
+    setNotificationStatus((prevStatus) => ({
+      ...prevStatus,
+      [selectedRoom.id]:
+        selectedRoom.type === "deposit"
+          ? action === "accept"
+            ? "confirmed"
+            : "refunded"
+          : action === "confirm"
+          ? "contract_confirmed"
+          : "contract_cancelled",
+    }));
+    setIsModalOpen(false);
+    setSelectedRoom(null);
+    setRoomDetails(null);
+    onClose();
+  } catch (error) {
+    console.error(`Error processing ${selectedRoom?.type === "deposit" ? "đặt cọc" : "hợp đồng"}:`, error);
+    message.error(`Không thể xử lý ${selectedRoom?.type === "deposit" ? "đặt cọc" : "hợp đồng"}!`);
+  } finally {
+    setLoading(false);
   }
 };
 
-  const handleRoomClick = (roomId) => {
-    const room = notification.find(n => n.room_id === roomId);
-    setSelectedRoom(room);
-    setNotificationResponseId(room.id)
-    setIsModalOpen(true);  // mở modal
-    onClose();
-  };
+
+const handleRoomClick = (notificationId) => {
+  const selectedNoti = notification.find(n => n.id === notificationId);
+  if (!selectedNoti) {
+    message.error("Không tìm thấy thông báo!");
+    return;
+  }
+
+  setSelectedRoom(selectedNoti);
+  setNotificationResponseId(selectedNoti.id);
+  setIsModalOpen(true);
+  onClose();
+};
+
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedRoom(null);
@@ -103,13 +170,21 @@ const handleConfirm = async (action) => {
           </div>
         ) : (
           <List
-            dataSource={notification.filter(item => notificationStatus[item.id] !== 'confirmed')} // Ẩn thông báo đã được xác nhận
+            // dataSource={notification.filter(item => notificationStatus[item.id] !== 'confirmed')} // Ẩn thông báo đã được xác nhận
+            // dataSource={notification.filter(item => notificationStatus[item.id] !== 'confirmed' && notificationStatus[item.id] !== 'refunded')}
+            dataSource={notification.filter(
+              (item) =>
+                notificationStatus[item.id] !== "confirmed" &&
+                notificationStatus[item.id] !== "refunded" &&
+                notificationStatus[item.id] !== "contract_confirmed" &&
+                notificationStatus[item.id] !== "contract_cancelled"
+            )}
             renderItem={(item) => (
               <List.Item key={item.id}>
                 <Card
                   hoverable
                   style={{ width: "100%" }}
-                  onClick={() => handleRoomClick(item.room_id)}
+                  onClick={() => handleRoomClick(item.id)}
                   onMouseEnter={() => setHoveredRoomId(item.room_id)}
                   onMouseLeave={() => setHoveredRoomId(null)}
                 >
@@ -126,18 +201,6 @@ const handleConfirm = async (action) => {
                         overflow: "hidden",
                       }}
                     >
-                      {/* <h3
-                        style={{
-                          display: "-webkit-box",
-                          WebkitLineClamp: 1,
-                          fontWeight: 600,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                          margin: 0,
-                        }}
-                      >
-                        {item.room.room_name || "Không có tên"}
-                      </h3> */}
                       <p
                         style={{
                           color: "#666",
@@ -196,22 +259,59 @@ const handleConfirm = async (action) => {
     title="🔔 Thông báo đặt cọc mới "
     open={isModalOpen}
     onCancel={handleModalClose}
-    footer={[
-      <Button 
-        key="refund" 
-        onClick={() => handleConfirm('refund')}
-        className="bg-slate-100 text-black"
-      >
-        Từ chối và hoàn tiền
-      </Button>,
-      <Button 
-        key="accept" 
-        onClick={() => handleConfirm('accept')}
-        className="text-white"
-      >
-       Đồng ý
-     </Button>
-    ]}
+    // footer={[
+    //   <Button 
+    //     key="refund" 
+    //     onClick={() => handleConfirm('refund')}
+    //     className="bg-slate-100 text-black"
+    //   >
+    //     Từ chối
+    //   </Button>,
+    //   <Button 
+    //     key="accept" 
+    //     onClick={() => handleConfirm('accept')}
+    //     className="text-white"
+    //   >
+    //    Đồng ý
+    //  </Button>
+    // ]}
+    footer={
+      selectedRoom?.type === "deposit" ? [
+        <Button
+          key="refund"
+          onClick={() => handleConfirm("refund")}
+          className="bg-slate-100 text-black"
+          disabled={loading}
+        >
+          Từ chối
+        </Button>,
+        <Button
+          key="accept"
+          onClick={() => handleConfirm("accept")}
+          className="text-white"
+          disabled={loading}
+        >
+          Đồng ý
+        </Button>,
+      ] : [
+        <Button
+          key="cancel"
+          onClick={() => handleConfirm("cancel")}
+          className="bg-slate-100 text-black"
+          disabled={loading}
+        >
+          Hủy
+        </Button>,
+        <Button
+          key="confirm"
+          onClick={() => handleConfirm("confirm")}
+          className="text-white"
+          disabled={loading}
+        >
+          Xác nhận
+        </Button>,
+      ]
+    }
   >
     <div className="flex justify-center items-center text-xs"> 
     <img
