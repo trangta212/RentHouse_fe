@@ -66,12 +66,12 @@ function MediaCard() {
     };
 
     return (
-      <Card key={index} sx={{ width: "100%", height: "60vh" }}>
+      <Card key={index} sx={{ width: "100%", height: "57vh" }}>
         {/* <Link to={`/user/room-details/${room.id}`}> */}
         <Box sx={{ position: "relative" }}>
           <CardMedia
             component="img"
-            sx={{ height: 200 }}
+            sx={{ height: 210 }}
             image={room.room_images[0] || coursImage} // Sử dụng ảnh mặc định nếu không có ảnh
             alt={room.room_name}
           />
@@ -218,12 +218,12 @@ function MediaCard() {
         <Divider
           sx={{
             marginTop: "70px",
-            marginBottom: "30px",
+            marginBottom: "20px",
           }}
         />
         <CardHeader
           sx={{
-            height: "10%",
+            height: "8%",
             marginTop: "5px",
           }}
           avatar={<Avatar sx={{ bgcolor: "red" }}>A</Avatar>}
@@ -265,7 +265,7 @@ function MediaCard() {
         style={{
           margin: "0 auto",
           // padding: "20px",
-          padding: "20px 0", // Thêm padding theo trục Y (trên và dưới)
+          padding: "20px 20px", // Thêm padding theo trục Y (trên và dưới)
           width: "95%",
           maxWidth: "1300px", // căn giữa theo chiều ngang tổng thể
         }}

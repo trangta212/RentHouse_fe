@@ -76,7 +76,7 @@
 
 import React, { useEffect, useRef } from "react";
 
-const GoogleMapComponent = ({ address }) => {
+const GoogleMapComponent = ({ address,style = {}, className = ""  }) => {
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -96,6 +96,7 @@ const GoogleMapComponent = ({ address }) => {
         new window.google.maps.Marker({
           position: location,
           map,
+          
           title: address || "Hà Nội",
         });
 
@@ -144,12 +145,13 @@ const GoogleMapComponent = ({ address }) => {
   return (
     <div
       ref={mapRef}
+      className={className}
       style={{
-        width: "100%",
+        width: "58%",
         height: "400px",
-        border: "1px solid black",
-        borderRadius: "10px",
-        backgroundColor: "#f0f0f0",
+        border: "20px",
+        borderRadius: "20px",
+        ...style, // ghi đè nếu có props truyền vào
       }}
     />
   );

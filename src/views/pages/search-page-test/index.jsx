@@ -222,7 +222,7 @@ const SearchPageTest = () => {
    <Link
     to={`/user/room-details/${item.id}`}
   > 
-      <div className="flex p-0 h-[50vh]">
+      <div className="flex p-0 h-[30vh]">
         <div className="flex w-[40%] items-center justify-center">
         <img
           width={272}

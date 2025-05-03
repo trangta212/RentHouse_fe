@@ -30,4 +30,18 @@ export const detailRoomInformation = async (id) => {
             error.response?.data || error.message
           );
 }}
-
+export const searchNearByRoom = async (latitude,longitude,radius) =>{
+    try {
+        const response = await axiosInstance.get(`/room/near-room?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
+        if (response.status === 200) {
+            return response.data;
+          } else {
+            console.error("Error fetching customer:", response.data.message);
+          }
+        } catch (error) {
+          console.error(
+            "Error fetching places:",
+            error.response?.data || error.message
+          );
+        }
+}  

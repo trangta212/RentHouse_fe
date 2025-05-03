@@ -59,7 +59,7 @@
     font-size: 27px;
     font-weight: 700;
     margin-left:70px;
-    margin-top:40px;
+    margin-top:10px;
     margin-bottom:10px;
   }
   .pagination-container{
@@ -70,15 +70,18 @@
   }
 .paper-homepage-container{
   display:flex;
-  /* justify-content: center; */
+  justify-content: center;
   margin-bottom: 30px;
-  align-items: center;
-  padding:0 83px;
+  width:95%;
+  padding:20px 20px;
+  margin-left:50px;
+  
 }
 .paper-homepage-container-center{
   width: 40%;
   margin-left: 60px;
   height:400px;}
+
 .paper-homepage-container-list{
   width: 50%;
   display:flex;

@@ -26,6 +26,12 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Message, Money,Monitor } from 'iconsax-react';
+import {searchNearByRoom} from "../../../api/requestHomeApi.jsx";
+import { useForm, Controller } from 'react-hook-form';
+import CardSearch from "../../../components/card-search/index.jsx";
+
+
+
 
 
 
@@ -49,10 +55,18 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [roomInfo, setRoomInfo] = useState([]);
 
-  const navigateToSearch = (searchKeyword) => {
-    const path = `/user/home/${location || "all"}/${propertyType || "all"}/${
-      priceRange || "all"
-    }/${area || "all"}?q=${encodeURIComponent(searchKeyword || "")}`;
+  // const navigateToSearch = (searchKeyword) => {
+  //   const path = `/user/home/${location || "all"}/${propertyType || "all"}/${
+  //     priceRange || "all"
+  //   }/${area || "all"}?q=${encodeURIComponent(searchKeyword || "")}`;
+  //   navigate(path);
+  // };
+  const navigateToSearch = (searchKeyword, customLocation) => {
+    const path = `/user/home/${customLocation || location || "all"}/${
+      propertyType || "all"
+    }/${priceRange || "all"}/${area || "all"}?q=${encodeURIComponent(
+      searchKeyword || ""
+    )}`;
     navigate(path);
   };
   // Địa điểm
@@ -64,6 +78,7 @@ const HomePage = () => {
   const handleLocationChange = ({ key }) => {
     setLocation(key);
   };
+  
 
   const locationMenuProps = {
     items: locationItems,
@@ -121,7 +136,43 @@ const HomePage = () => {
     setKeyword(value);
     navigateToSearch(value);
   };
+  
 // Gọi api danh sách phòng
+const { register, handleSubmit, watch, control } = useForm();
+const [roomSearch, setRoomSearch] = useState([]);
+const [locationSearch, setLocationSearch] = useState({ latitude: null, longitude: null, radius: null });
+useEffect(() => {
+  console.log(watch()); // theo dõi các input đang được quản lý
+}, [watch]);
+const onSubmit = async (data) => {
+  const { address, distance } = data;
+  console .log("Địa chỉ:", address, distance);
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+    const result = await res.json();
+    if (result.length > 0) {
+      const lat = parseFloat(result[0].lat);
+      const lon = parseFloat(result[0].lon);
+      setLocationSearch({ latitude: lat, longitude: lon, radius: parseFloat(distance) });
+    } else {
+      alert('Không tìm thấy tọa độ từ địa chỉ');
+    }
+  } catch (error) {
+    console.error('Geocoding error:', error);
+  }
+};
+
+useEffect(() => {
+  const { latitude, longitude, radius } = locationSearch;
+  if (latitude && longitude && radius) {
+    searchNearByRoom(latitude, longitude, radius).then((rooms) => {
+      console.log('Rooms found:', rooms);
+      setRoomSearch(rooms);
+      // có thể lưu vào state, hoặc đẩy sang component cha
+    });
+  }
+}, [locationSearch]);
+
   return (
     <div>
       <div className="home">
@@ -262,6 +313,66 @@ const HomePage = () => {
               </Button>
             </Flex>
           </div>
+        
+          <div className="ml-[70px] mr-[70px] flex h-80 items-center mt-16 mb-16 bg-[#fbf4ff] rounded-[20px]">
+         <div className ="flex items-center justify-center w-1/2 h-full">
+          <img src={require("../../../assets/images/location.png")} alt="Centered" className="h-84 w-auto object-contain" />
+          </div>
+          <div className="flex flex-col items-center justify-center w-1/2 h-full">
+          <h2 className="text-3xl font-poppins font-bold text-[#5E6282]">
+         Vị trí hiện tại của bạn
+          </h2>
+        <p className="text-sm text-slate-500 font-sans mt-2 mb-5">
+         Nhập địa chỉ để có thể tìm các phòng gần bạn nhất
+         </p>
+         <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 items-center w-full">
+  <Controller
+    name="address"
+    control={control}
+    defaultValue=""
+    render={({ field }) => (
+      <Input
+        size="large"
+        className="w-2/3 font-medium rounded-3xl px-4 py-3"
+        placeholder="Hãy điền địa chỉ của bạn hiện tại"
+        {...field}
+      />
+    )}
+  />
+  <Controller
+    name="distance"
+    control={control}
+    defaultValue=""
+    render={({ field }) => (
+      <Input
+        size="large"
+        type="number"
+        className="w-1/5 font-medium rounded-3xl px-4 py-3"
+        placeholder="Km"
+        {...field}
+      />
+    )}
+  />
+  <Button
+    type="primary"
+    htmlType="submit"
+    className="rounded-3xl h-[48px] px-4 flex items-center justify-center"
+  >
+    <SearchOutlined />
+  </Button>
+</form>
+          </div>
+       </div>
+       <div>
+          {roomSearch.length > 0 && (
+             <>
+             <h1 className="titleListHomePage">Các phòng trọ gần bạn nhất</h1>
+             <div className="flex items-center justify-center">
+      <CardSearch listHome={roomSearch} />
+    </div>
+  </>
+)}
+      </div>
           <h1 className="titleListHomePage">Các phòng trọ phổ biến</h1>
           <div className="flex items-center justify-center">
             <MediaCard />
@@ -315,6 +426,97 @@ const HomePage = () => {
               </List>
             </div>
           </div>
+          <h1 className="titleListHomePage">Thuê nhà trọ theo địa điểm</h1>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 ml-[160px] mr-[160px] mb-20">
+
+  <div className="relative h-56 md:col-span-2 rounded-xl overflow-hidden"
+     onClick={() => {
+      handleLocationChange({ key: "hà-nội" }); // Lưu địa điểm vào state
+      navigateToSearch("", "hà-nội"); // Gọi tìm kiếm với "hà-nội" làm location
+    }}
+  >
+    <img
+      src={require("../../../assets/images/anh-ha-noi.jpg")}
+      alt="Hà Nội"
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
+      <h2 className="text-xl font-bold">Hà Nội</h2>
+      <p className="text-sm">49.098 tin đăng</p>
+    </div>
+  </div>
+
+  <div className="relative h-56 rounded-xl overflow-hidden"
+   onClick={() => {
+    handleLocationChange({ key: "hồ-chí-minh" }); // Lưu địa điểm vào state
+    navigateToSearch("", "hồ-chí-minh"); // Gọi tìm kiếm với "hà-nội" làm location
+  }}
+>
+    <img
+      src={require("../../../assets/images/hcm.jpg")}
+      alt="Hà Nội"
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
+      <h2 className="text-lg font-bold">TP.Hồ Chí Minh</h2>
+      <p className="text-sm">47.525 tin đăng</p>
+    </div>
+  </div>
+
+  {/* Đà Nẵng */}
+  <div className="relative h-56 rounded-xl overflow-hidden"
+    onClick={() => {
+      handleLocationChange({ key: "đà-nẵng" }); // Lưu địa điểm vào state
+      navigateToSearch("", "đà-nẵng"); // Gọi tìm kiếm với "hà-nội" làm location
+    }}
+  >
+    <img
+      src={require("../../../assets/images/danang.jpg")}
+      alt="Đà Nẵng"
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
+      <h2 className="text-lg font-bold">Đà Nẵng</h2>
+      <p className="text-sm">8.357 tin đăng</p>
+    </div>
+  </div>
+
+  {/* Bình Dương */}
+  <div className="relative h-56 rounded-xl overflow-hidden"
+    onClick={() => {
+      handleLocationChange({ key: "hải-phòng" }); // Lưu địa điểm vào state
+      navigateToSearch("", "hải-phòng"); // Gọi tìm kiếm với "hà-nội" làm location
+    }}
+  >
+    <img
+      src={require("../../../assets/images/hp.jpg")}
+      alt="Hải Phòng"
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
+      <h2 className="text-lg font-bold">Hải Phòng</h2>
+      <p className="text-sm">6.699 tin đăng</p>
+    </div>
+  </div>
+
+  {/* Đồng Nai */}
+  <div className="relative h-56 rounded-xl overflow-hidden"
+    onClick={() => {
+      handleLocationChange({ key: "huế" }); // Lưu địa điểm vào state
+      navigateToSearch("", "huế"); // Gọi tìm kiếm với "hà-nội" làm location
+    }}
+  >
+    <img
+      src={require("../../../assets/images/hue.jpg")}
+      alt="Huế"
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
+      <h2 className="text-lg font-bold">Huế</h2>
+      <p className="text-sm">3.808 tin đăng</p>
+    </div>
+  </div>
+</div>
         </div>
       </div>
     </div>
