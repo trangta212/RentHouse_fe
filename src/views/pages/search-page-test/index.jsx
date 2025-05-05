@@ -275,7 +275,7 @@ const SearchPageTest = () => {
 />
 </div>
         </div>
-        <div className="flex items-center justify-center w-1/3 mt-14 mb-14">
+        <div className="flex items-center justify-center w-1/3 mt-14 mb-14 mr-8 ml-5">
   <GoogleMapComponent2
        locations={rooms.map(room => ({
         address: room.address,

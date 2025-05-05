@@ -9,7 +9,11 @@ import { ConfigProvider } from "antd";
 import UserRoute from "./views/routes/userRouter.js";
 import ReceiptPage from "./views/pages/receipt/index.jsx";
 import { AuthProvider } from "./context/authContext.js";
-
+import DashboardLayout from "./components/dash-board/DashBoard.jsx";
+import MainLayout from "./components/main-layout/MainLayout.jsx";
+import Overview from "./views/pages/overview/Overview.jsx";
+import Post from "./views/pages/post/post.jsx";
+import UpdatePost from "./views/pages/update-post/index.jsx";
 
 const theme = {
   token: {
@@ -36,6 +40,12 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/user/*" element={<UserRoute />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<Navigate to="overview" />} />
+              <Route path="overview" element={<Overview />} />
+              <Route path="tin-dang" element={<Post />} />
+              <Route path="update-tin-dang/:id" element={<UpdatePost />} />
+            </Route>
           <Route
             path="/api/v1/payment/vnpay-return"
             element={<ReceiptPage />}

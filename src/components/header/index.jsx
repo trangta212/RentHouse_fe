@@ -73,7 +73,10 @@ const Header = () => {
             className="logo-Header"
           />
         </div>
-        <div className="headerText">
+        <div className="headerText"
+          style={{
+            marginTop: "10px",
+          }}>
           <Box
             className="BoxHeader"
             sx={{
@@ -88,19 +91,21 @@ const Header = () => {
                 Trang chủ
               </Typography>
             </Link>
-            <Tooltip title="Account settings">
-              <IconButton
+            {/* <Tooltip title="Account settings"> */}
+              {/* <IconButton
                 onClick={handleClick}
                 sx={{ ml: 2 }}
                 aria-controls={open ? "account-menu" : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? "true" : undefined}
-              >
+              > */}
+              <Link to="/dashboard" className="link">
                 <Typography sx={{ minWidth: 120, color: "black" }}>
-                  Nhà đất cho thuê
+                  Quản lý 
                 </Typography>
-              </IconButton>
-            </Tooltip>
+              </Link>
+              {/* </IconButton> */}
+            {/* </Tooltip> */}
             <Typography sx={{ minWidth: 120, color: "black" }}>
               Về chúng tôi
             </Typography>

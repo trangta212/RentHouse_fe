@@ -26,7 +26,7 @@ function UserRoute() {
           {/* <Route path="/home/:location/:propertyType/:priceRange/:area" element={<SearchResultPage />} /> */}
           <Route path="/home/:location/:propertyType/:priceRange/:area" element={<SearchPageTest />} />
           <Route path="/deposit" element={<Deposit />} />
-        </Routes>
+¥        </Routes>
       </div>
       <div>
         <Footer />

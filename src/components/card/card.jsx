@@ -226,7 +226,7 @@ function MediaCard() {
             height: "8%",
             marginTop: "5px",
           }}
-          avatar={<Avatar sx={{ bgcolor: "red" }}>A</Avatar>}
+          avatar={<Avatar src={room?.RentPost?.User?.profile_picture} />}
           title={room?.RentPost?.User?.lastName || "Không rõ người đăng"}
           subheader={room?.RentPost?.User?.email || "Không rõ người đăng"}
         />
