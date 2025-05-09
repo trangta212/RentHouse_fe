@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import { Image, Upload } from "antd";
+import { Image, Upload, message } from "antd";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -13,9 +13,8 @@ const getBase64 = (file) =>
 const UploadImg = ({ value = [], onChange }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-
-  // Khởi tạo danh sách file từ value (dữ liệu của form)
   const [fileList, setFileList] = useState(value);
+  const [uploading, setUploading] = useState(false);
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -25,10 +24,7 @@ const UploadImg = ({ value = [], onChange }) => {
     setPreviewOpen(true);
   };
 
-  const handleChange = ({ fileList: newFileList }) => {
-    setFileList(newFileList); // Cập nhật state nội bộ
-    onChange?.(newFileList); // Gọi onChange để cập nhật vào useForm
-  };
+
 
   const uploadButton = (
     <button
@@ -37,6 +33,7 @@ const UploadImg = ({ value = [], onChange }) => {
         background: "none",
       }}
       type="button"
+      disabled={uploading}
     >
       <PlusOutlined />
       <div
@@ -44,7 +41,7 @@ const UploadImg = ({ value = [], onChange }) => {
           marginTop: 8,
         }}
       >
-        Upload
+        {uploading ? 'Uploading...' : 'Upload'}
       </div>
     </button>
   );
@@ -55,8 +52,8 @@ const UploadImg = ({ value = [], onChange }) => {
         listType="picture-card"
         fileList={fileList}
         onPreview={handlePreview}
-        onChange={handleChange}
-        beforeUpload={() => false} // Không tải lên server
+        beforeUpload={() => false}
+        disabled={uploading}
       >
         {fileList.length >= 8 ? null : uploadButton}
       </Upload>

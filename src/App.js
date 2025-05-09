@@ -14,6 +14,8 @@ import MainLayout from "./components/main-layout/MainLayout.jsx";
 import Overview from "./views/pages/overview/Overview.jsx";
 import Post from "./views/pages/post/post.jsx";
 import UpdatePost from "./views/pages/update-post/index.jsx";
+import UserInformation  from "./views/pages/user-information/index.jsx";
+import ContractInformation from "./views/pages/contract-information/index.jsx";
 
 const theme = {
   token: {
@@ -45,6 +47,8 @@ function App() {
               <Route path="overview" element={<Overview />} />
               <Route path="tin-dang" element={<Post />} />
               <Route path="update-tin-dang/:id" element={<UpdatePost />} />
+              <Route path="thong-tin-ca-nhan" element={< UserInformation/>} />
+              <Route path="hop-dong" element={<ContractInformation />} />
             </Route>
           <Route
             path="/api/v1/payment/vnpay-return"

@@ -62,7 +62,7 @@ export default function MainLayout() {
     />
     </div>
     <div className="space-x-2 mr-3">
-    {<Avatar src={userInfo?.profile_picture || "khong co thong tin"} />}
+    {<Avatar src={`http://localhost:8000/uploads/${userInfo?.profile_picture}` || "khong co thong tin"} />}
     <a href="https://ant.design">
     {userInfo?.lastName || "Không có thông tin"}
     </a>

@@ -183,7 +183,7 @@ const FavoriteList = ({ visible, onClose, triggerElement }) => {
       }}
       placement="bottom" // Hiển thị phía dưới
       align={{
-        offset: [800, 10], // Dịch chuyển theo trục x 0px (căn giữa), theo trục y 10px
+        offset: [500, 10], // Dịch chuyển theo trục x 0px (căn giữa), theo trục y 10px
       }}
       arrow={false}
     >

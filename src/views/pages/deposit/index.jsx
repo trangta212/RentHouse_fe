@@ -273,15 +273,6 @@ useEffect(() => {
 
             {/* Ảnh CCCD */}
             <label className="font-semibold text-sm block mt-6 mb-1">Tải ảnh CCCD <span className="text-red-500">*</span></label>
-            {/* <Upload
-              listType="picture-card"
-              fileList={fileList}
-              onPreview={handlePreview}
-              onChange={({ fileList }) => setFileList(fileList)}
-              beforeUpload={beforeUpload}
-            >
-              {fileList.length >= 2 ? null : uploadButton}
-            </Upload> */}
             <Upload
   listType="picture-card"
   fileList={fileList}
@@ -495,3 +486,4 @@ useEffect(() => {
 };
 
 export default Deposit;
+

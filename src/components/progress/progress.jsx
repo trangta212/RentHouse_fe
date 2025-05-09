@@ -13,6 +13,7 @@ const ProgressComponent = ({
   totalPrice,
   startDate,
   endDate,
+  fileList
 }) => {
   const [step, setStep] = useState(0);
   const [payUrl, setPayUrl] = useState("");
@@ -35,110 +36,214 @@ const ProgressComponent = ({
     }
   }, [getValues]);
 
-  const handlePostData = async (values, isUpdate = false) => {
+  // const handlePostData = async (values, isUpdate = false) => {
+  //   try {
+  //     setIsLoading(true);
+  //     console.log("Starting handlePostData with values:", values);
+
+  //     // Validate values
+  //     if (!values) {
+  //       console.error("Values is undefined or null");
+  //       throw new Error("Dữ liệu không hợp lệ");
+  //     }
+
+  //     // Tạo postData với các trường tương ứng với từng bước
+  //     const postData = {
+  //       user_id: localStorage.getItem('user_id'), // Add user_id from localStorage
+  //       fullNameIndentify: values?.fullNameIndentify || "",
+  //       type: values?.type || "",
+  //       phone_number: values?.phone || "",
+  //       date_of_birth: values?.date_of_birth || "",
+  //       user_address: values?.user_address || "",
+  //       identifyNumber: values?.identifyNumber || "",
+  //       extensions: values?.extensions || "",
+  //       full_furnishing: values?.full_furnishing || "",
+  //       room_name: values?.textInputTitle || "",
+  //       description: values?.textInputNaiyo || "",
+  //       price_per_month: Number(values?.price) || 0,
+  //       electricity_bill: Number(values?.electricity_bill) || 0,
+  //       water_bill: Number(values?.water_bill) || 0,
+  //       area: Number(values?.erea) || 0,
+  //       room_images: values?.images || [],
+  //       start_date: startDate || null,
+  //       expire: endDate || null,
+  //       total_price: totalPrice,
+  //       address: values?.address || "",
+  //     };
+
+  //     console.log("📦 Final postData:", postData);
+
+  //     let response;
+  //     if (isUpdate && postId) {
+  //       // Nếu đang ở bước 1, chỉ cập nhật thông tin cơ bản
+  //       if (step === 0) {
+  //         const basicInfo = {
+  //           phone_number: values?.phone || "",
+  //           room_name: values?.textInputTitle || "",
+  //           description: values?.textInputNaiyo || "",
+  //           price_per_month: Number(values?.price) || 0,
+  //           area: Number(values?.erea) || 0,
+  //           address: values?.address || "",
+  //           fullNameIndentify: values?.fullNameIndentify || "",
+  //           type: values?.type || "",
+  //           date_of_birth: values?.date_of_birth || "",
+  //           user_address: values?.user_address || "",
+  //           identifyNumber: values?.identifyNumber || "",
+  //           extensions: values?.extensions || "",
+  //           full_furnishing: values?.full_furnishing || "",
+  //           electricity_bill: Number(values?.electricity_bill) || 0,
+  //           water_bill: Number(values?.water_bill) || 0,
+  //         };
+  //         console.log("📝 Updating basic info:", basicInfo);
+  //         response = await PostRentUpdate(postId, basicInfo);
+  //       }
+  //       // Nếu đang ở bước 2, cập nhật thông tin ảnh
+  //       else if (step === 1) {
+  //         const images = values?.images || [];
+  //         console.log("📸 Raw images from form:", images);
+
+  //         let room_images = [];
+
+  //         if (Array.isArray(images)) {
+  //           room_images = images
+  //             .map((img) => {
+  //               console.log("🖼️ Processing image:", img);
+  //               if (img instanceof File) {
+  //                 console.log("📄 File object:", img.name);
+  //                 return img.name;
+  //               }
+  //               if (typeof img === "string") {
+  //                 console.log("📝 String image:", img);
+  //                 return img;
+  //               }
+  //               if (img && img.name) {
+  //                 console.log("📋 Object with name:", img.name);
+  //                 return img.name;
+  //               }
+  //               return "";
+  //             })
+  //             .filter((name) => name);
+  //         }
+
+  //         const imageInfo = { room_images };
+  //         console.log("🖼️ Updating image info:", imageInfo);
+  //         response = await PostRentUpdate(postId, imageInfo);
+  //       }
+  //       // Nếu đang ở bước 3, cập nhật thông tin thanh toán
+  //       else if (step === 2) {
+  //         const paymentInfo = {
+  //           total_price: totalPrice || 0,
+  //           start_date: startDate || null,
+  //           expire: endDate || null,
+  //         };
+  //         console.log("💰 Updating payment info:", paymentInfo);
+  //         response = await PostRentUpdate(postId, paymentInfo);
+  //       }
+  //     } else {
+  //       // Tạo mới bài đăng
+  //       console.log("✨ Creating new post with data:", postData);
+  //       response = await PostRentCreate(postData);
+  //       if (response && response.success) {
+  //         console.log(
+  //           "✅ Post created successfully with ID:",
+  //           response.data.post.id
+  //         );
+  //         setPostId(response.data.post.id);
+  //       }
+  //     }
+
+  //     if (response && response.success) {
+  //       console.log("✅ API Response:", response);
+  //       return true;
+  //     } else {
+  //       console.error("❌ API Error:", response);
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       isUpdate ? "Failed to update post: " : "Failed to create post: ",
+  //       error
+  //     );
+  //     return false;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  const handlePostData = async (values, step, isUpdate = false) => {
     try {
       setIsLoading(true);
       console.log("Starting handlePostData with values:", values);
-
+  
       // Validate values
       if (!values) {
         console.error("Values is undefined or null");
         throw new Error("Dữ liệu không hợp lệ");
       }
-
-      // Tạo postData với các trường tương ứng với từng bước
-      const postData = {
-        user_id: localStorage.getItem('user_id'), // Add user_id from localStorage
-        email: values?.email || "",
-        lastName: values?.textField || "",
-        phone_number: values?.phone || "",
-        room_name: values?.textInputTitle || "",
-        description: values?.textInputNaiyo || "",
-        price_per_month: Number(values?.price) || 0,
-        type: values?.dropdown || "",
-        area: Number(values?.erea) || 0,
-        room_images: values?.images || [],
-        start_date: startDate || null,
-        expire: endDate || null,
-        total_price: totalPrice,
-        address: values?.address || "",
-      };
-
-      console.log("📦 Final postData:", postData);
+  
+      // Tạo FormData để gửi dữ liệu bao gồm cả ảnh
+      const formData = new FormData();
+      
+      // Thêm thông tin vào formData
+      formData.append('user_id', localStorage.getItem('user_id')); // user_id từ localStorage
+      formData.append('fullNameIndentify', values?.fullNameIndentify || "");
+      formData.append('type', values?.type || "");
+      formData.append('phone_number', values?.phone || "");
+      formData.append('date_of_birth', values?.date_of_birth || "");
+      formData.append('user_address', values?.user_address || "");
+      formData.append('identifyNumber', values?.identifyNumber || "");
+      formData.append('extensions', values?.extensions || "");
+      formData.append('full_furnishing', values?.full_furnishing || "");
+      formData.append('room_name', values?.textInputTitle || "");
+      formData.append('description', values?.textInputNaiyo || "");
+      formData.append('price_per_month', Number(values?.price) || 0);
+      formData.append('electricity_bill', Number(values?.electricity_bill) || 0);
+      formData.append('water_bill', Number(values?.water_bill) || 0);
+      formData.append('area', Number(values?.erea) || 0);
+      formData.append('start_date', startDate || null);
+      formData.append('expire', endDate || null);
+      formData.append('total_price', totalPrice);
+      formData.append('address', values?.address || "");
+      formData.append('priority', values?.priority || "");
+  
+      if (fileList && Array.isArray(fileList)) {
+        fileList.forEach((file, index) => {
+          if (file && file.originFileObj instanceof File) {
+            formData.append("room_images", file.originFileObj);
+            console.log(`Added room_images[${index}]:`, file.originFileObj.name);
+          } else {
+            console.warn(`Skipped fileList[${index}]: Not a valid File`, file);
+          }
+        });
+      } else {
+        console.warn("fileList is empty or not an array:", fileList);
+      }
 
       let response;
       if (isUpdate && postId) {
-        // Nếu đang ở bước 1, chỉ cập nhật thông tin cơ bản
-        if (step === 0) {
-          const basicInfo = {
-            email: values?.email || "",
-            lastName: values?.textField || "",
-            phone_number: values?.phone || "",
-            room_name: values?.textInputTitle || "",
-            description: values?.textInputNaiyo || "",
-            price_per_month: Number(values?.price) || 0,
-            type: values?.dropdown || "",
-            area: Number(values?.erea) || 0,
-            address: values?.address || "",
-          };
-          console.log("📝 Updating basic info:", basicInfo);
-          response = await PostRentUpdate(postId, basicInfo);
-        }
-        // Nếu đang ở bước 2, cập nhật thông tin ảnh
-        else if (step === 1) {
-          const images = values?.images || [];
-          console.log("📸 Raw images from form:", images);
-
-          let room_images = [];
-
-          if (Array.isArray(images)) {
-            room_images = images
-              .map((img) => {
-                console.log("🖼️ Processing image:", img);
-                if (img instanceof File) {
-                  console.log("📄 File object:", img.name);
-                  return img.name;
-                }
-                if (typeof img === "string") {
-                  console.log("📝 String image:", img);
-                  return img;
-                }
-                if (img && img.name) {
-                  console.log("📋 Object with name:", img.name);
-                  return img.name;
-                }
-                return "";
-              })
-              .filter((name) => name);
-          }
-
-          const imageInfo = { room_images };
-          console.log("🖼️ Updating image info:", imageInfo);
-          response = await PostRentUpdate(postId, imageInfo);
-        }
-        // Nếu đang ở bước 3, cập nhật thông tin thanh toán
-        else if (step === 2) {
+        // Nếu là cập nhật bài đăng
+        console.log("📝 Updating post with formData:", formData);
+        response = await PostRentUpdate(postId, formData); // Gửi formData cho API
+      } else {
+        // Nếu đang ở bước thanh toán (step 3), gửi thông tin thanh toán
+        if (step === 2) {
           const paymentInfo = {
             total_price: totalPrice || 0,
             start_date: startDate || null,
             expire: endDate || null,
           };
-          console.log("💰 Updating payment info:", paymentInfo);
-          response = await PostRentUpdate(postId, paymentInfo);
+          console.log("💰 Sending payment info:", paymentInfo);
+          formData.append('payment_info', JSON.stringify(paymentInfo)); // Thêm thông tin thanh toán vào formData
         }
-      } else {
-        // Tạo mới bài đăng
-        console.log("✨ Creating new post with data:", postData);
-        response = await PostRentCreate(postData);
+  
+        // Tạo mới bài đăng nếu chưa cập nhật
+        console.log("✨ Creating new post with formData:", formData);
+        response = await PostRentCreate(formData); // Gửi formData cho API
         if (response && response.success) {
-          console.log(
-            "✅ Post created successfully with ID:",
-            response.data.post.id
-          );
+          console.log("✅ Post created successfully with ID:", response.data.post.id);
           setPostId(response.data.post.id);
         }
       }
-
+  
       if (response && response.success) {
         console.log("✅ API Response:", response);
         return true;
@@ -156,6 +261,8 @@ const ProgressComponent = ({
       setIsLoading(false);
     }
   };
+  
+  
 
   const increase = useCallback(async () => {
     try {
@@ -165,10 +272,13 @@ const ProgressComponent = ({
 
       if (step === 0) {
         const requiredFields = {
-          dropdown: values?.dropdown,
+          type: values?.type,
+          fullNameIndentify: values?.fullNameIndentify,
+          date_of_birth: values?.date_of_birth,
+          user_address: values?.user_address,
+          identifyNumber: values?.identifyNumber,
           erea: values?.erea,
           price: values?.price,
-          email: values?.email,
           phone: values?.phone,
           textInputTitle: values?.textInputTitle,
           textInputNaiyo: values?.textInputNaiyo,
@@ -196,8 +306,8 @@ const ProgressComponent = ({
             typeof totalPrice === "string"
               ? Number(totalPrice.replace(/[.,]/g, ""))
               : totalPrice;
-          const orderInfo =
-            values?.textField !== null ? String(values.textField) : "nội dung";
+          const orderInfo ="nội dung";
+            // values?.textField !== null ? String(values.textField) : "nội dung";
 
           const response = await paymentApi.paymentVnpay({
             amount: amountNumber,

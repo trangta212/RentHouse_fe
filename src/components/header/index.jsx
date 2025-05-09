@@ -24,6 +24,7 @@ import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { TiMessages } from "react-icons/ti";
 import { disconnectSocket } from "../../chat/socket"; 
 import { FaBell } from "react-icons/fa";
+import {getUserInfo} from "../../api/userApi";
 
 
 
@@ -63,15 +64,48 @@ const Header = () => {
   const handleNotificationClick = () => {
     setNotification(true);
   };
+  const [userInfo, setUserInfo] = useState(null);
+  const [fileList, setFileList] = useState([]);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const dataUser = await getUserInfo();
+        setUserInfo(dataUser.data);
+        if (dataUser?.data.profile_picture) {
+          setFileList([
+            {
+              uid: "-1",
+              name: "profile.jpg",
+              status: "done",
+              url: `http://localhost:8000/uploads/${dataUser.data.profile_picture}`, // đường dẫn ảnh gốc
+            },
+          ]);
+        }
+        if (!user) {
+          useAuthStore.getState().setUser(dataUser.data);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }
+  , []);
+  
+
   return (
     <div>
       <div className="header">
         <div className="imageHeader">
+        <Link to="/user/home" className="link">
           <img
-            src={require("../../assets/images/logo.jpg")}
+            src={require("../../assets/images/logoweb.png")}
             alt="Logo"
             className="logo-Header"
           />
+        </Link>
         </div>
         <div className="headerText"
           style={{
@@ -106,9 +140,6 @@ const Header = () => {
               </Link>
               {/* </IconButton> */}
             {/* </Tooltip> */}
-            <Typography sx={{ minWidth: 120, color: "black" }}>
-              Về chúng tôi
-            </Typography>
             <Typography sx={{ minWidth: 120, color: "black" }}>
               Tin tức
             </Typography>
@@ -150,15 +181,13 @@ const Header = () => {
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
-            <MenuItem onClick={handleClose}>Profile</MenuItem>
-            <MenuItem onClick={handleClose}>My account</MenuItem>
           </Menu>
         </div>
         <div className="headerButton">
           {user ? (
             <>
             <Tooltip title="Thông báo">
-             <IconButton sx={{ p: 1, ml: 3 ,mr:2}}
+             <IconButton sx={{ p: 1, ml: 3 ,mr:4}}
               onClick={handleNotificationClick}
              >
             <FaBell style={{ fontSize: "22px", color: "#f0e68c" }}
@@ -166,22 +195,27 @@ const Header = () => {
            </IconButton>
             </Tooltip>
               <Tooltip title="Tài khoản">
-                <IconButton onClick={handleClick} sx={{ p: 0 }}>
+                <IconButton onClick={handleClick} sx={{ p: 0, marginRight: 1}}>
+  
                   <Avatar
-                    alt={user.name}
-                    sx={{ width: 34, height: 32 }}
-                    src={user.avatar || "/default-avatar.png"}
-                  />
+                  alt={userInfo?.lastName || "User"}
+                  sx={{ width: 34, height: 32 }}
+                  src={
+                    userInfo?.profile_picture
+                   ? `http://localhost:8000/uploads/${userInfo.profile_picture}`
+                   : "/default-avatar.png"
+                 }
+                />
                 </IconButton>
               </Tooltip>
               <Menu
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                transformOrigin={{ horizontal: "right", vertical: "top" }}
-                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                // transformOrigin={{ horizontal: "right", vertical: "top" }}
+                // anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
-                <MenuItem onClick={() => navigate("/profile")}>Hồ sơ</MenuItem>
+                <MenuItem onClick={() => navigate("/dashboard/thong-tin-ca-nhan")}>Hồ sơ</MenuItem>
                 <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
               </Menu>
             </>
@@ -206,6 +240,9 @@ const Header = () => {
           <Button
             className="push"
             type="primary"
+            style={{
+              marginRight: "20px",
+              }}
             onClick={() => navigate("/user/push-information-page")}
           >
             Đăng bài
@@ -224,7 +261,7 @@ const Header = () => {
         </div>
         {token && (
         <TiMessages 
-          className="mt-[20px] ml-5 text-xl text-[#4caf4f]"
+          className="mt-[20px] ml-10 text-xl text-[#3c39df]"
           style={{ fontSize: "20px", cursor: "pointer" }}
           onClick={handleMessagesClick}
         />

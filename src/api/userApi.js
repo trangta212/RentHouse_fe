@@ -8,3 +8,12 @@ export const getUserInfo = async () => {
     throw error;
   }
 }
+export const updateUserInfo = async(userData) => {
+  try {
+    const response = await axiosInstance.put("/user/update-profile", userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user info:", error);
+    throw error;
+  }
+}

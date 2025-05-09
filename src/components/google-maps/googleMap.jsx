@@ -147,7 +147,7 @@ const GoogleMapComponent = ({ address,style = {}, className = ""  }) => {
       ref={mapRef}
       className={className}
       style={{
-        width: "58%",
+        width: "80%",
         height: "400px",
         border: "20px",
         borderRadius: "20px",

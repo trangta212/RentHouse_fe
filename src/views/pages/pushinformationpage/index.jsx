@@ -39,7 +39,7 @@ import Select from "react-select";
 import { generateContent, validateFormData } from "./create-ai";
 import { message } from "antd";
 import { Spin } from "antd";
-
+import {Upload, Image} from "antd";
 import { RobotOutlined } from "@ant-design/icons";
 import {
   getCityList,
@@ -49,6 +49,10 @@ import {
 import { useEffect } from "react";
 import GoogleMapComponent from "../../../components/google-maps/googleMap";
 import paymentApi from "../../../api/paymentApi";
+import {getUserInfo} from "../../../api/userApi.js";
+import { PlusOutlined } from "@ant-design/icons";
+
+
 
 const { RangePicker } = DatePicker;
 const style = {
@@ -58,6 +62,23 @@ const style = {
 };
 
 const PushInformationPage = () => {
+  // Lấy thông tin người dùng
+  const [userInfo, setUserInfo] = useState(null);
+   useEffect(() => {
+          const fetchUserInfo = async () => {
+            try {
+              const dataInfor = await getUserInfo();
+              setUserInfo(dataInfor.data);
+              // console.log("Thông tin người dùng:", dataInfor.data);
+          }catch (error) {
+            console.error("Error fetching user info:", error);
+          }}
+
+          fetchUserInfo();
+        }
+          , []);
+
+
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
 
@@ -70,9 +91,8 @@ const PushInformationPage = () => {
   ];
 
   const interiorList = [
-    { label: "Đầy đủ", key: "full" },
-    { label: "Cơ bản", key: "basic" },
-    { label: "Không", key: "none" },
+    { label: "Đầy đủ", key: "1" },
+    { label: "Không", key: "0" },
   ];
   const instruct = [
     {
@@ -96,7 +116,7 @@ const PushInformationPage = () => {
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      images: [],
+      room_images: [],
       dropdown: "",
       erea: "",
       price: "",
@@ -107,28 +127,10 @@ const PushInformationPage = () => {
       textInputNaiyo: "",
       textField: "",
       address: "",
-      dropdownProvince: "",
-      dropdownInterior: "",
     },
   });
 
-  // Xử lý khi ảnh thay đổi
-  const handleImageChange = (imageNames) => {
-    try {
-      if (Array.isArray(imageNames)) {
-        console.log("Setting images:", imageNames);
-        setValue("images", imageNames, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-      } else {
-        console.warn("Invalid imageNames:", imageNames);
-      }
-    } catch (error) {
-      console.error("Error in handleImageChange:", error);
-    }
-  };
+  
 
   console.log("Giá trị hiện tại của erea:", watch("erea")); // Kiểm tra giá trị khi nhập
 
@@ -138,17 +140,19 @@ const PushInformationPage = () => {
   const [pricePerDay, setPricePerDay] = useState(0); // Giá tiền mỗi ngày
   const [selectedOption, setSelectedOption] = useState(""); // State lưu nội dung
 
-  const handleSelect = (price, option) => {
+  const handleSelect = (price, option,priority) => {
     if (selectedPrice === price) {
       // Nếu nhấn lại vào cùng một button -> Reset
       setSelectedOption("");
       setSelectedPrice(null);
       setPricePerDay(0);
+      setValue("priority", ""); // Xóa giá trị trong form
     } else {
       // Nếu chọn button mới -> Cập nhật button mới & tổng tiền
       setSelectedPrice(price);
       setPricePerDay(price);
       setSelectedOption(option);
+      setValue("priority", priority); // Gán priority vào values
     }
   };
   // Set thứ ngày tháng
@@ -336,7 +340,71 @@ const PushInformationPage = () => {
     updateFullAddress(watch("address")); // Cập nhật địa chỉ đầy đủ
   };
 
-  // Thanh toán
+
+  const [selectedExtensions, setSelectedExtensions] = useState([]);
+
+  const toggleExtension = (value) => {
+    setSelectedExtensions((prev) => {
+      const updated = prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value];
+  
+      setValue("extensions", updated); // Cập nhật vào react-hook-form
+      return updated;
+    });
+  };
+  // Xử lý hình ảnh 
+    const [fileList, setFileList] = useState([]);
+    const [previewImage, setPreviewImage] = useState("");
+    const [previewOpen, setPreviewOpen] = useState(false);
+    
+    const beforeUpload = (file) => {
+      setFileList([...fileList, file]);
+      return false;
+    };
+  
+  const getBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+  
+
+  const handlePreview = async (file) => {
+      if (!file.url && !file.preview) {
+        file.preview = await getBase64(file.originFileObj);
+      }
+      setPreviewImage(file.url || file.preview);
+      setPreviewOpen(true);
+    };
+    const handleChange = ({ fileList: newFileList }) => {
+      setFileList(newFileList);
+      // const fileNames = newFileList.map((file) => file.name); // Lấy danh sách tên file
+      // setValue("room_images", fileNames); // ⬅️ Cập nhật vào react-hook-form
+    };
+
+    const uploadButton = (
+      <button
+        style={{
+          border: 0,
+          background: "none",
+        }}
+        type="button"
+      >
+        <PlusOutlined />
+        <div
+          style={{
+            marginTop: 8,
+          }}
+        >
+          Upload
+        </div>
+      </button>
+    );
+
+
 
   const steps = [
     <div key="step1">
@@ -354,19 +422,19 @@ const PushInformationPage = () => {
         <div className="mt-1 border border-gray-300 rounded-3xl p-[10px] h-auto bg-white">
           <input
             type="hidden"
-            {...register("dropdown", { required: "Vui lòng chọn một mục" })}
-            value={watch("dropdown") || ""}
+            {...register("type", { required: "Vui lòng chọn một mục" })}
+            value={watch("type") || ""}
           />
 
           {/* Component Dropdown */}
           <DropDownComponent
             className=""
             items={itemsList}
-            value={watch("dropdown")}
+            value={watch("type")}
             onChange={(value) =>
-              setValue("dropdown", value, { shouldValidate: true })
+              setValue("type", value, { shouldValidate: true })
             }
-            error={errors.dropdown?.message}
+            error={errors.type?.message}
           />
         </div>
         <span className="text-gray-600 mt-5 font-semibold block ">
@@ -603,68 +671,116 @@ const PushInformationPage = () => {
         <h1 className="text-left text-lg font-semibold "> Thông tin khác </h1>
         <span className="text-gray-600 mt-8 font-semibold block">Nội thất</span>
         <div className="mt-1 border border-gray-300 rounded-3xl p-[10px] h-auto bg-white">
+           <input
+            type="hidden"
+            {...register("full_furnishing", { required: "Vui lòng chọn một mục" })}
+            value={watch("full_furnishing") || ""}
+          />
+
+          {/* Component Dropdown */}
           <DropDownComponent
             className=""
             items={interiorList}
-            value={watch("dropdownInterior")}
-            onChange={(value) => setValue("dropdownInterior", value)}
-            error={errors.dropdown?.message}
+            value={watch("full_furnishing")}
+            onChange={(value) =>
+              setValue("full_furnishing", value, { shouldValidate: true })
+            }
+            error={errors.full_furnishing?.message}
           />
         </div>
-        <div className=" flex items-center justify-between mt-8">
-          <span className="text-gray-600 font-semibold h-full flex items-center">
-            Số phòng ngủ
-          </span>
-          <InputNumber min={1} max={10} defaultValue={3} />
-        </div>
-        <div className=" flex items-center justify-between mt-8">
-          <span className="text-gray-600 font-semibold h-full flex items-center">
-            Số phòng tắm, vệ sinh
-          </span>
-          <InputNumber min={1} max={10} defaultValue={3} />
-        </div>
+        <div className="flex items-center justify-between mt-8">
+  <span className="text-gray-600 font-semibold h-full flex items-center">
+    Tiền điện <span className="ml-1 text-sm text-gray-500">(giá tiền điện trên 1 số điện)</span>
+  </span>
+  <Input
+    type="number"
+    min={1}
+    max={50}
+    step={1}
+    {...register("electricity_bill", {
+      required: "Vui lòng nhập giá tiền điện",
+      min: {
+        value: 1,
+        message: "Giá trị tối thiểu là 1",
+      },
+      max: {
+        value: 50,
+        message: "Giá trị tối đa là 50",
+      },
+    })}
+    value={watch("electricity_bill") || ""}   
+    onChange={(e) => {
+      setValue("electricity_bill", e.target.value, { shouldValidate: true }); // Kích hoạt validation khi cập nhật
+      if (/^[0-9]+(\.[0-9]+)?$/.test(e.target.value)) {
+        clearErrors("electricity_bill"); // Xóa lỗi nếu hợp lệ
+      }
+    }}   
+    placeholder="Nhập giá tiền điện"
+    className="ml-4 w-[200px] rounded-3xl p-[10px]"
+  />
+  </div>
+  <div className="flex items-center justify-between mt-8">
+  <span className="text-gray-600 font-semibold h-full flex items-center">
+    Tiền nước <span className="ml-1 text-sm text-gray-500">(giá tiền nước trên 1 số)</span>
+  </span>
+  <Input
+    type="number"
+    min={1}
+    max={100}
+    step={1}
+    {...register("water_bill", {
+      required: "Vui lòng nhập giá tiền nước",
+      min: {
+        value: 1,
+        message: "Giá trị tối thiểu là 1",
+      },
+      max: {
+        value: 100,
+        message: "Giá trị tối đa là 100",
+      },
+    })}
+    value={watch("water_bill") || ""}   
+    onChange={(e) => {
+      setValue("water_bill", e.target.value, { shouldValidate: true }); // Kích hoạt validation khi cập nhật
+      if (/^[0-9]+(\.[0-9]+)?$/.test(e.target.value)) {
+        clearErrors("water_bill"); // Xóa lỗi nếu hợp lệ
+      }
+    }}   
+    placeholder="Nhập giá tiền nước"
+    className="ml-4 w-[200px] rounded-3xl p-[10px]"
+  />
+</div>
         <span className="text-gray-600 mt-8 font-semibold block">Tiện ích</span>
         <div className="flex items-center space-x-5 mt-4">
-          <Button
-            variant="outlined"
-            className="flex items-center space-x-2"
-            sx={{
-              borderRadius: "20px", // Tuỳ chỉnh bo góc
-              backgroundColor: "white", // Đặt màu nền trắng
-              borderColor: "#ccc", // Đặt màu viền
-            }}
-          >
-            <FontAwesomeIcon icon={faCamera} className="text-black text-lg" />
-            <span className="text-black font-semibold">Camera</span>
-          </Button>
-          <Button
-            variant="outlined"
-            className="flex items-center space-x-2"
-            sx={{
-              borderRadius: "20px", // Tuỳ chỉnh bo góc
-              backgroundColor: "white", // Đặt màu nền trắng
-              borderColor: "#ccc", // Đặt màu viền
-            }}
-          >
-            <FontAwesomeIcon
-              icon={faUserShield}
-              className="text-black text-lg"
-            />
-            <span className="text-black font-semibold">Bảo vệ</span>
-          </Button>
-          <Button
-            variant="outlined"
-            className="flex items-center space-x-2"
-            sx={{
-              borderRadius: "20px", // Tuỳ chỉnh bo góc
-              backgroundColor: "white", // Đặt màu nền trắng
-              borderColor: "#ccc", // Đặt màu viền
-            }}
-          >
-            <FontAwesomeIcon icon={faFire} className="text-black text-lg" />
-            <span className="text-black font-semibold">PCCC</span>
-          </Button>
-        </div>
+  {[
+    { label: "Camera", icon: faCamera },
+    { label: "Tủ lạnh", icon: faUserShield },
+    { label: "Máy giặt", icon: faFire },
+  ].map((item) => {
+    const isSelected = selectedExtensions.includes(item.label); // Kiểm tra trạng thái
+
+    return (
+      <Button
+        key={item.label}
+        variant="outlined"
+        onClick={() => toggleExtension(item.label)}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-[20px] font-semibold transition-colors duration-200 ${
+          isSelected
+          ? "bg-white border-gray-300 text-black" // Màu khi chưa chọn
+            : "bg-blue-500 border-blue-500 text-white" // Màu khi chọn
+        }`}
+        sx={{
+          borderRadius: "20px",
+        }}
+      >
+        <FontAwesomeIcon icon={item.icon} className="text-lg" />
+        <span className="font-semibold">{item.label}</span>
+      </Button>
+    );
+  })}
+</div>
+
+ <input type="hidden" {...register("extensions")} />
       </div>
       <div className="h-auto  mt-12 rounded-[20px] bg-[#E8F5E9]  p-6">
         <h1 className="text-left text-lg font-semibold ">
@@ -675,9 +791,10 @@ const PushInformationPage = () => {
         <span className="text-gray-600 mt-5 font-semibold block">
           Tên liên hệ
           <span className="text-red-500 ml-1">*</span>
+          <span className="text-sm text-gray-500 ml-2">(Tên của bạn trong CCCD)</span>
         </span>
         <Input
-          {...register("textField", {
+          {...register("fullNameIndentify", {
             required: "Vui lòng nhập thông tin",
             pattern: {
               value: /^[A-Za-zÀ-ỹ\s]+$/,
@@ -686,18 +803,82 @@ const PushInformationPage = () => {
           })}
           className="mt-1 rounded-3xl p-[10px] border w-full"
           placeholder="Nhập chữ cái"
-          value={watch("textField") || ""}
+          value={watch("fullNameIndentify") || ""}
           onChange={(e) => {
-            setValue("textField", e.target.value, { shouldValidate: true });
+            setValue("fullNameIndentify", e.target.value, { shouldValidate: true });
             if (/^[A-Za-zÀ-ỹ\s]+$/.test(e.target.value)) {
-              clearErrors("textField"); // Xóa lỗi nếu nhập đúng
+              clearErrors("fullNameIndentify"); // Xóa lỗi nếu nhập đúng
             }
           }}
         />
 
+<span className="text-gray-600 mt-5 font-semibold block">
+  Ngày - Tháng - Năm sinh
+  <span className="text-red-500 ml-1">*</span>
+</span>
+<Input
+  type="date"
+  {...register("date_of_birth", {
+    required: "Vui lòng chọn ngày sinh",
+    // Bạn có thể thêm custom validate nếu cần kiểm tra tuổi, ví dụ trên 18
+  })}
+  className="mt-1 rounded-3xl p-[10px]"
+  value={watch("date_of_birth") || ""}
+  onChange={(e) => {
+    setValue("date_of_birth", e.target.value, { shouldValidate: true });
+    clearErrors("date_of_birth");
+  }}
+/>
+<span className="text-gray-600 mt-5 font-semibold block">
+  Số CMND/CCCD
+  <span className="text-red-500 ml-1">*</span>
+</span>
+<Input
+  type="text"
+  {...register("identifyNumber", {
+    required: "Vui lòng nhập số CMND/CCCD",
+    pattern: {
+      value: /^\d{12}$/,
+      message: "Số CMND/CCCD phải đủ 12 chữ số",
+    },
+  })}
+  className="mt-1 rounded-3xl p-[10px]"
+  placeholder="Nhập số CMND/CCCD"
+  value={watch("identifyNumber") || ""}
+  onChange={(e) => {
+    const numericValue = e.target.value.replace(/\D/g, ""); // chỉ cho phép số
+    setValue("identifyNumber", numericValue, { shouldValidate: true });
+    if (/^\d{12}$/.test(numericValue)) {
+      clearErrors("identifyNumber");
+    }
+  }}
+/>
+<span className="text-gray-600 mt-5 font-semibold block">
+  Địa chỉ thường trú
+  <span className="text-red-500 ml-1">*</span>
+</span>
+<Input
+  type="text"
+  {...register("user_address", {
+    required: "Vui lòng nhập địa chỉ",
+    minLength: {
+      value: 5,
+      message: "Địa chỉ phải có ít nhất 5 ký tự",
+    },
+  })}
+  className="mt-1 rounded-3xl p-[10px]"
+  placeholder="Nhập địa chỉ"
+  value={watch("user_address") || ""}
+  onChange={(e) => {
+    setValue("user_address", e.target.value, { shouldValidate: true });
+    if (e.target.value.length >= 5) {
+      clearErrors("user_address");
+    }
+  }}
+/>
         {/* Hiển thị lỗi nếu không đúng chữ cái */}
-        {errors.textField && (
-          <p className="text-slate-600 mt-1">{errors.textField.message}</p>
+        {errors.user_address && (
+          <p className="text-slate-600 mt-1">{errors.user_address.message}</p>
         )}
 
         <span className="text-gray-600 mt-5  font-semibold block">
@@ -707,27 +888,14 @@ const PushInformationPage = () => {
         {/* <Input  
         className ="mt-1 rounded-3xl p-[10px]"
         placeholder="Basic usage" /> */}
-        <Input
-          {...register("email", {
-            required: "Vui lòng nhập email",
-            pattern: {
-              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
-              message: "Phải nhập đúng định dạng của email",
-            },
-          })}
-          className="mt-1 rounded-3xl p-[10px]"
-          placeholder="Nhập email"
-          value={watch("email") || ""}
-          onChange={(e) => {
-            setValue("email", e.target.value, { shouldValidate: true });
-            if (/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(e.target.value)) {
-              clearErrors("email"); // Xóa lỗi nếu nhập đúng định dạng
-            }
-          }}
-        />
-        {errors.email && (
-          <p className="text-slate-600 mt-1">{errors.email.message}</p>
-        )}
+       <Input
+        className="mt-1 rounded-3xl p-[10px] bg-gray-100 cursor-not-allowed"
+        placeholder="Nhập email"
+       value={userInfo?.email || watch("email") || ""}
+       readOnly
+       />
+
+      
         <span className="text-gray-600 mt-5  font-semibold block">
           Số điện thoại
           <span className="text-red-500 ml-1">*</span>
@@ -759,6 +927,7 @@ const PushInformationPage = () => {
         {errors.phone && (
           <p className="text-slate-600 mt-1">{errors.phone.message}</p>
         )}
+
       </div>
       <div className="h-auto  mt-12 rounded-[20px] bg-[#E8F5E9]  p-6">
         <h1 className="text-left text-lg font-semibold ">
@@ -912,28 +1081,27 @@ const PushInformationPage = () => {
         </div>
 
         <div className="mt-20 flex items-center justify-center">
-          <input
-            type="hidden"
-            {...register("images", {
-              required: "Vui lòng tải lên ít nhất 3 ảnh",
-              validate: {
-                minImages: (value) => {
-                  console.log("Validating images:", value);
-                  return (
-                    (value && Array.isArray(value) && value.length >= 3) ||
-                    "Vui lòng tải lên ít nhất 3 ảnh"
-                  );
-                },
-                maxImages: (value) => {
-                  return (
-                    (value && Array.isArray(value) && value.length <= 15) ||
-                    "Chỉ được tải lên tối đa 15 ảnh"
-                  );
-                },
-              },
-            })}
-          />
-          <UploadImg value={watch("images")} onChange={handleImageChange} />
+               <Upload
+            listType="picture-card"
+            fileList={fileList}
+            onPreview={handlePreview}
+            onChange={handleChange}
+            beforeUpload={beforeUpload}
+          >
+            {Array.isArray(fileList) && fileList.length >= 5 ? null : uploadButton}
+          </Upload>
+          {previewImage && (
+  <Image
+    wrapperStyle={{ display: "none" }}
+    preview={{
+      visible: previewOpen,
+      onVisibleChange: (visible) => setPreviewOpen(visible),
+      afterOpenChange: (visible) =>
+        !visible && setPreviewImage(""),
+    }}
+    src={previewImage}
+  />
+)}
         </div>
         <div
           className="flex items-center  space-x-5 justify-between cursor-pointer mt-8"
@@ -982,18 +1150,18 @@ const PushInformationPage = () => {
     // Màn thứ 3
     <div>
       <h2 className="mb-6 font-semibold text-base">Bước 3: Hoàn thành</h2>
-      <h1 className="text-left text-lg font-semibold ">
+      <h1 className="text-left text-lg font-semibold mt-10">
         {" "}
         Chọn loại tin ưu tiên{" "}
       </h1>
-      <div className="mt-5">
+      <div className="mt-10">
         <Row gutter={16} className="flex justify-center space-x-7">
           <Col className="gutter-row" span={6}>
             <button
-              className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
-                selectedPrice === 20000 ? "bg-yellow-50" : "bg-[#fbfdeb]"
+              className={`h-72 p-6 border rounded-[20px] cursor-pointer transition ${
+                selectedPrice === 10000 ? "bg-yellow-50" : "bg-slate-600"
               }`}
-              onClick={() => handleSelect(20000, "Ưu tiên đặc biệt")}
+              onClick={() => handleSelect(10000, "Ưu tiên đặc biệt",1)}
             >
               <div className="ml-5">
                 <div className="w-10 bg-[#4caf4f] rounded-full text-[35px] h-[10px]"></div>
@@ -1008,16 +1176,16 @@ const PushInformationPage = () => {
                 Đăng tin ở vị trí nổi bật trên cùng
               </p>
               <h1 className="text-[#636364] font-semibold text-lg mt-3 text-left">
-                20.000 đồng/ngày
+                10.000 đồng/ngày
               </h1>
             </button>
           </Col>
           <Col className="gutter-row" span={6}>
             <button
               className={`h-full p-6 border rounded-[20px] cursor-pointer transition ${
-                selectedPrice === 10000 ? "bg-green-300" : "bg-[#579c51]"
+                selectedPrice === 5000 ?  "bg-[#579c51]": "bg-slate-600"
               }`}
-              onClick={() => handleSelect(10000, "Ưu tiên")}
+              onClick={() => handleSelect(5000, "Ưu tiên",2)}
             >
               <div className="ml-5">
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] "></div>
@@ -1033,16 +1201,16 @@ const PushInformationPage = () => {
                 Tin sẽ được hiển thị ở vị trí sau các tin đặc biệt{" "}
               </p>
               <h1 className="text-[#ffffff] font-semibold text-lg mt-3 text-left">
-                10.000 đồng/ngày
+                5.000 đồng/ngày
               </h1>
             </button>
           </Col>
           <Col className="gutter-row" span={6}>
             <button
               className={`h-full p-7 border rounded-[20px] cursor-pointer transition ${
-                selectedPrice === 3000 ? "bg-green-300" : "bg-[#3a3838]"
+                selectedPrice === 0 ? "bg-green-300" : "bg-[#3a3838]"
               }`}
-              onClick={() => handleSelect(3000, "Tin thường")}
+              onClick={() => handleSelect(0, "Tin thường",3)}
             >
               <div className="ml-5">
                 <div className="w-10 bg-[#ff5500] rounded-full text-[35px] h-[8px] "></div>
@@ -1058,7 +1226,7 @@ const PushInformationPage = () => {
                 Bản tin sẽ được hiển thị dưới cùng của danh sách{" "}
               </p>
               <h1 className="text-[#ffffff] font-semibold text-lg mt-3 text-left">
-                3.000 đồng/ngày
+                Miễn phí
               </h1>
             </button>
           </Col>
@@ -1072,71 +1240,7 @@ const PushInformationPage = () => {
         className="mt-6 w-full h-12 border rounded-[20px] text-xl"
         onChange={handleDateChange}
       />
-      <h1 className="text-left text-lg font-semibold mt-8">
-        {" "}
-        Gói mua tin nổi bật đi kèm
-      </h1>
-      <p className="font-medium mt-3">Tin sẽ được đẩy lên đầu mỗi ngày</p>
-      <div className="flex items-center space-x-5 mt-4 ">
-        <div className="w-1/2 flex justify-center h-16">
-          <Button
-            variant="outlined"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              transition: "all 0.3s ease-in-out",
-              borderRadius: "10px",
-              borderColor: "#ccc",
-              backgroundColor:
-                totalPriceWithExtra === 6000 ? "#a7dca5" : "#FFFFFF", // bg-black hoặc bg-[#D6D6D6]
-            }}
-            onClick={() => handleSelectExtra(6000)}
-          >
-            <FaArrowUp className="text-black text-lg" />
-            <span className="text-black font-semibold text-lg p-2">
-              1 lần đẩy
-            </span>
-            <span className="text-black ml-auto text-lg ">6.000 đồng</span>
-          </Button>
-        </div>
-        <div className="w-1/2 flex justify-center h-16">
-          <Button
-            variant="outlined"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              transition: "all 0.3s ease-in-out",
-              borderRadius: "10px",
-              borderColor: "#ccc",
-              backgroundColor:
-                totalPriceWithExtra === 20000 ? "#a7dca5" : "#FFFFFF", // bg-black hoặc bg-[#D6D6D6]
-            }}
-            onClick={() => handleSelectExtra(20000)}
-          >
-            <FaArrowUp className="text-black text-lg" />
-            <span className="text-black font-semibold text-lg p-2">
-              3 lần đẩy
-            </span>
-            <span className="text-black ml-auto text-lg ">20.000 đồng</span>
-          </Button>
-        </div>
-      </div>
-      <Divider className="border-gray-200 mt-10 mb-4" />{" "}
-      {/* Đường kẻ ngăn cách */}
-      <div className="flex items-center  mt-4">
-        <div className="flex items-center space-x-4">
-          <MdDiscount />
-          <h1 className="text-base "> Khuyến mãi</h1>
-        </div>
-        <div className="flex ml-auto justify-end">
-          <Button className="p-0">
-            <span className="text-slate-400"> Chọn khuyến mãi</span>
-          </Button>
-        </div>
-      </div>
-      <Divider className="border-gray-200 mt-4 mb-4" />{" "}
+     
       {/* Đường kẻ ngăn cách */}
     </div>,
     // Màn thanh toán
@@ -1500,6 +1604,7 @@ const PushInformationPage = () => {
         startDate={formatStartDate}
         endDate={formatEndDate}
         name={watch("textField")}
+        fileList={fileList}
       />
       <div>
         <ToastContainer />

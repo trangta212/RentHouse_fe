@@ -7,12 +7,12 @@ export const PostRentCreate = async (postData) => {
       throw new Error("Dữ liệu không được để trống");
     }
 
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `http://localhost:8000/api/v1/post/create-post`,
       postData,
       {
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
         },
       }
     );

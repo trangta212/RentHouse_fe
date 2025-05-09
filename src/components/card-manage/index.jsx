@@ -45,7 +45,7 @@ function CardManage({ listHome = [] }) {
             <CardMedia
               component="img"
               sx={{ height: 210 }}
-              image={room.Room.room_images[0] || coursImage}
+              image={(room.Room.room_images && room.Room.room_images[0]) || coursImage}
               alt={room.Room.room_name}
             />
             <FontAwesomeIcon

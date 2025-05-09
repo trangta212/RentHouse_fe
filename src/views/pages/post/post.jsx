@@ -8,7 +8,6 @@ import { useState } from "react";
 
 export default function Post() {
     
-
      const [postInformation, setPostInformation] = useState([]);
      const [sumPost, setSumPost] = useState(0);
     useEffect(() => {

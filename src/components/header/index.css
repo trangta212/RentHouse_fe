@@ -4,9 +4,11 @@
   display: flex;
 }
 .logo-Header {
-  height: 30px;
+  height: 40px;
+  width: 40px;
   margin-left: 30px;
-  margin-top: 15px;
+  margin-top: 10px;
+  border-radius: 20px;
 }
 .BoxHeader {
   margin-left: 10px;
