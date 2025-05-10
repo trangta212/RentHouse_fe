@@ -5,6 +5,8 @@ import { MdOutlinePostAdd } from "react-icons/md";
 import { FaFileContract } from "react-icons/fa6";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import MainLayout from "../main-layout/MainLayout.jsx";
+import { FaClipboard } from 'react-icons/fa';
+
 
 
 
@@ -73,6 +75,17 @@ export default function DashboardLayout() {
     >
       <MdOutlineAccountCircle className="text-xl mr-3 text-indigo-600" />
       <span className="text-base text-black/80">Thông tin cá nhân</span>
+    </NavLink>
+    <NavLink
+      to="/user/push-information-page"
+      className={({ isActive }) =>
+        `flex items-center px-3 py-2 rounded-md ${
+          isActive ? "bg-indigo-200" : "hover:bg-indigo-100"
+        }`
+      }
+    >
+      <FaClipboard className="text-xl mr-3 text-indigo-600" />
+      <span className="text-base text-black/80">Đăng tin</span>
     </NavLink>
   </div>
 </nav>

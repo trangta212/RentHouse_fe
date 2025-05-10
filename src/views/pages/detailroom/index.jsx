@@ -37,11 +37,31 @@ const DetailRoom = () => {
   const fetchListHomeDetail = async () => {
     try {
       const dataRoom = await detailRoomInformation(id);
-      if (dataRoom.dataRoom.room_images) {
+      if (dataRoom?.dataRoom?.room_images) {
         const images = dataRoom.dataRoom.room_images;
-        setImagesDetails(images);
-        setSelectedImage(dataRoom.dataRoom.room_images[0]); // Chọn ảnh đầu tiên làm mặc định
-      }
+    
+        if (Array.isArray(images) && images.length > 0) {
+          // Kiểm tra nếu là dạng URL online
+          if (images[0].startsWith("https://")) {
+            setImagesDetails(images);
+            setSelectedImage(images[0]);
+          } else {
+            // Dạng local (tên file)
+            const fullURLs = images.map(
+              (img) => `http://localhost:8000/uploads/${img}`
+            );
+            setImagesDetails(fullURLs);
+            setSelectedImage(fullURLs[0]);
+          }
+        } else if (typeof images === "string") {
+          // Trường hợp images là chuỗi đơn (1 ảnh duy nhất)
+          const imageURL = images.startsWith("https://")
+            ? images
+            : `http://localhost:8000/uploads/${images}`;
+          setImagesDetails([imageURL]);
+          setSelectedImage(imageURL);
+        }
+        }
       setInformationListRoom(dataRoom.dataRoom);
     } catch (error) {
       console.error("Failed to fetch list home: ", error);
@@ -164,7 +184,7 @@ const DetailRoom = () => {
     <div>
       <div className="detail-room">
         <div className="detail-room-images">
-          <CarouselComponent width="100%" images={[selectedImage]} />
+          <CarouselComponent width="100%" images={[selectedImage]} borderRadius="10px"/>
           <Swiper
             modules={[Navigation, Pagination, Scrollbar]}
             spaceBetween={30}
@@ -195,7 +215,7 @@ const DetailRoom = () => {
         </div>
         <div className="detail-room-info">
           <h1 className="detail-room-title">{informationListRoom.room_name}</h1>
-          <h4 className="detail-room-address">
+          <h4 className="detail-room-address mt-4 mb-1">
             <FontAwesomeIcon
               icon={faMapLocationDot}
               style={{ color: "#588157", marginRight: "8px" }}
@@ -210,12 +230,6 @@ const DetailRoom = () => {
             {informationListRoom.price_per_month} triệu đồng/ tháng{" "}
           </h3>
           <h4 className="detail-room-status">Tình trạng: Còn phòng </h4>
-          <Rating
-            name="half-rating-read"
-            value={parseFloat(informationListRoom.rating) || 0}
-            precision={0.5}
-            readOnly
-          />
           <div className="mt-5">
             <div className="flex justify-start text-base mt-1 text-[17px] space-x-10">
               <span className="text-2xl text-[#588157]">
@@ -282,117 +296,70 @@ const DetailRoom = () => {
               <span>{informationListRoom.area} m2</span>
             </div>
             <div className="detail-room-interior-list-display-item">
-              <span>Số phòng ngủ</span>
-              <span>1</span>
+              <span>Tiền điện(1 số)</span>
+              <span>
+      {informationListRoom?.Utility?.electricity_bill != null
+    ? `${informationListRoom.Utility.electricity_bill} VND`
+    : 'Không có'}
+     </span>
             </div>
             <div className="detail-room-interior-list-display-item">
-              <span>Số phòng vệ sinh</span>
-              <span>1</span>
+              <span>Tiền nước(1 khối)</span>
+              <span>
+      {informationListRoom?.Utility?.water_bill != null
+    ? `${informationListRoom.Utility.water_bill} VND`
+    : 'Không có'}
+     </span>              
             </div>
             <div className="detail-room-interior-list-display-item">
               <span>Tiện ích</span>
-              <span>Camera, bảo vệ, phòng cháy chữa cháy</span>
+              {informationListRoom?.Utility?.extensions != null
+    ? `${informationListRoom?.Utility?.extensions}`
+    : 'Không có'}
             </div>
             <div className="detail-room-interior-list-display-item">
               <span>Nội thất</span>
-              <span>tủ lạnh, máy giặt ....</span>
+              <span>
+  {informationListRoom?.Utility?.full_furnishing
+    ? "Đầy đủ"
+    : "Không đầy đủ"}
+</span>
             </div>
           </div>
         </div>
         <h2 className="detail-room-description-title">Xem trên bản đồ </h2>
-        <div className="detail-room-map">
+        <div className="detail-room-map flex justify-center mt-5">
           <GoogleMapComponent address={informationListRoom.address} />
         </div>
         <hr className="border-t border-gray-100 mb-10 mt-16" />
         <div className="flex justify-start space-x-32">
           <div className="flex flex-col">
             <span className="text-[#999999]">Ngày đăng</span>
-            <span>21/02/2003</span>
+            <span>{ informationListRoom?.RentPost?.start_date}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-[#999999]">Ngày kết thúc</span>
-            <span>21/03/2003</span>
+            <span>{ informationListRoom?.RentPost?.expire}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[#999999]">Loại tin</span>
-            <span>Tin thường </span>
-          </div>
+  <span className="text-[#999999]">Loại tin</span>
+  <span>
+  {Number(informationListRoom?.RentPost?.priority) === 1
+    ? "Tin đặc biệt"
+    : Number(informationListRoom?.RentPost?.priority) === 2
+    ? "Tin thường"
+    : Number(informationListRoom?.RentPost?.priority) === 3
+    ? "Tin miễn phí"
+    : "Không xác định"}
+</span>
+</div>
           <div className="flex flex-col">
             <span className="text-[#999999]">Mã tin</span>
-            <span>1245</span>
+            <span>{ informationListRoom?.RentPost?.id}</span>
           </div>
         </div>
         <hr className="border-t border-gray-100 my-4 mb-10 mt-10" />
-        <h2 className="detail-room-description-title">
-          Bình luận từ người dùng đã thuê{" "}
-        </h2>
-        <div className="detail-room-comment-display">
-          {list.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "20px",
-                fontSize: "16px",
-                color: "gray",
-              }}
-            >
-              Không có bình luận nào
-            </div>
-          ) : (
-            <List
-              className="demo-loadmore-list"
-              loading={initLoading}
-              itemLayout="horizontal"
-              loadMore={loadMore}
-              dataSource={list}
-              renderItem={(item) => (
-                <List.Item>
-                  <Skeleton avatar title={false} loading={item.loading} active>
-                    <List.Item.Meta
-                      avatar={<Avatar src={item.picture?.large} />}
-                      title={<a href="https://ant.design">{item.name?.last}</a>}
-                      description={
-                        <div
-                          style={{
-                            backgroundColor: "#E8F5E9",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            height: "130px",
-                          }}
-                        >
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <Rate
-                              disabled
-                              defaultValue={item.rating}
-                              style={{ fontSize: "16px" }}
-                            />
-                            <span style={{ marginLeft: "8px" }}>
-                              {item.rating}/5
-                            </span>
-                          </div>
-                          <p
-                            style={{
-                              marginTop: "10px",
-                              fontSize: "15px",
-                              fontFamily: "Roboto",
-                              color: "black",
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            {item.comment || "Không có bình luận nào"}
-                          </p>
-                        </div>
-                      }
-                    />
-                  </Skeleton>
-                </List.Item>
-              )}
-            />
-          )}
-        </div>
+       
         <h2 className="detail-room-description-title">Các dự án liên quan </h2>
       </div>
     </div>

@@ -10,12 +10,14 @@ export default function Post() {
     
      const [postInformation, setPostInformation] = useState([]);
      const [sumPost, setSumPost] = useState(0);
+     const [day, setDay] = useState(0);
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await getPostByUser();
                 setPostInformation(response.data.posts);
                 setSumPost(response.data.postSum);
+                setDay(response.data);
                 console.log(response);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -36,11 +38,11 @@ export default function Post() {
         </div>
         <div className="w-1/3  bg-white shadow-md p-4 rounded-3xl h-35">
         <h2 className="text-black/70 mb-3 mt-3"> Tổng số tin đang có</h2>
-        <h2 className="text-xl font-semibold">13</h2>
+        <h2 className="text-xl font-semibold">{day.activePostCount ||"0"}</h2>
         </div>
         <div className="w-1/3  bg-white shadow-md p-4 rounded-3xl h-35">
         <h2 className="text-black/70 mb-3 mt-3"> Tổng số tin hết hạn</h2>
-        <h2 className="text-xl font-semibold">13</h2>
+        <h2 className="text-xl font-semibold">{day.expiredPostCount || "0"}</h2>
         </div>
       </div>
       <h1 className="text-xl font-medium mt-6">Danh sách tin của bạn</h1>

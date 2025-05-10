@@ -38,7 +38,7 @@ function CardSearch({ listHome = [] }) {
           console.error("Error adding favorite room:", error);
         }
       };
-  
+     
       return (
         <Card key={index} sx={{ width: "100%", height: "57vh" }}>
           <Box sx={{ position: "relative" }}>

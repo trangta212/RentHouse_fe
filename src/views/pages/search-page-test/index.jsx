@@ -35,7 +35,18 @@ const SearchPageTest = () => {
           area,
           keyword,
         });
-        setRooms(data);
+        const updatedRooms = data.map((room) => {
+          const roomImage =
+            room.room_images && room.room_images.length > 0
+              ? room.room_images[0].startsWith("https://")
+                ? room.room_images[0]
+                : `http://localhost:8000/uploads/${room.room_images[0]}`
+              : ''; // Ảnh mặc định nếu không có ảnh
+    
+          return { ...room, roomImage }; // Thêm roomImage vào đối tượng room
+        });
+
+        setRooms(updatedRooms);
         console.log('Filtered rooms:', data);
       };
   
@@ -123,10 +134,12 @@ const SearchPageTest = () => {
         setKeywordSearch(value);
         navigateToSearch(value);
       };
+      
+
     return (
         <div className="flex w-full">
         <div className ="flex flex-col h-full w-[70%] ml-9 mr-4">
-        <h1 className="text-2xl font-semibold mt-4">Có {rooms.length} kết quả tìm kiếm</h1>
+        <h1 className="text-2xl font-semibold mt-6">📋 Có {rooms.length} kết quả tìm kiếm</h1>
         <Search 
         placeholder="input search text"
         onSearch={onSearch}
@@ -222,13 +235,13 @@ const SearchPageTest = () => {
    <Link
     to={`/user/room-details/${item.id}`}
   > 
-      <div className="flex p-0 h-[30vh]">
+      <div className="flex p-0 h-[23vh] mt-5">
         <div className="flex w-[40%] items-center justify-center">
         <img
           width={272}
           alt="logo"
-          className="rounded w-[272px] h-[240px]"
-          src={item.room_images[0]}
+          className="rounded w-[272px] h-[230px] py-7 "
+          src={item.roomImage || "https://via.placeholder.com/272x240"} // Sử dụng roomImage từ API
         />
         </div>
         <div className="flex flex-col justify-center w-[60%]">
@@ -236,9 +249,6 @@ const SearchPageTest = () => {
          title={<a href={item.id} className="font-bold">{item.room_name}</a>}
             description={
                 <>
-                <div className="flex items-center mb-2">
-                    <Rate allowHalf defaultValue={item.rating} className="mr-2" />
-                 </div>   
                 <div className="flex">
                   <p className="text-gray-600 w-1/3">{item.price_per_month} triệu</p>
                   <p className="text-gray-600 w-1/3 truncate">  {item.address?.split(',').slice(-2).join(',').trim()}

@@ -28,7 +28,7 @@ function MediaCard() {
     setLiked(!liked);
   };
   const [listHome, setListHome] = useState([]); // Chuyển thành mảng
-
+  const [selectedImage, setSelectedImage] = useState(null); // Ảnh được chọn
   const fetchListHome = async () => {
     try {
       const homelist = await listHomeInformation();
@@ -45,9 +45,10 @@ function MediaCard() {
   const [favoriteRooms, setFavoriteRooms] = useState([]); // Danh sách roomIds
   const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
 
+
+    
   const datasource = listHome.map((room, index) => {
     const isFavorite = favoriteRooms.includes(room.id); // Kiểm tra trạng thái yêu thích
-
     const handleFavoriteClick = async () => {
       try {
         // Cập nhật danh sách roomIds
@@ -64,6 +65,12 @@ function MediaCard() {
         console.error("Error adding favorite room:", error);
       }
     };
+    const roomImage =
+    room.room_images && room.room_images.length > 0
+      ? room.room_images[0].startsWith("https://")
+        ? room.room_images[0]
+        : `http://localhost:8000/uploads/${room.room_images[0]}`
+      : coursImage; // Ảnh mặc định nếu không có ảnh
 
     return (
       <Card key={index} sx={{ width: "100%", height: "57vh" }}>
@@ -72,7 +79,7 @@ function MediaCard() {
           <CardMedia
             component="img"
             sx={{ height: 210 }}
-            image={room.room_images[0] || coursImage} // Sử dụng ảnh mặc định nếu không có ảnh
+            image={roomImage} // Sử dụng ảnh mặc định nếu không có ảnh
             alt={room.room_name}
           />
 
@@ -89,20 +96,32 @@ function MediaCard() {
             className={`heart-icon ${isFavorite ? "favorite" : ""}`}
             onClick={handleFavoriteClick}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              backgroundColor: "#4caf4f",
-              color: "#fff",
-              borderRadius: "20px",
-            }}
-          >
-            Cho thuê
-          </Button>
+         <Button
+  variant="contained"
+  sx={{
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor:
+      room.RentPost?.status === "pending"
+        ? "#4caf4f" // Màu xanh lá cho trạng thái "pending"
+        : room.RentPost?.status === "deposited"
+        ? "#ffc107" // Màu vàng cho trạng thái "deposited"
+        : room.RentPost?.status === "cancel"
+        ? "#f44336" // Màu đỏ cho trạng thái "cancel"
+        : "#9e9e9e", // Màu xám mặc định nếu không có trạng thái
+    color: "#fff",
+    borderRadius: "20px",
+  }}
+>
+  {room.RentPost?.status === "pending"
+    ? "Cho thuê"
+    : room.RentPost?.status === "deposited"
+    ? "Đã đặt cọc"
+    : room.RentPost?.status === "cancel"
+    ? "Hoàn tất"
+    : "Không xác định"}
+</Button>
         </Box>
 
         <CardContent

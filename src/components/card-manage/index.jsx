@@ -38,6 +38,12 @@ function CardManage({ listHome = [] }) {
           console.error("Error adding favorite room:", error);
         }
       };
+  const roomImage =
+      room?.Room?.room_images && room?.Room?.room_images.length > 0
+        ? room.Room.room_images[0].startsWith("https://")
+          ? room.Room.room_images[0]
+          : `http://localhost:8000/uploads/${room.Room.room_images[0]}`
+        : coursImage; // Ảnh mặc định nếu không có ảnh
   
       return (
         <Card key={index} sx={{ width: "100%", height: "54vh" }}>
@@ -45,7 +51,7 @@ function CardManage({ listHome = [] }) {
             <CardMedia
               component="img"
               sx={{ height: 210 }}
-              image={(room.Room.room_images && room.Room.room_images[0]) || coursImage}
+              image={roomImage || coursImage}
               alt={room.Room.room_name}
             />
             <FontAwesomeIcon
@@ -60,20 +66,32 @@ function CardManage({ listHome = [] }) {
               }}
               onClick={handleFavoriteClick}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                backgroundColor: "#4caf4f",
-                color: "#fff",
-                borderRadius: "20px",
-              }}
-            >
-              Cho thuê
-            </Button>
+                 <Button
+  variant="contained"
+  sx={{
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor:
+      room.status === "pending"
+        ? "#4caf4f" // Màu xanh lá cho trạng thái "pending"
+        : room.status === "deposited"
+        ? "#ffc107" // Màu vàng cho trạng thái "deposited"
+        : room.status === "cancel"
+        ? "#f44336" // Màu đỏ cho trạng thái "cancel"
+        : "#9e9e9e", // Màu xám mặc định nếu không có trạng thái
+    color: "#fff",
+    borderRadius: "20px",
+  }}
+>
+  {room.status === "pending"
+    ? "Cho thuê"
+    : room.status === "deposited"
+    ? "Đã đặt cọc"
+    : room.status === "cancel"
+    ? "Hoàn tất"
+    : "Không xác định"}
+</Button>
           </Box>
   
           <CardContent sx={{ height: "25%" }}>
