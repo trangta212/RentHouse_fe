@@ -54,35 +54,6 @@ useEffect(() => {
     fetchRoomDetails();
 }, [selectedRoom]);
 
-// const handleConfirm = async (action) => {
-//   if (notificationResponseId) {
-//     try {
-//       const response = await getConfirmNotificationById(notificationResponseId, action);
-//       message.success(
-//         action === 'accept' 
-//           ? "Xác nhận thành công!" 
-//           : "Đã từ chối và hoàn tiền thành công!"
-//       );
-      
-//       setIsModalOpen(false);
-
-//       // Lưu trạng thái xử lý tương ứng
-//       setNotificationStatus(prevStatus => ({
-//         ...prevStatus,
-//         [notificationResponseId]: action === 'accept' ? 'confirmed' : 'refunded',
-//       }));
-
-//       // Đóng popover và loại bỏ thông báo khỏi giao diện
-//       onClose(); 
-
-//     } catch (error) {
-//       console.error("Error processing notification:", error);
-//       message.error("Không thể xử lý thông báo!");
-//     }
-//   } else {
-//     message.error("Không tìm thấy thông báo để xử lý!");
-//   }
-// };
 const handleConfirm = async (action) => {
   if (!selectedRoom || !selectedRoom.id) {
     message.error("Không tìm thấy thông báo để xử lý!");
@@ -170,12 +141,10 @@ const handleRoomClick = (notificationId) => {
           </div>
         ) : (
           <List
-            // dataSource={notification.filter(item => notificationStatus[item.id] !== 'confirmed')} // Ẩn thông báo đã được xác nhận
-            // dataSource={notification.filter(item => notificationStatus[item.id] !== 'confirmed' && notificationStatus[item.id] !== 'refunded')}
             dataSource={notification.filter(
               (item) =>
-                notificationStatus[item.id] !== "confirmed" &&
-                notificationStatus[item.id] !== "refunded" &&
+                // notificationStatus[item.id] !== "confirmed" &&
+                // notificationStatus[item.id] !== "refunded" &&
                 notificationStatus[item.id] !== "contract_confirmed" &&
                 notificationStatus[item.id] !== "contract_cancelled"
             )}
@@ -259,22 +228,6 @@ const handleRoomClick = (notificationId) => {
     title="🔔 Thông báo đặt cọc mới "
     open={isModalOpen}
     onCancel={handleModalClose}
-    // footer={[
-    //   <Button 
-    //     key="refund" 
-    //     onClick={() => handleConfirm('refund')}
-    //     className="bg-slate-100 text-black"
-    //   >
-    //     Từ chối
-    //   </Button>,
-    //   <Button 
-    //     key="accept" 
-    //     onClick={() => handleConfirm('accept')}
-    //     className="text-white"
-    //   >
-    //    Đồng ý
-    //  </Button>
-    // ]}
     footer={
       selectedRoom?.type === "deposit" ? [
         <Button

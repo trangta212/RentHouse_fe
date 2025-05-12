@@ -13,7 +13,8 @@ const ProgressComponent = ({
   totalPrice,
   startDate,
   endDate,
-  fileList
+  fileList,
+  fullAddress
 }) => {
   const [step, setStep] = useState(0);
   const [payUrl, setPayUrl] = useState("");
@@ -202,7 +203,7 @@ const ProgressComponent = ({
       formData.append('start_date', startDate || null);
       formData.append('expire', endDate || null);
       formData.append('total_price', totalPrice);
-      formData.append('address', values?.address || "");
+      formData.append('address', fullAddress || "");
       formData.append('priority', values?.priority || "");
   
       if (fileList && Array.isArray(fileList)) {
@@ -282,7 +283,7 @@ const ProgressComponent = ({
           phone: values?.phone,
           textInputTitle: values?.textInputTitle,
           textInputNaiyo: values?.textInputNaiyo,
-          address: values?.address,
+          address: fullAddress,
         };
 
         const missingFields = Object.entries(requiredFields)

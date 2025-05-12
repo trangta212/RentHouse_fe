@@ -1605,6 +1605,7 @@ const PushInformationPage = () => {
         endDate={formatEndDate}
         name={watch("textField")}
         fileList={fileList}
+        fullAddress={fullAddress}
       />
       <div>
         <ToastContainer />
