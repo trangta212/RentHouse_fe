@@ -36,7 +36,6 @@ import momo from "../../../assets/images/momo.png";
 import zalo from "../../../assets/images/zalo.png";
 import { Box } from "@mui/material";
 import Select from "react-select";
-import { generateContent, validateFormData } from "./create-ai";
 import { message } from "antd";
 import { Spin } from "antd";
 import {Upload, Image} from "antd";
@@ -51,6 +50,7 @@ import GoogleMapComponent from "../../../components/google-maps/googleMap";
 import paymentApi from "../../../api/paymentApi";
 import {getUserInfo} from "../../../api/userApi.js";
 import { PlusOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 
 
@@ -81,6 +81,7 @@ const PushInformationPage = () => {
 
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
 
   const itemsList = [
     { label: "Trọ", key: "tro" },
@@ -405,6 +406,44 @@ const PushInformationPage = () => {
     );
 
 
+
+  const handleGenerateContent = async () => {
+    try {
+      setIsGeneratingContent(true);
+      
+      // Chuẩn bị dữ liệu gửi đi
+      const requestData = {
+        room_type: watch("type"),
+        price: watch("price"),
+        area: watch("erea"),
+        address: fullAddress,
+        amenities: watch("extensions") || [],
+        furniture: watch("full_furnishing") === "1" ? "Đầy đủ" : "Không",
+        electricity_bill: watch("electricity_bill"),
+        water_bill: watch("water_bill")
+      };
+
+      // Gọi API
+      const response = await axios.post(
+        "http://127.0.0.1:5001/api/generate-room-content",
+        requestData
+      );
+
+      if (response.data.success) {
+        // Cập nhật tiêu đề và mô tả
+        setValue("textInputTitle", response.data.data.title);
+        setValue("textInputNaiyo", response.data.data.description);
+        message.success("Đã tạo nội dung tự động thành công!");
+      } else {
+        message.error(response.data.error || "Không thể tạo nội dung tự động");
+      }
+    } catch (error) {
+      console.error("Error generating content:", error);
+      message.error("Có lỗi xảy ra khi tạo nội dung tự động");
+    } finally {
+      setIsGeneratingContent(false);
+    }
+  };
 
   const steps = [
     <div key="step1">
@@ -929,12 +968,30 @@ const PushInformationPage = () => {
         )}
 
       </div>
-      <div className="h-auto  mt-12 rounded-[20px] bg-[#E8F5E9]  p-6">
-        <h1 className="text-left text-lg font-semibold ">
-          {" "}
-          Tiêu đề và mô tả
-          <span className="text-red-500 ml-1">*</span>
-        </h1>
+      <div className="h-auto mt-12 rounded-[20px] bg-[#E8F5E9] p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-left text-lg font-semibold">
+            Tiêu đề và mô tả
+            <span className="text-red-500 ml-1">*</span>
+          </h1>
+          <Button
+            type="primary"
+            icon={<RobotOutlined />}
+            sx={{
+              backgroundColor: "#4caf4f",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#3d8b40",
+              },
+            }}
+            onClick={handleGenerateContent}
+            loading={isGeneratingContent}
+            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
+          >
+            Tạo với AI
+          </Button>
+        </div>
+        
         <span className="text-gray-600 mt-5 font-semibold block">
           Tiêu đề
           <span className="text-red-500 ml-1">*</span>
@@ -964,33 +1021,6 @@ const PushInformationPage = () => {
               }
             }}
           />
-          <Button
-            variant="contained"
-            disabled={isGeneratingTitle}
-            onClick={() => generateWithAI("title")}
-            sx={{
-              position: "absolute",
-              right: "8px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              minWidth: "auto",
-              height: "32px",
-              backgroundColor: "#4caf4f",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#3d8b40",
-              },
-            }}
-          >
-            {isGeneratingTitle ? (
-              <Spin size="small" />
-            ) : (
-              <>
-                <RobotOutlined style={{ marginRight: "4px" }} />
-                Tạo với AI
-              </>
-            )}
-          </Button>
         </div>
 
         {errors.textInputTitle && (
@@ -1029,32 +1059,6 @@ const PushInformationPage = () => {
               }
             }}
           />
-          <Button
-            variant="contained"
-            disabled={isGeneratingDesc}
-            onClick={() => generateWithAI("description")}
-            sx={{
-              position: "absolute",
-              right: "8px",
-              top: "8px",
-              minWidth: "auto",
-              height: "32px",
-              backgroundColor: "#4caf4f",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#3d8b40",
-              },
-            }}
-          >
-            {isGeneratingDesc ? (
-              <Spin size="small" />
-            ) : (
-              <>
-                <RobotOutlined style={{ marginRight: "4px" }} />
-                Tạo với AI
-              </>
-            )}
-          </Button>
         </div>
 
         {errors.textInputNaiyo && (
@@ -1506,90 +1510,6 @@ const PushInformationPage = () => {
       </div>
     </div>,
   ];
-
-  const generateWithAI = async (type) => {
-    const isTitle = type === "title";
-    const setLoading = isTitle ? setIsGeneratingTitle : setIsGeneratingDesc;
-    try {
-      setLoading(true);
-      console.log("Starting AI generation for:", type);
-
-      // Lấy dữ liệu từ form
-      const formData = {
-        propertyType: watch("dropdown") || "",
-        area: watch("erea") || "",
-        price: watch("price") || "",
-        location: watch("dropdownProvince") || "",
-        interior: watch("dropdownInterior") || "Cơ bản",
-        utilities: [], // Có thể thêm sau
-      };
-
-      // Log chi tiết từng trường dữ liệu và kiểm tra tính hợp lệ
-      console.log("Form data validation check:");
-      console.log("Property Type:", {
-        value: formData.propertyType,
-        isValid: Boolean(formData.propertyType),
-      });
-      console.log("Area:", {
-        value: formData.area,
-        isNumber: !isNaN(Number(formData.area)),
-        isValid: Boolean(formData.area) && !isNaN(Number(formData.area)),
-      });
-      console.log("Price:", {
-        value: formData.price,
-        isNumber: !isNaN(Number(formData.price)),
-        isValid: Boolean(formData.price) && !isNaN(Number(formData.price)),
-      });
-      console.log("Location:", {
-        value: formData.location,
-        isValid: Boolean(formData.location),
-      });
-      console.log("Interior:", {
-        value: formData.interior,
-        isValid: Boolean(formData.interior),
-      });
-
-      // Validate dữ liệu
-      validateFormData(formData);
-
-      // Gọi hàm tạo nội dung
-      const generatedContent = await generateContent(type, formData);
-      console.log("Generated content:", generatedContent);
-
-      if (!generatedContent || generatedContent.trim() === "") {
-        throw new Error("OpenAI không trả về nội dung. Vui lòng thử lại!");
-      }
-
-      console.log(
-        "Updating form field:",
-        isTitle ? "textInputTitle" : "textInputNaiyo"
-      );
-      console.log("With content:", generatedContent);
-
-      // Cập nhật form với nội dung được tạo
-      setValue(
-        isTitle ? "textInputTitle" : "textInputNaiyo",
-        generatedContent,
-        {
-          shouldValidate: true,
-        }
-      );
-
-      // Kiểm tra giá trị sau khi cập nhật
-      console.log(
-        "Updated value:",
-        watch(isTitle ? "textInputTitle" : "textInputNaiyo")
-      );
-
-      // Hiển thị thông báo thành công
-      message.success("Đã tạo nội dung thành công!");
-    } catch (error) {
-      console.error("Error in generateWithAI:", error);
-      message.error(error.message || "Có lỗi xảy ra khi tạo nội dung");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="push-paper-information">

@@ -21,7 +21,7 @@ import { addFavoriteRooms } from "../../api/favoriteApi";
 
 import { List } from "antd";
 
-function MediaCard() {
+function MediaCard({selectedButton}) {
   const [liked, setLiked] = useState(false); // State để lưu trạng thái yêu thích
 
   const handleLike = () => {
@@ -45,9 +45,11 @@ function MediaCard() {
   const [favoriteRooms, setFavoriteRooms] = useState([]); // Danh sách roomIds
   const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
 
+  const filteredList = selectedButton
+  ? listHome.filter((room) => room.type === selectedButton)
+  : listHome;
 
-    
-  const datasource = listHome.map((room, index) => {
+  const datasource = filteredList.map((room, index) => {
     const isFavorite = favoriteRooms.includes(room.id); // Kiểm tra trạng thái yêu thích
     const handleFavoriteClick = async () => {
       try {
@@ -191,7 +193,7 @@ function MediaCard() {
                 }}
               >
                 {room.price_per_month
-                  ? `${room.price_per_month} triệu đồng / tháng`
+                  ? `${room.price_per_month} vnđ / tháng`
                   : "Chưa có giá"}
               </Typography>
             </Box>
@@ -265,7 +267,7 @@ function MediaCard() {
           onChange: (page) => {
             console.log(page);
           },
-          pageSize: 6,
+          pageSize: 9,
           style: { textAlign: "center" },
           align: 'center', 
         }}

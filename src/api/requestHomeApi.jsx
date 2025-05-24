@@ -45,3 +45,21 @@ export const searchNearByRoom = async (latitude,longitude,radius) =>{
           );
         }
 }  
+export const searchRelatedRoom = async (address, type, excludeId) => {
+  console.log("📤 Gọi API với params:", { address, type, excludeId });
+
+  try {
+    const response = await axiosInstance.get(
+      `/room/related?address=${encodeURIComponent(address)}&type=${type}&excludeId=${excludeId}`
+    );
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      console.error("⚠️ Lỗi phản hồi từ API:", response.data.message);
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi gọi API:", error.response?.data || error.message);
+  }
+};
+

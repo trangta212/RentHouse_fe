@@ -162,7 +162,7 @@ useEffect(() => {
   }, []);
   useEffect(() => {
     if (selectedDetail?.roomInfo?.price > 0) {
-      const deposit = selectedDetail.roomInfo.price * 1000000 * 0.1;
+      const deposit = selectedDetail.roomInfo.price  * 0.1;
       setValue("deposit_amount", deposit);
     }
   }, [selectedDetail, setValue]);

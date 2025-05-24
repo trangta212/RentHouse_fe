@@ -23,6 +23,8 @@ import { isAuthenticated } from "../../../untils/auth"; // Giả định bạn c
 import { message } from "antd";
 import { useLocation } from "react-router-dom";
 import { sendMessage } from '../../../api/message'; // Giả định bạn có API gửi tin nhắn
+import CardManageHorizontal from "../../../components/box/index"
+import {searchRelatedRoom} from "../../../api/requestHomeApi"
 
 const count = 4;
 
@@ -33,10 +35,12 @@ const DetailRoom = () => {
   const [imagesDetails, setImagesDetails] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [informationListRoom, setInformationListRoom] = useState({});
+  const [relatedRooms, setRelatedRooms] = useState([]);
 
   const fetchListHomeDetail = async () => {
     try {
       const dataRoom = await detailRoomInformation(id);
+      console.log("🏠 Room data:", dataRoom.dataRoom);
       if (dataRoom?.dataRoom?.room_images) {
         const images = dataRoom.dataRoom.room_images;
     
@@ -179,7 +183,37 @@ const DetailRoom = () => {
       state: { sender }
     });    
   };
+
+  useEffect(() => {
+    const fetchRelatedRooms = async () => {
+      if (typeof informationListRoom.address === "string" && informationListRoom.address.trim() !== "" && typeof informationListRoom.type === "string" && id) {
+        console.log("Fetch related rooms with params:", {
+          address: informationListRoom.address,
+          type: informationListRoom.type,
+          excludeId: id,
+        });
   
+        const result = await searchRelatedRoom(
+          informationListRoom.address,
+          informationListRoom.type,
+          id
+        );
+  
+        console.log("Related rooms result:", result);
+        setRelatedRooms(result);
+      } else {
+        console.warn("Invalid parameters for fetching related rooms", {
+          address: informationListRoom.address,
+          type: informationListRoom.type,
+          id,
+        });
+      }
+    };
+  
+    fetchRelatedRooms();
+  }, [informationListRoom.address, informationListRoom.type, id]);
+  
+
   return (
     <div>
       <div className="detail-room">
@@ -227,7 +261,7 @@ const DetailRoom = () => {
               icon={faMoneyBill}
               style={{ color: "#588157", marginRight: "8px" }}
             />
-            {informationListRoom.price_per_month} triệu đồng/ tháng{" "}
+            {informationListRoom.price_per_month} vnđ/ tháng{" "}
           </h3>
           <h4 className="detail-room-status">Tình trạng: Còn phòng </h4>
           <div className="mt-5">
@@ -313,9 +347,13 @@ const DetailRoom = () => {
             </div>
             <div className="detail-room-interior-list-display-item">
               <span>Tiện ích</span>
-              {informationListRoom?.Utility?.extensions != null
-    ? `${informationListRoom?.Utility?.extensions}`
-    : 'Không có'}
+              {
+  informationListRoom?.Utility?.extensions
+    ? Array.isArray(informationListRoom.Utility.extensions)
+      ? informationListRoom.Utility.extensions.join(', ')
+      : JSON.parse(informationListRoom.Utility.extensions).join(', ')
+    : 'Không có'
+}
             </div>
             <div className="detail-room-interior-list-display-item">
               <span>Nội thất</span>
@@ -360,7 +398,10 @@ const DetailRoom = () => {
         </div>
         <hr className="border-t border-gray-100 my-4 mb-10 mt-10" />
        
-        <h2 className="detail-room-description-title">Các dự án liên quan </h2>
+        <h2 className="detail-room-description-title">Các phòng trọ liên quan </h2>
+        <div className="mt-5 mb-10">
+        <CardManageHorizontal listHome={relatedRooms} />
+        </div>
       </div>
     </div>
   );

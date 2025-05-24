@@ -1,114 +1,85 @@
 import React, { useEffect, useRef } from "react";
+import mapboxgl from "mapbox-gl";
 
-const DEFAULT_LOCATION = { lat: 21.028511, lng: 105.804817 }; // Hà Nội
+mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ob2FuZzEyMyIsImEiOiJjbWF3MG0xbDYwYXA2MnFwbGx5YnNuZGZjIn0.3ovuGpDGiTbLZM6oBW3bDA';
+
+
+const DEFAULT_LOCATION = [105.804817, 21.028511]; // Hà Nội [lng, lat]
 
 const formatPrice = (price) => {
   return price?.toLocaleString("vi-VN") + " đ";
 };
 
-const GoogleMapComponent2 = ({ locations = [] }) => {
+const MapboxComponent2 = ({ locations = [] }) => {
+  const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
-  const mapInstance = useRef(null);
+  const bounds = useRef(new mapboxgl.LngLatBounds());
 
   useEffect(() => {
-    let checkGoogleMaps;
-    let markers = [];
-    let bounds = null;
+    if (!mapRef.current && mapContainerRef.current) {
+      mapRef.current = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: DEFAULT_LOCATION,
+        zoom: 5,
+      });
 
-    const initMap = () => {
-      if (mapRef.current) {
-        const map = new window.google.maps.Map(mapRef.current, {
-          center: DEFAULT_LOCATION,
-          zoom: 5,
-        });
-        console.log("✅ Google Map đã khởi tạo");
-        mapInstance.current = map;
-      }
+      mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    }
+
+    const geocodeAddress = async (address) => {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`
+      );
+      const data = await response.json();
+      return data.features?.[0]?.center || null;
     };
 
-    const clearMarkers = () => {
-      markers.forEach((marker) => marker.setMap(null));
-      markers = [];
-    };
+    const addMarkers = async () => {
+      bounds.current = new mapboxgl.LngLatBounds();
 
-    const geocodeLocations = async (locationList) => {
-      const geocoder = new window.google.maps.Geocoder();
-      bounds = new window.google.maps.LatLngBounds();
+      for (const { address, price } of locations) {
+        if (!address) continue;
 
-      console.log("📌 Danh sách địa chỉ cần geocode:", locationList);
+        const location = await geocodeAddress(address);
+        if (location) {
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <strong>${address}</strong><br/>
+            Giá: <span style="color:green">${formatPrice(price)}</span>
+          `);
 
-      for (const { address, price } of locationList) {
-        if (!address) {
-          console.warn("⚠️ Địa chỉ bị thiếu hoặc null:", { address, price });
-          continue;
+          new mapboxgl.Marker()
+            .setLngLat(location)
+            .setPopup(popup)
+            .addTo(mapRef.current);
+
+          bounds.current.extend(location);
+        } else {
+          console.warn("❌ Không tìm thấy tọa độ cho:", address);
         }
-
-        console.log("🔍 Đang geocode:", address, "với giá:", price);
-
-        await new Promise((resolve) => {
-          geocoder.geocode({ address }, (results, status) => {
-            console.log("📬 Kết quả geocode:", results, "Trạng thái:", status);
-
-            if (status === "OK" && results.length > 0) {
-              const location = results[0].geometry.location;
-
-              const marker = new window.google.maps.Marker({
-                position: location,
-                map: mapInstance.current,
-                title: address,
-              });
-
-              const infoWindow = new window.google.maps.InfoWindow({
-                content: `<div><strong>${address}</strong><br/>Giá: <span style="color:green">${formatPrice(price)}</span></div>`,
-              });
-
-              marker.addListener("click", () => {
-                infoWindow.open(mapInstance.current, marker);
-              });
-
-              markers.push(marker);
-              bounds.extend(location);
-            } else {
-              console.warn(`❌ Không tìm thấy vị trí cho: "${address}". Trạng thái: ${status}`);
-            }
-            resolve();
-          });
-        });
       }
 
-      if (!bounds.isEmpty()) {
-        mapInstance.current.fitBounds(bounds);
-        console.log("📌 Tự động zoom để hiển thị tất cả vị trí");
-      } else {
-        console.warn("⚠️ Không có vị trí hợp lệ nào để vẽ trên bản đồ.");
+      if (!bounds.current.isEmpty()) {
+        mapRef.current.fitBounds(bounds.current, { padding: 40 });
       }
     };
 
-    const loadMap = async () => {
-      initMap();
-      if (locations.length > 0) {
-        await geocodeLocations(locations);
-      } else {
-        console.warn("⚠️ Không có địa chỉ nào được truyền vào.");
-      }
-    };
-
-    checkGoogleMaps = setInterval(() => {
-      if (window.google && window.google.maps) {
-        clearInterval(checkGoogleMaps);
-        loadMap();
-      }
-    }, 100);
+    if (mapRef.current && locations.length > 0) {
+      addMarkers();
+    }
 
     return () => {
-      clearInterval(checkGoogleMaps);
-      clearMarkers();
+      // Cleanup map
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
   }, [locations]);
 
   return (
     <div
-      ref={mapRef}
+      ref={mapContainerRef}
       style={{
         width: "100%",
         height: "100%",
@@ -118,4 +89,4 @@ const GoogleMapComponent2 = ({ locations = [] }) => {
   );
 };
 
-export default GoogleMapComponent2;
+export default MapboxComponent2;

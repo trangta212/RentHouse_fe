@@ -7,7 +7,7 @@ import { Dropdown, message, Space } from 'antd';
 import { Segmented } from 'antd'
 import { Avatar, List } from 'antd';
 import "./index.css";
-import GoogleMapComponent2 from "../../../components/map-points/google-map-2";
+import MapboxComponent2 from "../../../components/map-points/google-map-2";
 import { fetchFilteredRooms } from '../../../api/filterApi';
 import { Rate } from 'antd';
 import { Link } from 'react-router-dom';
@@ -286,12 +286,14 @@ const SearchPageTest = () => {
 </div>
         </div>
         <div className="flex items-center justify-center w-1/3 mt-14 mb-14 mr-8 ml-5">
-  <GoogleMapComponent2
-       locations={rooms.map(room => ({
-        address: room.address,
-        price: room.price_per_month
-      }))}
+        {rooms.length > 0 && (
+  <MapboxComponent2
+    locations={rooms.map(room => ({
+      address: room.address,
+      price: room.price_per_month
+    }))}
   />
+)}
 </div>
         </div>
     );

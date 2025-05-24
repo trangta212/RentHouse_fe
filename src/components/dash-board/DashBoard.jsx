@@ -15,7 +15,7 @@ export default function DashboardLayout() {
   return (
     <div>
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      <aside style={{ width: "250px", background: "#e8eaf6", padding: "20px" }}>
+      <aside style={{ width: "250px", background: "#F6D8DC", padding: "20px" }}>
         <div className="flex space-x-4 items-center mb-10 mt-10">
   <NavLink to="/user/home" className="flex items-center space-x-4">
     <img

@@ -85,6 +85,7 @@ const HomePage = () => {
     onClick: handleLocationChange,
   };
   // Loại nhà
+
   const propertyTypeItems = [
     { label: "Phòng trọ", key: "phongtro" },
     { label: "Nhà nguyên căn", key: "nhanguyencan" },
@@ -271,13 +272,13 @@ const HomePage = () => {
           </div>
         </div>
         <div>
-          <div className="NavFilterHomePage">
+          {/* <div className="NavFilterHomePage">
             <Flex wrap gap={30} className="NavFilterHomePage">
               <Button
-                onClick={() => handleButtonClick("phongtro")}
+                onClick={() => handleButtonClick("nhatro")}
                 style={{
                   backgroundColor:
-                    selectedButton === "phongtro" ? "#4caf4f" : "",
+                    selectedButton === "nhatro" ? "#4caf4f" : "",
                 }}
               >
                 Phòng trọ
@@ -294,12 +295,12 @@ const HomePage = () => {
               </Button>
 
               <Button
-                onClick={() => handleButtonClick("canho")}
+                onClick={() => handleButtonClick("chungcu")}
                 style={{
-                  backgroundColor: selectedButton === "canho" ? "#4caf4f" : "",
+                  backgroundColor: selectedButton === "chungcu" ? "#4caf4f" : "",
                 }}
               >
-                Căn hộ chung cư
+                Chung cư
               </Button>
 
               <Button
@@ -311,8 +312,17 @@ const HomePage = () => {
               >
                 Chung cư mini
               </Button>
+              <Button
+                onClick={() => handleButtonClick("canhodichvu")}
+                style={{
+                  backgroundColor:
+                    selectedButton === "canhodichvu" ? "#4caf4f" : "",
+                }}
+              >
+                Căn hộ dịch vụ
+              </Button>
             </Flex>
-          </div>
+          </div> */}
 
           <div className="ml-[70px] mr-[70px] flex h-80 items-center mt-16 mb-16 bg-[#fbf4ff] rounded-[20px]">
             <div className="flex items-center justify-center w-1/2 h-full">
@@ -363,6 +373,57 @@ const HomePage = () => {
               </form>
             </div>
           </div>
+          <div className="NavFilterHomePage">
+            <Flex wrap gap={30} className="NavFilterHomePage">
+              <Button
+                onClick={() => handleButtonClick("nhatro")}
+                style={{
+                  backgroundColor:
+                    selectedButton === "nhatro" ? "#4caf4f" : "",
+                }}
+              >
+                Phòng trọ
+              </Button>
+
+              <Button
+                onClick={() => handleButtonClick("nhanguyencan")}
+                style={{
+                  backgroundColor:
+                    selectedButton === "nhanguyencan" ? "#4caf4f" : "",
+                }}
+              >
+                Nhà nguyên căn
+              </Button>
+
+              <Button
+                onClick={() => handleButtonClick("chungcu")}
+                style={{
+                  backgroundColor: selectedButton === "chungcu" ? "#4caf4f" : "",
+                }}
+              >
+                Chung cư
+              </Button>
+
+              <Button
+                onClick={() => handleButtonClick("chungcumini")}
+                style={{
+                  backgroundColor:
+                    selectedButton === "chungcumini" ? "#4caf4f" : "",
+                }}
+              >
+                Chung cư mini
+              </Button>
+              <Button
+                onClick={() => handleButtonClick("canhodichvu")}
+                style={{
+                  backgroundColor:
+                    selectedButton === "canhodichvu" ? "#4caf4f" : "",
+                }}
+              >
+                Căn hộ dịch vụ
+              </Button>
+            </Flex>
+          </div>
           <div>
             {roomSearch.length > 0 && (
               <>
@@ -375,7 +436,7 @@ const HomePage = () => {
           </div>
           <h1 className="titleListHomePage">Các phòng trọ phổ biến</h1>
           <div className="flex items-center justify-center">
-            <MediaCard />
+            <MediaCard selectedButton={selectedButton} />
           </div>
           <h1 className="titleListHomePage">Các tin tức liên quan</h1>
           <div className="paper-homepage-container">
