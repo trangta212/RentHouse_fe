@@ -8,7 +8,7 @@ import {Link} from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { detailRoomInformation  } from "../../../api/requestHomeApi";
 import { useEffect } from "react";
-import {updatePostInformationByUser} from "../../../api/postRent.jsx";
+import {updatePostInformationByUser,deletePost} from "../../../api/postRent.jsx";
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Upload, message, Image } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -19,16 +19,24 @@ import { PlusOutlined } from '@ant-design/icons';
 
 const itemsType = [
     {
-      key: '1',
-      label: 'Item 1',
+      key: 'nhatro',
+      label: 'Nhà trọ',
     },
     {
-      key: '2',
-      label: 'Item 2',
+      key: 'canhodichvu',
+      label: 'Căn hộ dịch vụ',
     },
     {
-      key: '3',
-      label: 'Item 3',
+      key: 'chungcu',
+      label: 'Chung cư',
+    },
+    {
+      key: 'chungcumini',
+      label: 'Chung cư mini',
+    },
+    {
+      key: 'nhanguyencan',
+      label: 'Nhà nguyên căn',
     },
   ];
 
@@ -100,6 +108,16 @@ export default function UpdatePost() {
     }
   };
 
+  const handleDeletePost = async () => {
+    try {
+      const response = await deletePost(id);
+      alert(response.data.message || "Xóa bài đăng thành công!");
+    } catch (error) {
+      console.error("Lỗi xóa bài đăng:", error);
+      alert(error.message || "Xóa bài đăng thất bại!");
+    }
+  };
+
   const [fileList, setFileList] = useState([]);
     const [previewImage, setPreviewImage] = useState("");
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -148,6 +166,12 @@ export default function UpdatePost() {
         </div>
       </button>
     );
+
+  const getTypeLabel = (type) => {
+    const found = itemsType.find(item => item.key === type);
+    return found ? found.label : 'Chọn loại phòng';
+  };
+
   return (
     <div>
         <div className="bg-white w-full h-full rounded-xl p-14">
@@ -193,10 +217,16 @@ export default function UpdatePost() {
                   <Dropdown
                  menu={{
                    items: itemsType,
-                   selectable: true,
-                  defaultSelectedKeys: ['3'],
-                    }}
-                  disabled={!isEditing} // <-- Chỉ cho chọn khi isEditing = true
+                   onClick: ({ key }) => {
+                     if (isEditing) {
+                       setInformationListRoom({
+                         ...informationListRoom,
+                         type: key,
+                       });
+                     }
+                   },
+                 }}
+                  disabled={!isEditing}
                   >
     <Typography.Link onClick={(e) => e.preventDefault()}>
       <Space
@@ -204,7 +234,7 @@ export default function UpdatePost() {
           !isEditing ? 'cursor-not-allowed text-gray-500' : ''
         }`}
       >
-        Selectable
+        {getTypeLabel(informationListRoom.type)}
       </Space>
     </Typography.Link>
   </Dropdown>
@@ -414,15 +444,20 @@ export default function UpdatePost() {
                 )}
                 </div>
                 </div>
-                <div className="flex justify-end mt-7 space-x-5">
+                <div className ="flex justify-between mt-7">
                 <Link to="/dashboard/tin-dang">
-                <Button className=" text-white px-10 py-5 rounded-2xl">
+                <Button className=" text-white px-10 py-5 rounded-2xl bg-gray-500">
                     <span className="text-white font-semibold text-base">Huỷ</span>
                 </Button>
                 </Link>
+                <div className="flex justify-end  space-x-5">
+                <Button onClick={handleDeletePost} className=" text-white px-10 py-5 rounded-2xl bg-red-500">
+                    <span className="text-white font-semibold text-base">Xóa bài đăng</span>
+                </Button>
                 <Button onClick={handleUpdatePost} className=" text-white px-10 py-5 rounded-2xl">
                     <span className="text-white font-semibold text-base">Cập nhật</span>
                 </Button>
+                </div>
                 </div>
              </div>
          </div>         

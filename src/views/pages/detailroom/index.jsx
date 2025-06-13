@@ -322,7 +322,7 @@ const DetailRoom = () => {
             <div className="detail-room-interior-list-display-item">
               <span>Mức giá</span>
               <span>
-                {informationListRoom.price_per_month} triệu đồng/ tháng
+                {informationListRoom.price_per_month} đồng/ tháng
               </span>
             </div>
             <div className="detail-room-interior-list-display-item">
@@ -349,9 +349,24 @@ const DetailRoom = () => {
               <span>Tiện ích</span>
               {
   informationListRoom?.Utility?.extensions
-    ? Array.isArray(informationListRoom.Utility.extensions)
-      ? informationListRoom.Utility.extensions.join(', ')
-      : JSON.parse(informationListRoom.Utility.extensions).join(', ')
+    ? (() => {
+        const ext = informationListRoom.Utility.extensions;
+
+        if (Array.isArray(ext)) {
+          return ext.join(', ');
+        }
+
+        try {
+          const parsed = JSON.parse(ext);
+          if (Array.isArray(parsed)) {
+            return parsed.join(', ');
+          }
+        } catch (error) {
+          // Nếu không phải JSON, trả lại string nguyên gốc
+        }
+
+        return ext; // Chuỗi thường như "Máy giặt,Tủ lạnh"
+      })()
     : 'Không có'
 }
             </div>

@@ -44,7 +44,7 @@ export default function MainLayout() {
     return (
       <>
       
-     <div className="main-layout-header  flex top-0 w-full p-2 items-center justify-between bg-[#f0f1f8]">
+     <div className="main-layout-header  flex top-0 w-full p-2 items-center justify-between bg-[#e8f5e9]">
       <div className="w-2/5  ml-3">
     <Search 
     placeholder="input search text" 
@@ -54,7 +54,7 @@ export default function MainLayout() {
     enterButton={
         <Button
           type="primary"
-          style={{ backgroundColor: '#5a67ba'}} // đỏ ví dụ
+          style={{ backgroundColor: '#469349'}} // đỏ ví dụ
           icon={<SearchOutlined />} // Thêm biểu tượng tìm kiếm
         >
         </Button>

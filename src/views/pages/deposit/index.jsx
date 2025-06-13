@@ -49,6 +49,7 @@ const Deposit = () => {
   const [isAgreed, setIsAgreed] = useState(false); // State để quản lý checkbox
   const [payUrl, setPayUrl] = useState("");
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [selectedImage, setSelectedImage] = useState("");
 // Xử lý trạng thái thanh toán
  
 
@@ -187,6 +188,28 @@ useEffect(() => {
       convertFilesToBase64();
     }
   }, [fileList]);
+
+  useEffect(() => {
+    let images = selectedDetail?.roomInfo?.image;
+  
+    // Nếu chỉ là 1 chuỗi đơn, ép thành mảng
+    if (typeof images === "string") {
+      images = [images];
+    }
+  
+    if (Array.isArray(images) && images.length > 0) {
+      // Kiểm tra phần tử đầu tiên có phải URL online không
+      if (images[0].startsWith("https://")) {
+        setSelectedImage(images);
+      } else {
+        const fullURLs = images.map((img) => `http://localhost:8000/uploads/${img}`);
+        setSelectedImage(fullURLs);
+      }
+    } else {
+      setSelectedImage([]); // fallback nếu không hợp lệ
+    }
+  }, [selectedDetail]);
+  
   
   return (
     <div className="p-10 w-full">
@@ -368,7 +391,7 @@ useEffect(() => {
         <div className="w-1/3">
         <div className="bg-[#fffced] rounded-[20px] p-4">
        <h2 className="text-lg font-medium">Thông tin phòng</h2>
-        <CarouselComponent images={selectedDetail?.roomInfo?.image} width="100%" height="25vh" className="rounded-[20px] mt-4" />
+        <CarouselComponent images={selectedImage} width="100%" height="25vh" className="rounded-[20px] mt-4" />
         <div className="mt-4">
           <h3 className="text-base font-medium">
          {selectedDetail?.roomInfo?.name || "Không có thông tin phòng"}
@@ -379,7 +402,7 @@ useEffect(() => {
             </p>
             <h3 className="text-[15px] mt-2">Giá phòng:</h3>
             <p className="text-sm text-gray-500">
-            {selectedDetail?.roomInfo?.price || "Không có thông tin phòng"} triệu đồng/tháng
+            {selectedDetail?.roomInfo?.price || "Không có thông tin phòng"} đồng/tháng
             </p>
             <h3 className="text-[15px] mt-2">Diện tích:</h3>
             <p className="text-sm text-gray-500">
@@ -387,7 +410,29 @@ useEffect(() => {
             </p>
             <h3 className="text-[15px] mt-2">Tiện ích:</h3>
             <p className="text-sm text-gray-500">
-            {selectedDetail?.roomInfo?.utilities || "Không có thông tin phòng"}
+            {/* {selectedDetail?.roomInfo?.utilities || "Không có thông tin phòng"} */}
+            {
+              selectedDetail?.roomInfo?.extensions
+                ? (() => {
+                    const ext = selectedDetail?.roomInfo?.extensions;
+
+                    if (Array.isArray(ext)) {
+                      return ext.join(', ');
+                    }
+
+                    try {
+                      const parsed = JSON.parse(ext);
+                      if (Array.isArray(parsed)) {
+                        return parsed.join(', ');
+                      }
+                    } catch (error) {
+                      // Nếu không phải JSON, trả lại string nguyên gốc
+                    }
+
+                    return ext; // Chuỗi thường như "Máy giặt,Tủ lạnh"
+                  })()
+                : 'Không có'
+            }
             </p>
         </div>  
        </div>

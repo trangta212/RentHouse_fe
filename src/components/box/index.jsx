@@ -178,53 +178,58 @@ function CardManageHorizontal({ listHome = [] }) {
   });
 
   return (
-    <Box sx={{ position: "relative", width: "100%" }}>
-      <IconButton
-        onClick={() => handleScroll("left")}
-        sx={{
-          position: "absolute",
-          top: "40%",
-          left: 0,
-          zIndex: 10,
-          backgroundColor: "rgba(255,255,255,0.7)",
-          "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
-        }}
-      >
-        <FontAwesomeIcon icon={faChevronLeft} />
-      </IconButton>
+    <Box sx={{ position: "relative", width: "100%", display: "flex", alignItems: "center" }}>
+  <IconButton
+    onClick={() => handleScroll("left")}
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: 0,
+      transform: "translateY(-50%)",
+      zIndex: 10,
+      backgroundColor: "rgba(255,255,255,0.7)",
+      "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
+    }}
+  >
+    <FontAwesomeIcon icon={faChevronLeft} />
+  </IconButton>
 
-      <Box
-        ref={scrollRef}
-        sx={{
-          display: "flex",
-          overflowX: "auto",
-          scrollBehavior: "smooth",
-          padding: 1,
-          gap: 2,
-          "&::-webkit-scrollbar": { height: 8 },
-          "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: 4 },
-          scrollbarWidth: "thin",
-          scrollbarColor: "#888 transparent",
-        }}
-      >
-        {datasource}
-      </Box>
+  <Box
+    ref={scrollRef}
+    sx={{
+      display: "flex",
+      overflowX: "auto",
+      scrollBehavior: "smooth",
+      padding: 1,
+      gap: 2,
+      width: "100%",
+      "&::-webkit-scrollbar": { height: 8 },
+      "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: 4 },
+      scrollbarWidth: "thin",
+      scrollbarColor: "#888 transparent",
+    }}
+  >
+    {datasource}
+  </Box>
 
-      <IconButton
-        onClick={() => handleScroll("right")}
-        sx={{
-          position: "absolute",
-          top: "40%",
-          right: 0,
-          zIndex: 10,
-          backgroundColor: "rgba(255,255,255,0.7)",
-          "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
-        }}
-      >
-        <FontAwesomeIcon icon={faChevronRight} />
-      </IconButton>
-    </Box>
+  <IconButton
+    onClick={() => handleScroll("right")}
+    sx={{
+      position: "absolute",
+      top: "50%",
+      right: 0,
+      transform: "translateY(-50%)",
+      zIndex: 10,
+      backgroundColor: "rgba(255,255,255,0.7)",
+      "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
+    }}
+  >
+    <FontAwesomeIcon icon={faChevronRight} />
+  </IconButton>
+</Box>
+
   );
+
 }
 
 export default CardManageHorizontal;

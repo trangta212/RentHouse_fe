@@ -135,3 +135,22 @@ export const updatePostInformationByUser = async (postId,postData) => {
     }
   }
 }
+
+export const deletePost = async (roomId) => {
+  try {
+    const response = await axiosInstance.delete(`post/delete-post/${roomId}`);
+
+    // Kiểm tra nếu mã phản hồi là 2000
+    if (response.data?.code === 2000) {
+      console.log("Xoá bài đăng thành công!");
+      return { success: true, message: "Xoá bài đăng thành công!" };
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Request error:", error.message);
+    throw new Error("Lỗi khi gửi yêu cầu");
+  }
+}
+
+

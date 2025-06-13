@@ -283,7 +283,6 @@ const ProgressComponent = ({
           phone: values?.phone,
           textInputTitle: values?.textInputTitle,
           textInputNaiyo: values?.textInputNaiyo,
-          address: fullAddress,
         };
 
         const missingFields = Object.entries(requiredFields)

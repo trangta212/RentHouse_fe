@@ -277,13 +277,13 @@ const handleRoomClick = (notificationId) => {
       <div>
         <p><strong>Phòng:</strong> {roomDetails?.room_name || "Không rõ"}</p>
         <p><strong>Địa chỉ:</strong> {roomDetails?.address || "Không rõ"}</p>
-        <p><strong>Giá:</strong> {roomDetails?.price_per_month || "Không rõ"} triệu đồng</p>
+        <p><strong>Giá:</strong> {roomDetails?.price_per_month || "Không rõ"} VNĐ</p>
         <p><strong>Thông báo:</strong> {selectedRoom.message}</p>
         <p class="mb-2">
-       📌 Lưu ý quan trọng: Bạn có 3 ngày kể từ thời điểm nhận thông báo này để xác nhận yêu cầu đặt cọc.
+       📌 Lưu ý quan trọng: Bạn có 1 ngày kể từ thời điểm nhận thông báo này để xác nhận yêu cầu đặt cọc.
         </p>
          <p>
-         Nếu quá thời hạn 3 ngày mà bạn không xác nhận, hệ thống sẽ huỷ trạng thái đặt phòng để đảm bảo công bằng cho những người dùng khác.
+         Nếu quá thời hạn 1 ngày mà bạn không xác nhận, hệ thống sẽ huỷ trạng thái đặt phòng để đảm bảo công bằng cho những người dùng khác.
         </p>
 
         {/* Nếu muốn thêm thông tin chi tiết nữa thì render ở đây */}

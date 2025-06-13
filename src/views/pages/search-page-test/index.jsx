@@ -35,7 +35,7 @@ const SearchPageTest = () => {
           area,
           keyword,
         });
-        const updatedRooms = data.map((room) => {
+        const updatedRooms = data.data.map((room) => {
           const roomImage =
             room.room_images && room.room_images.length > 0
               ? room.room_images[0].startsWith("https://")
@@ -70,8 +70,11 @@ const SearchPageTest = () => {
       };
       // Địa điểm
       const locationItems = [
-        { label: "Hà Nội", key: "hà-nội" },
-        { label: "TP.HCM", key: "hồ-chí-minh" },
+        { label: "Hà Nội", key: "ha-noi" },
+        { label: "TP.HCM", key: "ho-chi-minh" },
+        { label:"Đà năng", key:"da-nang"},
+        {label:"Hải Phòng", key:"hai-phong"},
+        {label:"Huế",key:"hue"}
       ];
     
       const handleLocationChange = ({ key }) => {
@@ -86,8 +89,9 @@ const SearchPageTest = () => {
       const propertyTypeItems = [
         { label: "Phòng trọ", key: "phongtro" },
         { label: "Nhà nguyên căn", key: "nhanguyencan" },
-        { label: "Căn hộ chung cư", key: "canho" },
+        { label: "Căn hộ chung cư", key: "chungcu" },
         { label: "Chung cư mini", key: "chungcumini" },
+        { label: "Căn hộ dịch vụ" ,key:"canhodichvu"}
       ];
       const handlePropertyTypeChange = ({ key }) => {
         setPropertyTypeSearch(key);

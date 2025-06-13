@@ -16,6 +16,14 @@ import Post from "./views/pages/post/post.jsx";
 import UpdatePost from "./views/pages/update-post/index.jsx";
 import UserInformation  from "./views/pages/user-information/index.jsx";
 import ContractInformation from "./views/pages/contract-information/index.jsx";
+import { isAuthenticated } from "./untils/auth";
+
+const PrivateRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const theme = {
   token: {
@@ -42,14 +50,21 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/user/*" element={<UserRoute />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="overview" />} />
-              <Route path="overview" element={<Overview />} />
-              <Route path="tin-dang" element={<Post />} />
-              <Route path="update-tin-dang/:id" element={<UpdatePost />} />
-              <Route path="thong-tin-ca-nhan" element={< UserInformation/>} />
-              <Route path="hop-dong" element={<ContractInformation />} />
-            </Route>
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="overview" />} />
+            <Route path="overview" element={<Overview />} />
+            <Route path="tin-dang" element={<Post />} />
+            <Route path="update-tin-dang/:id" element={<UpdatePost />} />
+            <Route path="thong-tin-ca-nhan" element={<UserInformation />} />
+            <Route path="hop-dong" element={<ContractInformation />} />
+          </Route>
           <Route
             path="/api/v1/payment/vnpay-return"
             element={<ReceiptPage />}

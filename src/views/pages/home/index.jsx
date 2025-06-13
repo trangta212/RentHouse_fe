@@ -71,8 +71,10 @@ const HomePage = () => {
   };
   // Địa điểm
   const locationItems = [
-    { label: "Hà Nội", key: "hà-nội" },
-    { label: "TP.HCM", key: "hồ-chí-minh" },
+    { label: "Hà Nội", key: "ha-noi" },
+    { label: "TP.HCM", key: "ho-chi-minh" },
+    { label:"Đà Nẵng", key:"da-nang"},
+    {label:"Huế", key:"hue"}
   ];
 
   const handleLocationChange = ({ key }) => {
@@ -438,62 +440,13 @@ const HomePage = () => {
           <div className="flex items-center justify-center">
             <MediaCard selectedButton={selectedButton} />
           </div>
-          <h1 className="titleListHomePage">Các tin tức liên quan</h1>
-          <div className="paper-homepage-container">
-            <div className="paper-homepage-container-center">
-              <CardPaper />
-            </div>
-            <div className="paper-homepage-container-list">
-              <List
-                sx={{
-                  width: "100%",
-                  maxWidth: 400,
-                  bgcolor: "background.paper",
-                }}
-              >
-                <ListItem alignItems="flex-start">
-                  <ListItemAvatar>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src="/static/images/avatar/1.jpg"
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Typography variant="h7">
-                        {" "}
-                        {/* Điều chỉnh cỡ chữ ở đây */}
-                        Giá trị chung cư sau Tết Nguyên Đán
-                      </Typography>
-                    }
-                    secondary={
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          marginTop: "10px",
-                        }}
-                      >
-                        <AccessTimeIcon fontSize="small" color="action" />
-                        <Typography variant="body2" color="textSecondary">
-                          3 ngày trước
-                        </Typography>
-                      </div>
-                    }
-                  />
-                </ListItem>
-                <Divider variant="inset" component="li" />
-              </List>
-            </div>
-          </div>
           <h1 className="titleListHomePage">Thuê nhà trọ theo địa điểm</h1>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 ml-[160px] mr-[160px] mb-20">
 
             <div className="relative h-56 md:col-span-2 rounded-xl overflow-hidden"
               onClick={() => {
-                handleLocationChange({ key: "hà-nội" }); // Lưu địa điểm vào state
-                navigateToSearch("", "hà-nội"); // Gọi tìm kiếm với "hà-nội" làm location
+                handleLocationChange({ key: "ha-noi" }); // Lưu địa điểm vào state
+                navigateToSearch("", "ha-noi"); // Gọi tìm kiếm với "hà-nội" làm location
               }}
             >
               <img
@@ -509,8 +462,8 @@ const HomePage = () => {
 
             <div className="relative h-56 rounded-xl overflow-hidden"
               onClick={() => {
-                handleLocationChange({ key: "hồ-chí-minh" }); // Lưu địa điểm vào state
-                navigateToSearch("", "hồ-chí-minh"); // Gọi tìm kiếm với "hà-nội" làm location
+                handleLocationChange({ key: "ho-chi-minh" }); // Lưu địa điểm vào state
+                navigateToSearch("", "ho-chi-minh"); // Gọi tìm kiếm với "hà-nội" làm location
               }}
             >
               <img
@@ -527,8 +480,8 @@ const HomePage = () => {
             {/* Đà Nẵng */}
             <div className="relative h-56 rounded-xl overflow-hidden"
               onClick={() => {
-                handleLocationChange({ key: "đà-nẵng" }); // Lưu địa điểm vào state
-                navigateToSearch("", "đà-nẵng"); // Gọi tìm kiếm với "hà-nội" làm location
+                handleLocationChange({ key: "da-nang" }); // Lưu địa điểm vào state
+                navigateToSearch("", "da-nang"); // Gọi tìm kiếm với "hà-nội" làm location
               }}
             >
               <img
@@ -545,8 +498,8 @@ const HomePage = () => {
             {/* Bình Dương */}
             <div className="relative h-56 rounded-xl overflow-hidden"
               onClick={() => {
-                handleLocationChange({ key: "hải-phòng" }); // Lưu địa điểm vào state
-                navigateToSearch("", "hải-phòng"); // Gọi tìm kiếm với "hà-nội" làm location
+                handleLocationChange({ key: "hai-phong" }); // Lưu địa điểm vào state
+                navigateToSearch("", "hai-phong"); // Gọi tìm kiếm với "hà-nội" làm location
               }}
             >
               <img
@@ -563,8 +516,8 @@ const HomePage = () => {
             {/* Đồng Nai */}
             <div className="relative h-56 rounded-xl overflow-hidden"
               onClick={() => {
-                handleLocationChange({ key: "huế" }); // Lưu địa điểm vào state
-                navigateToSearch("", "huế"); // Gọi tìm kiếm với "hà-nội" làm location
+                handleLocationChange({ key: "hue" }); // Lưu địa điểm vào state
+                navigateToSearch("", "hue"); // Gọi tìm kiếm với "hà-nội" làm location
               }}
             >
               <img
