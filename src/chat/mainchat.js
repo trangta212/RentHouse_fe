@@ -251,7 +251,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
                         opacity: 0.7,
                       }}
                     >
-                      {moment(message.timestamp).fromNow()}
+                      {moment().format("HH:mm:ss")}
                     </Typography>
                   </Paper>
                 </Box>

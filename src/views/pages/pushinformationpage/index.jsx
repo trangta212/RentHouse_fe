@@ -481,6 +481,7 @@ const PushInformationPage = () => {
           <span className="text-red-500 ml-1">*</span>
         </span>
         {/* <div className ="mt-2 border border-gray-300 rounded-3xl p-[12px] h-auto bg-white"> */}
+        <div className="relative mt-1">
         <Input
           {...register("erea", {
             required: "Vui lòng nhập diện tích phòng",
@@ -500,6 +501,8 @@ const PushInformationPage = () => {
             }
           }}
         />
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">m²</span>
+        </div>
         {errors.erea && <p className="text-slate-600">{errors.erea.message}</p>}
         {/* Hiển thị lỗi nếu có */}
 
@@ -508,6 +511,7 @@ const PushInformationPage = () => {
           Mức giá
           <span className="text-red-500 ml-1">*</span>
         </span>
+        <div className="relative mt-1">
         <Input
           {...register("price", {
             required: "Vui lòng nhập diện tích phòng",
@@ -527,6 +531,8 @@ const PushInformationPage = () => {
             }
           }}
         />
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">VNĐ</span>
+        </div>
         {errors.price && (
           <p className="text-slate-600">{errors.price.message}</p>
         )}
@@ -535,6 +541,7 @@ const PushInformationPage = () => {
         <h1 className="text-left text-lg font-semibold "> Địa chỉ</h1>
         <span className="text-gray-600 mt-8 font-semibold block">
           Tỉnh/Thành phố
+          <span className="text-red-500 ml-1">*</span>
         </span>
 
         <Select
@@ -542,7 +549,6 @@ const PushInformationPage = () => {
             control: (base, state) => ({
               ...base,
               marginTop: "4px",
-              border: `1px solid ${!selectedProvince ? "#ff4d4f" : "#d1d5db"}`,
               borderRadius: "24px",
               padding: "5px",
               fontSize: "16px",
@@ -591,7 +597,6 @@ const PushInformationPage = () => {
             control: (base, state) => ({
               ...base,
               marginTop: "4px",
-              border: `1px solid ${!selectedDistrict ? "#ff4d4f" : "#d1d5db"}`,
               borderRadius: "24px",
               padding: "5px",
               fontSize: "16px",
@@ -638,7 +643,6 @@ const PushInformationPage = () => {
             control: (base, state) => ({
               ...base,
               marginTop: "4px",
-              border: `1px solid ${!selectedTown ? "#ff4d4f" : "#d1d5db"}`,
               borderRadius: "24px",
               padding: "5px",
               fontSize: "16px",

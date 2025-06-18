@@ -18,3 +18,12 @@ export const createContract = async (notification_id, action) => {
       throw error;
     }
 }
+export const getListContract = async () => {
+  try {
+    const response = await axiosInstance.get(`contract/list`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+

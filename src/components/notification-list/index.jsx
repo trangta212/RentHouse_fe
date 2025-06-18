@@ -229,7 +229,7 @@ const handleRoomClick = (notificationId) => {
     open={isModalOpen}
     onCancel={handleModalClose}
     footer={
-      selectedRoom?.type === "deposit" ? [
+      selectedRoom?.type === "deposit" && !['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) ? [
         <Button
           key="refund"
           onClick={() => handleConfirm("refund")}
@@ -246,7 +246,7 @@ const handleRoomClick = (notificationId) => {
         >
           Đồng ý
         </Button>,
-      ] : [
+      ] : selectedRoom?.type === "contract" && !['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) ? [
         <Button
           key="cancel"
           onClick={() => handleConfirm("cancel")}
@@ -263,14 +263,14 @@ const handleRoomClick = (notificationId) => {
         >
           Xác nhận
         </Button>,
-      ]
+      ] : null
     }
   >
     <div className="flex justify-center items-center text-xs"> 
     <img
       src={require("../../assets/images/Icon.png")}
       alt="images"
-      className="imagesland w-20 h-20  " // Điều chỉnh kích thước ảnh (ví dụ: 64x64px)
+      className="imagesland w-20 h-20  " 
     />
 </div>
     {selectedRoom ? (
@@ -279,14 +279,16 @@ const handleRoomClick = (notificationId) => {
         <p><strong>Địa chỉ:</strong> {roomDetails?.address || "Không rõ"}</p>
         <p><strong>Giá:</strong> {roomDetails?.price_per_month || "Không rõ"} VNĐ</p>
         <p><strong>Thông báo:</strong> {selectedRoom.message}</p>
-        <p class="mb-2">
-       📌 Lưu ý quan trọng: Bạn có 1 ngày kể từ thời điểm nhận thông báo này để xác nhận yêu cầu đặt cọc.
-        </p>
-         <p>
-         Nếu quá thời hạn 1 ngày mà bạn không xác nhận, hệ thống sẽ huỷ trạng thái đặt phòng để đảm bảo công bằng cho những người dùng khác.
-        </p>
-
-        {/* Nếu muốn thêm thông tin chi tiết nữa thì render ở đây */}
+        {!['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) && (
+          <>
+            <p class="mb-2">
+              📌 Lưu ý quan trọng: Bạn có 1 ngày kể từ thời điểm nhận thông báo này để xác nhận yêu cầu đặt cọc.
+            </p>
+            <p>
+              Nếu quá thời hạn 1 ngày mà bạn không xác nhận, hệ thống sẽ huỷ trạng thái đặt phòng để đảm bảo công bằng cho những người dùng khác.
+            </p>
+          </>
+        )}
       </div>
     ) : (
       <Spin />

@@ -150,20 +150,29 @@ const HomePage = () => {
   const onSubmit = async (data) => {
     const { address, distance } = data;
     console.log("Địa chỉ:", address, distance);
+  
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-      const result = await res.json();
-      if (result.length > 0) {
-        const lat = parseFloat(result[0].lat);
-        const lon = parseFloat(result[0].lon);
-        setLocationSearch({ latitude: lat, longitude: lon, radius: parseFloat(distance) });
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${process.env.REACT_APP_MAPBOX_TOKEN}&limit=1&country=VN`
+      );
+  
+      const result = await response.json();
+  
+      if (result.features && result.features.length > 0) {
+        const [lon, lat] = result.features[0].center;
+        setLocationSearch({
+          latitude: lat,
+          longitude: lon,
+          radius: parseFloat(distance),
+        });
       } else {
-        alert('Không tìm thấy tọa độ từ địa chỉ');
+        alert("Không tìm thấy tọa độ từ địa chỉ");
       }
     } catch (error) {
-      console.error('Geocoding error:', error);
+      console.error("Geocoding error (Mapbox):", error);
     }
   };
+  
 
   useEffect(() => {
     const { latitude, longitude, radius } = locationSearch;
@@ -456,7 +465,6 @@ const HomePage = () => {
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
                 <h2 className="text-xl font-bold">Hà Nội</h2>
-                <p className="text-sm">49.098 tin đăng</p>
               </div>
             </div>
 
@@ -473,7 +481,6 @@ const HomePage = () => {
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
                 <h2 className="text-lg font-bold">TP.Hồ Chí Minh</h2>
-                <p className="text-sm">47.525 tin đăng</p>
               </div>
             </div>
 
@@ -491,7 +498,6 @@ const HomePage = () => {
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
                 <h2 className="text-lg font-bold">Đà Nẵng</h2>
-                <p className="text-sm">8.357 tin đăng</p>
               </div>
             </div>
 
@@ -509,7 +515,6 @@ const HomePage = () => {
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
                 <h2 className="text-lg font-bold">Hải Phòng</h2>
-                <p className="text-sm">6.699 tin đăng</p>
               </div>
             </div>
 
@@ -527,7 +532,6 @@ const HomePage = () => {
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 text-white">
                 <h2 className="text-lg font-bold">Huế</h2>
-                <p className="text-sm">3.808 tin đăng</p>
               </div>
             </div>
           </div>
