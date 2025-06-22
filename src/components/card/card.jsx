@@ -192,9 +192,10 @@ function MediaCard({selectedButton}) {
                   },
                 }}
               >
-                {room.price_per_month
-                  ? `${room.price_per_month} vnđ / tháng`
-                  : "Chưa có giá"}
+               
+                  {room.price_per_month
+                ? `${room.price_per_month.toLocaleString('vi-VN')} VNĐ/ tháng`
+                : "Chưa có giá"}
               </Typography>
             </Box>
             <Stack

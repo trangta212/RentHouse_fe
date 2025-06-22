@@ -60,28 +60,28 @@ const ReceiptPage = () => {
             const response = await paymentApi.paymentReturn();
             console.log("VNPay return response:", response);
 
-            if (vnp_ResponseCode === "00") {
-              setPaymentStatus("success");
-              setPaymentData({
-                code: vnp_TxnRef,
-                amount: Number(vnp_Amount) / 100,
-                orderInfo: vnp_OrderInfo,
-                payDate: vnp_PayDate,
-                method: "vnpay",
-              });
+          if (vnp_ResponseCode === "00") {
+            setPaymentStatus("success");
+            setPaymentData({
+              code: vnp_TxnRef,
+              amount: Number(vnp_Amount) / 100,
+              orderInfo: vnp_OrderInfo,
+              payDate: vnp_PayDate,
+              method: "vnpay",
+            });
 
-              if (postId) {
-                try {
-                  await PostRentUpdate(postId, { status: "active" });
-                  console.log("Post status updated successfully");
-                } catch (updateError) {
-                  console.error("Error updating post status:", updateError);
-                }
+            if (postId) {
+              try {
+                await PostRentUpdate(postId, { status: "active" });
+                console.log("Post status updated successfully");
+              } catch (updateError) {
+                console.error("Error updating post status:", updateError);
               }
+            }
 
-              await handleDepositCreation(depositDataStr);
-            } else {
-              setPaymentStatus("error");
+            await handleDepositCreation(depositDataStr);
+          } else {
+            setPaymentStatus("error");
               setPaymentData({
                 code: vnp_TxnRef,
                 amount: Number(vnp_Amount) / 100,
@@ -92,14 +92,14 @@ const ReceiptPage = () => {
                 errorMessage: "Thanh toán không thành công",
                 transactionId: searchParams.get("vnp_TransactionNo")
               });
-              if (postId) {
-                try {
-                  await PostRentUpdate(postId, { status: "pending" });
-                } catch (updateError) {
-                  console.error("Error updating post status:", updateError);
-                }
+            if (postId) {
+              try {
+                await PostRentUpdate(postId, { status: "pending" });
+              } catch (updateError) {
+                console.error("Error updating post status:", updateError);
               }
             }
+          }
           } catch (error) {
             console.error("Error verifying VNPay payment:", error);
             setPaymentStatus("error");

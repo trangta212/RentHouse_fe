@@ -536,6 +536,46 @@ const PushInformationPage = () => {
         {errors.price && (
           <p className="text-slate-600">{errors.price.message}</p>
         )}
+        <div className="flex justify-between items-center">
+          <div>
+        <span className="text-gray-600 mt-5 font-semibold block">
+          Thời hạn bắt đầu hợp đồng
+          <span className="text-red-500 ml-1">*</span>
+        </span>
+        <Input
+          type="date"
+          {...register("start_date_contract", {
+            required: "Vui lòng chọn ngày sinh",
+            // Bạn có thể thêm custom validate nếu cần kiểm tra tuổi, ví dụ trên 18
+          })}
+          className="mt-1 rounded-3xl p-[10px]"
+          value={watch("start_date_contract") || ""}
+          onChange={(e) => {
+            setValue("start_date_contract", e.target.value, { shouldValidate: true });
+            clearErrors("start_date_contract");
+          }}
+        />
+</div>
+<div>
+        <span className="text-gray-600 mt-5 font-semibold block">
+          Thời hạn kết thúc hợp đồng
+          <span className="text-red-500 ml-1">*</span>
+        </span>
+        <Input
+          type="date"
+          {...register("end_date_contract", {
+            required: "Vui lòng chọn ngày sinh",
+            // Bạn có thể thêm custom validate nếu cần kiểm tra tuổi, ví dụ trên 18
+          })}
+          className="mt-1 rounded-3xl p-[10px]"
+          value={watch("end_date_contract") || ""}
+          onChange={(e) => {
+            setValue("end_date_contract", e.target.value, { shouldValidate: true });
+            clearErrors("end_date_contract");
+          }}
+        />
+</div>
+        </div>
       </div>
       <div className="h-auto rounded-[20px] bg-[#E8F5E9]  p-6 mt-12">
         <h1 className="text-left text-lg font-semibold "> Địa chỉ</h1>
@@ -894,6 +934,23 @@ const PushInformationPage = () => {
     if (/^\d{12}$/.test(numericValue)) {
       clearErrors("identifyNumber");
     }
+  }}
+/>
+<span className="text-gray-600 mt-5 font-semibold block">
+  Thời gian cấp CCCD
+  <span className="text-red-500 ml-1">*</span>
+</span>
+<Input
+  type="date"
+  {...register("date_cccd", {
+    required: "Vui lòng chọn ngày cấp căn cước",
+    // Bạn có thể thêm custom validate nếu cần kiểm tra tuổi, ví dụ trên 18
+  })}
+  className="mt-1 rounded-3xl p-[10px]"
+  value={watch("date_cccd") || ""}
+  onChange={(e) => {
+    setValue("date_cccd", e.target.value, { shouldValidate: true });
+    clearErrors("date_cccd");
   }}
 />
 <span className="text-gray-600 mt-5 font-semibold block">

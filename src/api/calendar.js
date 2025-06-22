@@ -15,7 +15,7 @@ export const getCalendarPost = async () => {
       if (error.response) {
         const { status, data } = error.response;
         console.error(`Error ${status}: ${data.message || "Unknown error"}`);
-        
+    
         if (status === 401) {
           // Clear invalid token
           sessionStorage.removeItem("authToken");

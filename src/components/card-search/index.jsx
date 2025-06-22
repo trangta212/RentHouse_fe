@@ -72,7 +72,13 @@ function CardSearch({ listHome = [] }) {
                 borderRadius: "20px",
               }}
             >
-              Cho thuê
+              {room.RentPost?.status === "pending"
+                ? "Cho thuê"
+                : room.RentPost?.status === "deposited"
+                ? "Đã đặt cọc"
+                : room.RentPost?.status === "cancel"
+                ? "Hoàn tất"
+                : "Không xác định"}
             </Button>
           </Box>
   
@@ -116,8 +122,8 @@ function CardSearch({ listHome = [] }) {
                 }}
               >
                 {room.price_per_month
-                  ? `${room.price_per_month} triệu đồng / tháng`
-                  : "Chưa có giá"}
+                 ? `${room.price_per_month.toLocaleString('vi-VN')} VNĐ/ tháng`
+                 : "Chưa có giá"}
               </Typography>
               </Box>
               <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 1, width: "40%" }}>

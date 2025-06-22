@@ -72,9 +72,9 @@ function Login() {
     return (
         <div className="login">
             <div className="left-element">
-                <h1 className="title">WELCOME BACK</h1>
-                <p className="sub-title">Welcome back! Please enter your details.</p>
-                <div className="flex items-center justify-center">
+                <h1 className="title">CHÀO MỪNG BẠN</h1>
+                <p className="sub-title">Chào mừng bạn quay trở lại! Vui lòng nhập thông tin của bạn.</p>
+                <div className="flex items-center justify-center mt-5">
                 <Form
                     layout={formLayout}
                     form={form}
@@ -127,7 +127,7 @@ function Login() {
 
                     {/* Password */}
                     <div className="input-group">
-                        <h4 className="form-input">Password</h4>
+                        <h4 className="form-input">Mật khẩu</h4>
                                     <Form.Item
                           name="password"
                           rules={[
@@ -156,9 +156,7 @@ function Login() {
                     </div>
 
                     {/* Forgot password */}
-                    <Form.Item>
-                    <Link to="/sign-up" className="forgotpassword" >Forgot the password?</Link>
-                    </Form.Item>
+            
                     {/* Submit button */}
                     <Form.Item>
                         <Button type="primary" className ="button2" onClick={handleSubmit}>Sign in</Button>

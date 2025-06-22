@@ -111,7 +111,7 @@ const Deposit = () => {
         //   // VNPay payment (unchanged)
           const response = await paymentApi.paymentVnpay({
             amount: amountNumber,
-            orderInfo: orderInfo,
+            orderInfo: 'nội dung',
           });
   
           if (response.data && response.data.paymentUrl) {
@@ -279,6 +279,26 @@ useEffect(() => {
                 )}
               />
             </div>
+            <label className="font-semibold text-sm block mt-4 mb-1">Thời gian cấp CCCD <span className="text-red-500">*</span></label>
+            <Controller
+            name="date_cccd"
+            control={control}
+            rules={{ required: "Vui lòng chọn ngày cấp căn cước" }}
+            render={({ field, fieldState: { error } }) => (
+              <input
+                type="date"
+                {...field}
+                className={`mt-1 rounded-3xl p-[10px] border border-gray-300 placeholder-gray-400 text-sm w-full ${
+                  error ? 'border-red-500' : ''
+                }`}
+                onChange={(e) => {
+                  field.onChange(e); // cập nhật value vào form
+                  clearErrors("date_cccd"); // xoá lỗi nếu có
+                }}
+              />
+            )}
+          />
+
 
             {/* Địa chỉ thường trú */}
             <label className="font-semibold text-sm block mt-6 mb-1">Địa chỉ thường trú <span className="text-red-500">*</span></label>

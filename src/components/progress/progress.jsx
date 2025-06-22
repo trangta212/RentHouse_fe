@@ -205,6 +205,10 @@ const ProgressComponent = ({
       formData.append('total_price', totalPrice);
       formData.append('address', fullAddress || "");
       formData.append('priority', values?.priority || "");
+      formData.append('start_date_contract', values?.start_date_contract || "");
+      formData.append('end_date_contract', values?.end_date_contract || "");
+      formData.append('date_cccd', values?.date_cccd ||"")
+
   
       if (fileList && Array.isArray(fileList)) {
         fileList.forEach((file, index) => {
@@ -283,6 +287,9 @@ const ProgressComponent = ({
           phone: values?.phone,
           textInputTitle: values?.textInputTitle,
           textInputNaiyo: values?.textInputNaiyo,
+          start_date_contract: values?.start_date_contract,
+          end_date_contract:values?.end_date_contract,
+          date_cccd: values?.date_cccd
         };
 
         const missingFields = Object.entries(requiredFields)
@@ -306,7 +313,7 @@ const ProgressComponent = ({
             typeof totalPrice === "string"
               ? Number(totalPrice.replace(/[.,]/g, ""))
               : totalPrice;
-          const orderInfo ="nội dung";
+          const orderInfo ="Thanh toán phí đăng bài";
             // values?.textField !== null ? String(values.textField) : "nội dung";
 
           const response = await paymentApi.paymentVnpay({

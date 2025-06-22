@@ -10,12 +10,14 @@ const { Title, Text } = Typography;
 export default function ContractInformation() {
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [timeContract, setTimeContract]= useState([]);
 
     useEffect(() => {
       const fetchContracts = async () => {
         try {
           const response = await getListContract();
           setContracts(response.data);
+          setTimeContract(response);
         } catch (error) {
           console.error('Lỗi khi tải hợp đồng:', error);
         } finally {
@@ -32,15 +34,15 @@ export default function ContractInformation() {
         <div className="flex space-x-4">
         <div className="w-1/3  bg-white shadow-md p-4 rounded-3xl h-35">
         <h2 className="text-black/70 mb-3 mt-3"> Tổng số hợp đồng</h2>
-        <h2 className="text-xl font-semibold">{"0"}</h2>
+        <h2 className="text-xl font-semibold">{timeContract.totalContracts}</h2>
         </div>
         <div className="w-1/3  bg-white shadow-md p-4 rounded-3xl h-35">
         <h2 className="text-black/70 mb-3 mt-3"> Tổng số hợp đồng đang có</h2>
-        <h2 className="text-xl font-semibold">13</h2>
+        <h2 className="text-xl font-semibold">{timeContract.expiredContracts}</h2>
         </div>
         <div className="w-1/3  bg-white shadow-md p-4 rounded-3xl h-35">
         <h2 className="text-black/70 mb-3 mt-3"> Tổng số hợp đồng hết hạn</h2>
-        <h2 className="text-xl font-semibold">13</h2>
+        <h2 className="text-xl font-semibold">{timeContract.activeContracts}</h2>
         </div>
       </div>
       <div style={{ padding: 24 }}>
@@ -62,8 +64,8 @@ export default function ContractInformation() {
                 <p><Text strong>Giá thuê:</Text> {contract.room_info.price_per_month.toLocaleString()} VND / tháng</p>
                 <p>
                   <Text strong>Thời hạn:</Text>{' '}
-                  {format(new Date(contract.start_date), 'dd/MM/yyyy')} -{' '}
-                  {format(new Date(contract.end_date), 'dd/MM/yyyy')}
+                  {contract.start_date_contract || ''} -{' '}
+                  {contract.end_date_contract|| ''}
                 </p>
                 <p>
                   <Text strong>Đối tác:</Text> {contract.other_party.email} (0{contract.other_party.phone})

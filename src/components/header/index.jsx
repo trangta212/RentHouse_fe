@@ -51,8 +51,7 @@ const Header = () => {
       try {
         // Fetch notifications
         const notifications = await getListNotification();
-        const unreadNotifs = notifications.filter(n => !n.is_read).length;
-        setUnreadNotifications(unreadNotifs);
+        setUnreadNotifications(notifications.unreadCount);
 
         // Fetch conversations
         const conversations = await getConversations();
@@ -167,9 +166,6 @@ const Header = () => {
                 Quản lý 
               </Typography>
             </Link>
-            <Typography sx={{ minWidth: 120, color: "black" }}>
-              Tin tức
-            </Typography>
           </Box>
         </div>
         <div className="headerButton">
@@ -184,9 +180,9 @@ const Header = () => {
               </Tooltip>
               <Tooltip title="Tin nhắn">
                 <IconButton sx={{ p: 1, mr: 4 }} onClick={handleMessagesClick}>
-                  <Badge badgeContent={unreadMessages} color="error">
+                  {/* <Badge badgeContent={unreadMessages} color="error"> */}
                     <TiMessages style={{ fontSize: "22px", color: "#3c39df" }} />
-                  </Badge>
+                  {/* </Badge> */}
                 </IconButton>
               </Tooltip>
               <Tooltip title="Tài khoản">

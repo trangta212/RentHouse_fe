@@ -40,17 +40,17 @@ const MapboxComponent2 = ({ locations = [] }) => {
       if (!address) return null;
       
       try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            address
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          address
           )}.json?access_token=${mapboxgl.accessToken}&country=VN`
-        );
+      );
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
+      const data = await response.json();
         
         if (data.features && data.features.length > 0) {
           return data.features[0].center;

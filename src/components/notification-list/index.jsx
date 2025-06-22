@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Popover, List, Card, message, Spin, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getListNotification,getConfirmNotificationById} from "../../api/notificationApi";
+import { getListNotification,getConfirmNotificationById,deleteNotification} from "../../api/notificationApi";
 import { FaTimes } from "react-icons/fa";
 import { Modal } from "antd"; // thêm import
 import {detailRoomInformation} from "../../api/requestHomeApi";
@@ -53,6 +53,8 @@ useEffect(() => {
     };
     fetchRoomDetails();
 }, [selectedRoom]);
+// xoá phòng
+
 
 const handleConfirm = async (action) => {
   if (!selectedRoom || !selectedRoom.id) {
@@ -131,6 +133,17 @@ const handleRoomClick = (notificationId) => {
   // State để theo dõi phòng đang được hover
   const [hoveredRoomId, setHoveredRoomId] = useState(null);
 
+  const handleDeleteNotification = async (notificationId, e) => {
+    e.stopPropagation(); // Không mở modal khi bấm X
+    try {
+      await deleteNotification(notificationId);
+      setNotifications(prev => prev.filter(noti => noti.id !== notificationId));
+      message.success("Đã xóa thông báo!");
+    } catch (error) {
+      message.error("Xóa thông báo thất bại!");
+    }
+  };
+
   // Nội dung của Popover
   const content = (
     <div style={{ width: 300, maxHeight: 300, overflow: "auto" }}>
@@ -183,6 +196,18 @@ const handleRoomClick = (notificationId) => {
                         {item.message || "Không có mô tả"}
                       </p>
                     </div>
+                    <button
+                      onClick={(e) => handleDeleteNotification(item.id, e)}
+                      className="ml-2 text-gray-400 hover:text-red-500 transition-colors"
+                      style={{
+                        padding: "4px",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FaTimes size={14} />
+                    </button>
                   </div>
                 </Card>
               </List.Item>
@@ -229,41 +254,43 @@ const handleRoomClick = (notificationId) => {
     open={isModalOpen}
     onCancel={handleModalClose}
     footer={
-      selectedRoom?.type === "deposit" && !['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) ? [
-        <Button
-          key="refund"
-          onClick={() => handleConfirm("refund")}
-          className="bg-slate-100 text-black"
-          disabled={loading}
-        >
-          Từ chối
-        </Button>,
-        <Button
-          key="accept"
-          onClick={() => handleConfirm("accept")}
-          className="text-white"
-          disabled={loading}
-        >
-          Đồng ý
-        </Button>,
-      ] : selectedRoom?.type === "contract" && !['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) ? [
-        <Button
-          key="cancel"
-          onClick={() => handleConfirm("cancel")}
-          className="bg-slate-100 text-black"
-          disabled={loading}
-        >
-          Hủy
-        </Button>,
-        <Button
-          key="confirm"
-          onClick={() => handleConfirm("confirm")}
-          className="text-white"
-          disabled={loading}
-        >
-          Xác nhận
-        </Button>,
-      ] : null
+      selectedRoom && !selectedRoom.is_read && (
+        selectedRoom.type === "deposit" && !['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) ? [
+          <Button
+            key="refund"
+            onClick={() => handleConfirm("refund")}
+            className="bg-slate-100 text-black"
+            disabled={loading}
+          >
+            Từ chối
+          </Button>,
+          <Button
+            key="accept"
+            onClick={() => handleConfirm("accept")}
+            className="text-white"
+            disabled={loading}
+          >
+            Đồng ý
+          </Button>,
+        ] : selectedRoom.type === "contract" && !['cancel', 'contract_landlord', 'contract_renter_cancel'].includes(selectedRoom.type) ? [
+          <Button
+            key="cancel"
+            onClick={() => handleConfirm("cancel")}
+            className="bg-slate-100 text-black"
+            disabled={loading}
+          >
+            Hủy
+          </Button>,
+          <Button
+            key="confirm"
+            onClick={() => handleConfirm("confirm")}
+            className="text-white"
+            disabled={loading}
+          >
+            Xác nhận
+          </Button>,
+        ] : null
+      )
     }
   >
     <div className="flex justify-center items-center text-xs"> 

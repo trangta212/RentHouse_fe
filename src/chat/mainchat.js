@@ -251,7 +251,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
                         opacity: 0.7,
                       }}
                     >
-                      {moment().format("HH:mm:ss")}
+                      {moment().format("HH:mm")}
                     </Typography>
                   </Paper>
                 </Box>
@@ -272,7 +272,7 @@ const ChatBox = ({ currentUser, selectedChat, changebutton }) => {
             <TextField
               fullWidth
               variant="outlined"
-              placeholder="Type a message..."
+              placeholder="Hãy nhập tin nhắn..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={(e) => {

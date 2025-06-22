@@ -261,7 +261,8 @@ const DetailRoom = () => {
               icon={faMoneyBill}
               style={{ color: "#588157", marginRight: "8px" }}
             />
-            {informationListRoom.price_per_month} vnđ/ tháng{" "}
+            {informationListRoom.price_per_month  ? `${informationListRoom.price_per_month.toLocaleString('vi-VN')} VNĐ/Tháng`
+                : "Chưa có giá"}
           </h3>
           <h4 className="detail-room-status">Tình trạng: Còn phòng </h4>
           <div className="mt-5">
@@ -322,7 +323,9 @@ const DetailRoom = () => {
             <div className="detail-room-interior-list-display-item">
               <span>Mức giá</span>
               <span>
-                {informationListRoom.price_per_month} đồng/ tháng
+                {informationListRoom.price_per_month?
+                `${informationListRoom.price_per_month.toLocaleString('vi-VN')} VNĐ/Tháng`
+                : "Chưa có giá"}
               </span>
             </div>
             <div className="detail-room-interior-list-display-item">
